@@ -1,0 +1,36 @@
+name: Validate WordPress Theme
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate repository hygiene
+        run: |
+          test -f AGENTS.md
+          test -f README.md
+          test -f stable-1.5.1/captacion-app/style.css
+          test -f stable-1.5.1/captacion-app/functions.php
+          test -f stable-1.5.1/captacion-app/template-app-interactiva.php
+          if git ls-files '*.zip' | grep -q .; then
+            echo "Generated ZIP files must not be committed."
+            exit 1
+          fi
+
+      - name: Check PHP syntax
+        run: |
+          find stable-1.5.1/captacion-app -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Check theme header
+        run: |
+          grep -q "Theme Name:" stable-1.5.1/captacion-app/style.css
+          grep -q "Version:" stable-1.5.1/captacion-app/style.css
