@@ -1,0 +1,29 @@
+# Build packages generated for WordPress upload
+*.zip
+
+# Local/assistant workspace metadata
+.agents/
+.codex/
+
+# Old root copy. The active theme source is stable-1.5.1/captacion-app.
+/captacion-app/
+
+# Dependency/cache folders
+node_modules/
+vendor/
+.cache/
+dist/
+build/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# Local secrets and WordPress runtime config
+.env
+.env.*
+wp-config.php
+*.pem
+*.key
