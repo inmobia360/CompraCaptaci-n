@@ -17,11 +17,13 @@ No usar la carpeta raiz `captacion-app/` como fuente principal. Es una copia loc
 ## Modo de trabajo
 
 - Antes de modificar codigo importante, trabajar en modo PLAN.
+- Esperar aprobacion del usuario antes de modificar codigo funcional, estructura de datos o despliegue.
 - Explicar el alcance antes de tocar archivos funcionales.
 - Modificar solo lo necesario para cumplir la tarea.
 - No hacer refactors preventivos.
 - No eliminar archivos, funciones, datos ni dependencias sin confirmacion explicita.
 - Si se detectan duplicados, codigo muerto o dependencias sin uso, crear primero un informe en `docs/` y esperar aprobacion antes de borrar.
+- Documentar cada cambio relevante en `docs/` o `captacion-os/knowledge/` cuando afecte arquitectura, despliegue, seguridad o flujo operativo.
 
 ## Proteccion de funcionalidades existentes
 
@@ -39,6 +41,8 @@ No romper ni alterar sin solicitud directa:
 
 - No subir claves privadas, passwords, tokens, API keys ni credenciales.
 - No incluir datos reales de usuarios en commits.
+- No modificar ni versionar `wp-config.php`.
+- No subir `uploads`, backups, caches, logs, dumps SQL, certificados ni artefactos de Hostinger.
 - No mostrar publicamente direccion exacta, propietario, telefono, documentos privados ni datos fiscales.
 - Mantener protegidas las acciones que requieren usuario registrado.
 - Revisar `.gitignore` antes de anadir archivos nuevos.
@@ -71,6 +75,10 @@ Cualquier cambio en coincidencias debe respetar:
 ## Git
 
 - Crear commits pequenos y descriptivos.
+- Usar ramas de trabajo para cambios funcionales:
+  - `main`: estable y desplegable.
+  - `develop`: integracion validada.
+  - `feature/nombre-cambio`: desarrollo puntual.
 - Ejecutar antes de subir:
 
 ```powershell
@@ -80,3 +88,12 @@ git diff --check
 
 - No usar `git reset --hard` ni comandos destructivos sin confirmacion expresa.
 - Mantener la rama `main` estable.
+
+## Codex, Antigravity y agentes externos
+
+- Leer este archivo antes de actuar.
+- Leer `captacion-os/manual/WORKFLOW.md` antes de cambios funcionales.
+- Mantener compatibilidad con WordPress, Hostinger y plugins activos.
+- No asumir que `localStorage` es persistencia final de produccion.
+- Si una tarea requiere migracion, crear primero spec en `captacion-os/spec/`.
+- Si una tarea requiere comandos, usar los comandos documentados en `captacion-os/commands/`.

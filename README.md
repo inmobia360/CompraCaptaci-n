@@ -1,16 +1,17 @@
 # Captacion.app
 
-Repositorio del tema WordPress de Captacion.app, plataforma para colaboracion profesional inmobiliaria, gestion de captaciones, demandas, marketplace, recursos y panel privado.
+Repositorio oficial del tema WordPress de Captacion.app, plataforma inmobiliaria B2B para publicar captaciones, registrar demandas activas, cruzar oportunidades, gestionar colaboraciones profesionales y operar un panel privado con trazabilidad.
 
-## Estado del repositorio
+## Estado
 
-- Repositorio GitHub: `inmobia360/captacion-app`
-- Rama principal: `main`
-- Fuente activa del tema: `stable-1.5.1/captacion-app`
-- Version actual del tema: revisar `stable-1.5.1/captacion-app/style.css`
-- Paquetes ZIP de despliegue: no se versionan en Git
+- GitHub: `inmobia360/captacion-app`
+- Rama estable: `main`
+- Fuente activa: `stable-1.5.1/captacion-app`
+- Tema WordPress: `Captacion.app`
+- Version del tema: ver `stable-1.5.1/captacion-app/style.css`
+- Despliegue objetivo: WordPress / Hostinger
 
-## Estructura principal
+## Estructura
 
 ```text
 .
@@ -20,12 +21,13 @@ Repositorio del tema WordPress de Captacion.app, plataforma para colaboracion pr
 |   +-- pull_request_template.md
 |   +-- workflows/
 |       +-- validate-theme.yml
++-- captacion-os/
+|   +-- manual/
+|   +-- spec/
+|   +-- skills/
+|   +-- commands/
+|   +-- knowledge/
 +-- docs/
-|   +-- CONDICIONES-ANALISIS-CAPTACION-APP.md
-|   +-- ESTRUCTURA-REPOSITORIO.md
-|   +-- HOJA-DE-RUTA.md
-|   +-- SEGURIDAD.md
-|   +-- WORKFLOW-GITHUB.md
 +-- stable-1.5.1/
     +-- captacion-app/
         +-- functions.php
@@ -37,19 +39,50 @@ Repositorio del tema WordPress de Captacion.app, plataforma para colaboracion pr
         +-- tools/
 ```
 
-## Reglas de trabajo
+## Regla principal
 
-Antes de modificar codigo importante, revisar `AGENTS.md`.
+Antes de modificar codigo importante, leer:
 
-Principios obligatorios:
+- `AGENTS.md`
+- `captacion-os/manual/WORKFLOW.md`
+- `docs/CONDICIONES-ANALISIS-CAPTACION-APP.md`
 
-- No eliminar funcionalidad existente sin confirmacion.
-- No refactorizar si el cambio solicitado no lo requiere.
-- Trabajar cambios importantes primero en modo PLAN.
-- Crear informe antes de eliminar duplicados, codigo muerto o dependencias sin uso.
-- No subir claves, contrasenas, tokens, ZIPs generados ni archivos temporales.
+No se eliminan archivos, funcionalidades, tablas ni dependencias sin informe previo y aprobacion.
 
-## Validacion local recomendada
+## Flujo Git recomendado
+
+- `main`: produccion/estable. Solo cambios revisados.
+- `develop`: integracion previa a produccion.
+- `feature/nombre-cambio`: cambios concretos.
+
+Ejemplo:
+
+```powershell
+git checkout -b feature/seo-marketplace
+git status --short --branch
+git add .
+git commit -m "Ajustar SEO Marketplace"
+git push -u origin feature/seo-marketplace
+```
+
+## Seguridad
+
+No se versiona:
+
+- `wp-config.php`
+- `.env`
+- claves privadas
+- tokens/API keys
+- uploads
+- backups
+- caches
+- logs
+- dumps SQL
+- ZIPs de despliegue
+
+La configuracion sensible debe vivir en WordPress/Hostinger, no en Git.
+
+## Validacion local
 
 ```powershell
 git status --short --branch
@@ -65,22 +98,21 @@ php -l stable-1.5.1/captacion-app/template-app-interactiva.php
 
 ## Despliegue WordPress
 
-El paquete instalable debe contener esta estructura interna:
+El ZIP instalable debe contener:
 
 ```text
 captacion-app/
 +-- style.css
 +-- functions.php
++-- template-app-interactiva.php
 +-- ...
 ```
 
-No subir a WordPress un ZIP que tenga `style.css` fuera de `captacion-app/` o dentro de una carpeta adicional.
+No subir a WordPress un ZIP donde `style.css` quede dentro de una carpeta adicional.
 
 ## Documentacion
 
-- [Reglas para agentes](AGENTS.md)
-- [Condiciones de analisis](docs/CONDICIONES-ANALISIS-CAPTACION-APP.md)
-- [Estructura del repositorio](docs/ESTRUCTURA-REPOSITORIO.md)
-- [Seguridad](docs/SEGURIDAD.md)
-- [Workflow GitHub](docs/WORKFLOW-GITHUB.md)
-- [Hoja de ruta](docs/HOJA-DE-RUTA.md)
+- `AGENTS.md`: reglas obligatorias para agentes y desarrolladores.
+- `captacion-os/`: sistema operativo documental para Codex, Antigravity y GitHub.
+- `docs/`: informes, seguridad, estructura, workflow y hoja de ruta.
+- `.github/`: plantillas y validaciones automaticas.

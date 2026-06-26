@@ -1,5 +1,9 @@
 # Build packages generated for WordPress upload
 *.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
 
 # Local/assistant workspace metadata
 .agents/
@@ -14,16 +18,53 @@ vendor/
 .cache/
 dist/
 build/
+cache/
+.parcel-cache/
+.turbo/
 
 # OS/editor files
 .DS_Store
 Thumbs.db
 desktop.ini
 *.log
+.idea/
+.vscode/
+*.swp
+*.swo
 
 # Local secrets and WordPress runtime config
 .env
 .env.*
 wp-config.php
+wp-config-local.php
 *.pem
 *.key
+*.p12
+*.crt
+*.cer
+*.sql
+*.sqlite
+*.sqlite3
+*.bak
+*.backup
+*.old
+
+# WordPress runtime folders and generated content
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/backup*/
+wp-content/backups*/
+wp-content/debug.log
+wp-content/ai1wm-backups/
+wp-content/updraft/
+wp-content/litespeed/
+wp-content/wflogs/
+
+# Hostinger / deployment artifacts
+.htaccess.bak
+public_html/**/*.zip
+public_html/**/*.tar.gz
+public_html/wp-content/uploads/
+public_html/wp-content/cache/
+public_html/wp-content/upgrade/
