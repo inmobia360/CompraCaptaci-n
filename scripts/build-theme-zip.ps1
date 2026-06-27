@@ -45,8 +45,16 @@ try {
         Remove-Item -LiteralPath $Output -Force
     }
 
+    $tar = Get-Command tar -ErrorAction SilentlyContinue
+    if (-not $tar) {
+        throw "No se encontro tar en el sistema. Instala bsdtar/tar o genera el ZIP manualmente manteniendo captacion-app/style.css."
+    }
+    & $tar.Source -a -c -f $Output -C $tempRoot "captacion-app"
+    if ($LASTEXITCODE -ne 0) {
+        throw "No se pudo generar el ZIP con tar. Codigo: $LASTEXITCODE"
+    }
+
     Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::CreateFromDirectory($tempRoot, $Output)
     $zip = Get-Item -LiteralPath $Output
     $archive = [System.IO.Compression.ZipFile]::OpenRead($Output)
     try {
