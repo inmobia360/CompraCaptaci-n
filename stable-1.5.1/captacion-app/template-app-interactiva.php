@@ -217,7 +217,9 @@ $captacion_current_user = wp_get_current_user();
       color: var(--app-text);
       transition: background-color .22s ease, color .22s ease;
     }
-    body *, body *::before, body *::after {
+    body *:not(.cmplz-cookiebanner):not(.cmplz-cookiebanner *):not(.cmplz-manage-consent):not(.cmplz-manage-consent *),
+    body *::before,
+    body *::after {
       transition-property: background-color, border-color, color, box-shadow, opacity, transform;
       transition-duration: .18s;
       transition-timing-function: ease;
@@ -729,8 +731,17 @@ $captacion_current_user = wp_get_current_user();
     }
 
   
-    .metric-action-link { display:inline-flex; align-items:center; justify-content:center; max-width:150px; padding:7px 10px; border:1px solid #b9c8d8; border-radius:9px; background:#fff; color:#0d4eae; font-size:10px; line-height:1.25; font-weight:800; text-align:center; }
+    .home-kpi-card { position:relative; display:flex; min-height:140px; flex-direction:column; padding-bottom:4.35rem !important; }
+    .home-kpi-row { display:block; margin-top:.65rem; }
+    .home-kpi-copy { min-width:0; max-width:calc(100% - 8.75rem); }
+    .metric-action-link { position:absolute; right:1.25rem; bottom:1.25rem; display:inline-flex; width:8.25rem; min-height:42px; align-items:center; justify-content:center; padding:7px 10px; border:1px solid #b9c8d8; border-radius:9px; background:#fff; color:#0d4eae; font-size:10px; line-height:1.25; font-weight:800; text-align:center; }
     .metric-action-link:hover { border-color:#1b67d6; background:#e8f4ff; }
+    @media (max-width:640px) {
+      .home-kpi-card { min-height:auto; padding-bottom:1.25rem !important; }
+      .home-kpi-row { display:flex; align-items:stretch; flex-direction:column; gap:.85rem; }
+      .home-kpi-copy { max-width:none; }
+      .metric-action-link { position:static; width:100%; min-height:44px; }
+    }
     .favorite-toggle { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; flex:0 0 34px; border:1px solid #b9c8d8; border-radius:9px; background:rgba(255,255,255,.96); color:#52677d; font-size:17px; line-height:1; box-shadow:0 2px 8px rgba(16,35,60,.12); }
     .favorite-toggle:hover { color:#e11d48; border-color:#fb7185; }
     .favorite-toggle.is-active { color:#be123c; border-color:#fb7185; background:#fff1f2; }
@@ -978,33 +989,33 @@ $captacion_current_user = wp_get_current_user();
       <section class="relative -mt-4 md:-mt-6 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-white/95 backdrop-blur p-4 rounded-3xl border border-slate-200/80 shadow-xl">
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+            <div class="home-kpi-card p-5 rounded-2xl bg-slate-50 border border-slate-100">
               <span class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Captaciones visibles</span>
-              <div class="flex items-end justify-between gap-3 mt-2">
-                <div>
+              <div class="home-kpi-row">
+                <div class="home-kpi-copy">
                   <strong id="home-stat-properties" class="block text-4xl font-black text-navy">0</strong>
                   <span id="home-stat-properties-value" class="block mt-1 text-xs font-semibold text-slate-500">0 € en valor visible</span>
                 </div>
                 <a href="#/marketplace" class="metric-action-link">Ver captaciones visibles</a>
               </div>
             </div>
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+            <div class="home-kpi-card p-5 rounded-2xl bg-slate-50 border border-slate-100">
               <span class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Demandas visibles</span>
-              <div class="flex items-end justify-between gap-3 mt-2">
-                <div>
+              <div class="home-kpi-row">
+                <div class="home-kpi-copy">
                   <strong id="home-stat-needs" class="block text-4xl font-black text-navy">0</strong>
                   <span id="home-stat-needs-value" class="block mt-1 text-xs font-semibold text-slate-500">0 € en demanda activa</span>
                 </div>
                 <a href="#/buscar-captaciones" class="metric-action-link">Ver demandas visibles</a>
               </div>
             </div>
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+            <div class="home-kpi-card p-5 rounded-2xl bg-slate-50 border border-slate-100">
               <span class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Zonas con cobertura</span>
-              <div class="flex items-end justify-between gap-3 mt-2"><div><strong id="home-stat-zones" class="block text-4xl font-black text-navy">0</strong></div><button type="button" onclick="scrollToCoverageMap(event)" class="metric-action-link">Ver mapa de cobertura</button></div>
+              <div class="home-kpi-row"><div class="home-kpi-copy"><strong id="home-stat-zones" class="block text-4xl font-black text-navy">0</strong></div><button type="button" onclick="scrollToCoverageMap(event)" class="metric-action-link">Ver mapa de cobertura</button></div>
             </div>
-            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+            <div class="home-kpi-card p-5 rounded-2xl bg-slate-50 border border-slate-100">
               <span class="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Coincidencias de Ventas</span>
-              <div class="mt-2 flex items-end justify-between gap-3"><div><strong id="home-stat-sales-matches" class="block text-4xl font-black text-green">0</strong><span id="home-stat-sales-value" class="block mt-1 text-xs font-semibold text-slate-500">0 € estimados</span></div><a href="#/coincidencias-ventas" class="metric-action-link">Ver coincidencias</a></div>
+              <div class="home-kpi-row"><div class="home-kpi-copy"><strong id="home-stat-sales-matches" class="block text-4xl font-black text-green">0</strong><span id="home-stat-sales-value" class="block mt-1 text-xs font-semibold text-slate-500">0 € estimados</span></div><a href="#/coincidencias-ventas" class="metric-action-link">Ver coincidencias</a></div>
             </div>
           </div>
           <p class="mt-3 text-[10px] text-slate-400 text-right">Indicadores orientados a validar el valor del recorrido y la estructura del producto. La version final conectara estas metricas con backend y persistencia reales.</p>
@@ -4051,7 +4062,7 @@ $captacion_current_user = wp_get_current_user();
       container.innerHTML = `
         <div class="overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-xl">
           <div id="home-explainer-video-slot" class="aspect-video overflow-hidden bg-slate-100">
-            <video class="h-full w-full object-cover" autoplay muted loop playsinline controls preload="auto" aria-label="Video de presentación de Captacion.app">
+            <video class="h-full w-full object-cover" autoplay muted loop playsinline controls preload="metadata" aria-label="Video de presentación de Captacion.app">
               <source src="<?php echo esc_url($captacion_theme_uri . '/media/'); ?>video-explicativo-captacion-app.mp4" type="video/mp4">
               Tu navegador no puede reproducir este video.
             </video>
@@ -4072,8 +4083,17 @@ $captacion_current_user = wp_get_current_user();
         video.defaultMuted = true;
         video.loop = true;
         video.autoplay = true;
-        tryPlay();
-        video.addEventListener('loadeddata', tryPlay, { once: true });
+        if ('IntersectionObserver' in window) {
+          const observer = new IntersectionObserver((entries) => {
+            if (entries.some(entry => entry.isIntersecting)) {
+              tryPlay();
+              observer.disconnect();
+            }
+          }, { rootMargin: '120px' });
+          observer.observe(video);
+        } else {
+          tryPlay();
+        }
       }
     }
 
@@ -4093,7 +4113,7 @@ $captacion_current_user = wp_get_current_user();
         <div class="space-y-4 lg:space-y-5">
           <div class="overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-xl">
             <div id="home-explainer-video-slot" class="aspect-video overflow-hidden bg-slate-100">
-              <video class="h-full w-full object-cover object-top" autoplay muted loop playsinline controls preload="auto" aria-label="Video de presentación de Captacion.app">
+              <video class="h-full w-full object-cover object-top" autoplay muted loop playsinline controls preload="metadata" aria-label="Video de presentación de Captacion.app">
                 <source src="<?php echo esc_url($captacion_theme_uri . '/media/'); ?>video-explicativo-captacion-app.mp4" type="video/mp4">
                 Tu navegador no puede reproducir este video.
               </video>
@@ -4121,8 +4141,17 @@ $captacion_current_user = wp_get_current_user();
         video.defaultMuted = true;
         video.loop = true;
         video.autoplay = true;
-        tryPlay();
-        video.addEventListener('loadeddata', tryPlay, { once: true });
+        if ('IntersectionObserver' in window) {
+          const observer = new IntersectionObserver((entries) => {
+            if (entries.some(entry => entry.isIntersecting)) {
+              tryPlay();
+              observer.disconnect();
+            }
+          }, { rootMargin: '120px' });
+          observer.observe(video);
+        } else {
+          tryPlay();
+        }
       }
     }
 

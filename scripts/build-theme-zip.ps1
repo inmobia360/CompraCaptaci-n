@@ -45,20 +45,28 @@ try {
         Remove-Item -LiteralPath $Output -Force
     }
 
-    $tar = Get-Command tar -ErrorAction SilentlyContinue
-    if (-not $tar) {
-        throw "No se encontro tar en el sistema. Instala bsdtar/tar o genera el ZIP manualmente manteniendo captacion-app/style.css."
+    Add-Type -AssemblyName System.IO.Compression
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $archive = [System.IO.Compression.ZipFile]::Open($Output, [System.IO.Compression.ZipArchiveMode]::Create)
+    try {
+        Get-ChildItem -LiteralPath $tempTheme -Recurse -File | ForEach-Object {
+            $relativePath = $_.FullName.Substring($tempRoot.Length + 1).Replace([System.IO.Path]::DirectorySeparatorChar, "/")
+            [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+                $archive,
+                $_.FullName,
+                $relativePath,
+                [System.IO.Compression.CompressionLevel]::Optimal
+            ) | Out-Null
+        }
     }
-    & $tar.Source -a -c -f $Output -C $tempRoot "captacion-app"
-    if ($LASTEXITCODE -ne 0) {
-        throw "No se pudo generar el ZIP con tar. Codigo: $LASTEXITCODE"
+    finally {
+        $archive.Dispose()
     }
 
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
     $zip = Get-Item -LiteralPath $Output
     $archive = [System.IO.Compression.ZipFile]::OpenRead($Output)
     try {
-        $entries = $archive.Entries | ForEach-Object { $_.FullName.Replace("\", "/") }
+        $entries = $archive.Entries | ForEach-Object { $_.FullName }
         $requiredEntries = @(
             "captacion-app/style.css",
             "captacion-app/functions.php",

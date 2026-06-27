@@ -22,6 +22,7 @@ stable-1.5.1/captacion-app
 - Dentro debe existir `captacion-app/style.css`.
 - No debe contener una carpeta intermedia como `stable-1.5.1/captacion-app`.
 - No versionar el ZIP generado.
+- Si Hostinger/WordPress indica que no encuentra `style.css`, usar `dist/captacion-app-flat.zip`, que contiene `style.css` directamente en la raiz del ZIP.
 
 ## Configuracion WordPress
 

@@ -191,12 +191,12 @@ function captacion_app_render_settings_page() {
         <?php endif; ?>
 
         <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px;">
-            <h2>Crear paginas editables</h2>
-            <p>Crea o actualiza la estructura base de paginas de Captacion.app para poder editarlas desde WordPress.</p>
+            <h2>Restaurar paginas editables</h2>
+            <p>Crea o actualiza la estructura base de paginas de Captacion.app para devolverlas al contenido original del tema.</p>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('captacion_app_create_pages'); ?>
                 <input type="hidden" name="action" value="captacion_app_create_pages">
-                <?php submit_button('Crear / actualizar paginas editables', 'secondary', 'submit', false); ?>
+                <?php submit_button('Restaurar paginas base', 'secondary', 'submit', false); ?>
             </form>
         </div>
 
@@ -1857,21 +1857,21 @@ add_action('send_headers', 'captacion_app_send_demo_headers');
 
 function captacion_app_page_meta_descriptions() {
     return array(
-        'inicio' => 'Compra Captacion es un marketplace B2B de captaciones inmobiliarias para profesionales. Publica oportunidades, busca demandas activas y colabora con acceso protegido.',
-        'marketplace' => 'Compra Captacion es un marketplace inmobiliario B2B para agentes y agencias. Revisa captaciones, publica demandas y colabora con acceso protegido.',
-        'buscar-captaciones' => 'Publica demandas inmobiliarias y encuentra captaciones compatibles para clientes compradores. Compra Captacion conecta agentes con oportunidades protegidas.',
-        'ofrecer-captacion' => 'Publica y vende captaciones inmobiliarias con acceso protegido. Compra Captacion ayuda a agentes y agencias a compartir oportunidades y colaborar.',
-        'como-funciona' => 'Descubre como funciona Compra Captacion: publica captaciones, crea demandas, cruza oportunidades y colabora con acceso protegido y trazabilidad.',
-        'recursos' => 'Encuentra herramientas IA para agentes inmobiliarios: asistentes, calculadoras, plantillas, generadores de textos y recursos para mejorar productividad.',
-        'planes' => 'Elige tu plan en Compra Captacion: acceso inicial gratis, herramientas para agentes inmobiliarios y plan profesional para publicar, buscar y colaborar.',
-        'contacto' => 'Contacta con Compra Captacion para solicitar acceso, resolver dudas sobre planes o valorar colaboraciones profesionales en captaciones inmobiliarias.',
-        'area-privada' => 'Vision funcional del area privada de Captacion.app: solicitudes, favoritos, tareas, alertas y trazabilidad de operaciones.',
-        'aviso-legal' => 'Aviso legal base de Captacion.app pendiente de completar con los datos mercantiles verificados de la sociedad titular.',
-        'privacidad' => 'Politica de privacidad base de Captacion.app con foco en minimizacion de datos, trazabilidad y acceso profesional.',
-        'cookies' => 'Politica de cookies de Captacion.app con tecnologias necesarias y activacion condicionada de analitica y marketing.',
-        'normas-publicacion' => 'Normas de publicacion para compartir captaciones y demandas con calidad, legalidad y confidencialidad dentro de Captacion.app.',
-        'condiciones-de-contratacion' => 'Condiciones de contratacion de Captacion.app para acceso a planes, servicios, altas y uso de la plataforma en su version final.',
-        'canal-de-denuncias' => 'Canal interno de informacion de Captacion.app para comunicar incumplimientos, irregularidades o preocupaciones de forma confidencial.',
+        'inicio' => 'Marketplace B2B para agentes inmobiliarios: publica captaciones, cruza demandas activas y colabora con acceso protegido y trazabilidad.',
+        'marketplace' => 'Revisa captaciones inmobiliarias, demandas de compradores y oportunidades de colaboracion entre agentes en un marketplace B2B protegido.',
+        'buscar-captaciones' => 'Publica demandas de compradores y encuentra captaciones inmobiliarias compatibles por zona, presupuesto, tipologia y condiciones de colaboracion.',
+        'ofrecer-captacion' => 'Publica y monetiza captaciones inmobiliarias con acceso protegido, control de datos sensibles y colaboracion profesional entre agencias.',
+        'como-funciona' => 'Conoce como funciona Compra Captacion: publica captaciones y demandas, detecta coincidencias y colabora con trazabilidad comercial.',
+        'recursos' => 'Herramientas IA, calculadoras, plantillas y recursos para agentes inmobiliarios que quieren captar mejor y trabajar con mas productividad.',
+        'planes' => 'Compara planes para agentes inmobiliarios: acceso inicial, recursos profesionales, publicacion de captaciones y demandas, y funciones avanzadas.',
+        'contacto' => 'Contacta con Compra Captacion para solicitar acceso, resolver dudas sobre planes o proponer colaboraciones inmobiliarias profesionales.',
+        'area-privada' => 'Area privada para gestionar captaciones, demandas, favoritos, solicitudes, alertas y trazabilidad de operaciones inmobiliarias.',
+        'aviso-legal' => 'Aviso legal de Captacion.app con informacion del titular, condiciones de uso, responsabilidades y datos pendientes de validacion final.',
+        'privacidad' => 'Politica de privacidad de Captacion.app para tratamiento de datos, finalidades, derechos, seguridad y acceso profesional a la plataforma.',
+        'cookies' => 'Politica de cookies de Captacion.app con informacion sobre cookies necesarias, estadisticas, marketing y consentimiento mediante Complianz.',
+        'normas-publicacion' => 'Normas para publicar captaciones y demandas inmobiliarias con calidad, confidencialidad, legalidad y respeto entre profesionales.',
+        'condiciones-de-contratacion' => 'Condiciones de contratacion de Captacion.app para planes, servicios, pagos, activacion, obligaciones y uso profesional de la plataforma.',
+        'canal-de-denuncias' => 'Canal de denuncias de Captacion.app para comunicar incumplimientos, irregularidades o riesgos con confidencialidad y proteccion.',
     );
 }
 
@@ -1898,32 +1898,62 @@ function captacion_app_output_meta_description() {
 }
 add_action('wp_head', 'captacion_app_output_meta_description', 1);
 
+function captacion_app_output_cookie_banner_visibility_fix() {
+    ?>
+    <style id="captacion-complianz-visibility-fix">
+        #cmplz-cookiebanner-container,
+        .cmplz-cookiebanner,
+        .cmplz-manage-consent,
+        .cmplz-modal,
+        .cmplz-soft-cookiewall {
+            z-index: 2147483646 !important;
+            pointer-events: auto !important;
+        }
+
+        .cmplz-cookiebanner,
+        .cmplz-modal,
+        .cmplz-soft-cookiewall {
+            max-width: min(100vw - 24px, 760px) !important;
+        }
+
+        body .cmplz-cookiebanner,
+        body .cmplz-cookiebanner *,
+        body .cmplz-manage-consent,
+        body .cmplz-manage-consent * {
+            transition-property: background-color, border-color, color, box-shadow !important;
+        }
+    </style>
+    <?php
+}
+add_action('wp_head', 'captacion_app_output_cookie_banner_visibility_fix', 999);
+
 function captacion_app_seed_content_map() {
     return array(
         'inicio' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Captaciones inmobiliarias para profesionales</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Captaciones inmobiliarias para agentes, agencias e inversores que quieren compartir oportunidades, cruzar demandas y colaborar con control. Compra Captacion conecta profesionales del sector para publicar captaciones, buscar oportunidades y trabajar operaciones con trazabilidad.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Las captaciones inmobiliarias son el centro de Compra Captacion: una plataforma B2B para agentes, agencias e inversores que quieren publicar oportunidades, encontrar demandas activas y colaborar con acceso protegido. El objetivo es convertir producto captado, compradores cualificados y acuerdos entre profesionales en operaciones mejor documentadas.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Captaciones inmobiliarias para profesionales en Compra Captacion"/></figure><!-- /wp:image -->
-<!-- wp:paragraph --><p>La plataforma esta pensada para un mercado donde una parte puede tener la captacion y otra puede tener el comprador, el inversor o la demanda activa. En lugar de depender de mensajes sueltos, llamadas informales o contactos sin seguimiento, Compra Captacion organiza cada oportunidad en un entorno B2B con informacion limitada, acceso protegido y reglas claras para colaborar.</p><!-- /wp:paragraph -->
-<!-- wp:heading {"level":3} --><h3>Comprar captaciones inmobiliarias</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Comprar captaciones inmobiliarias no significa saltarse el trabajo profesional de otro agente. Significa acceder a una oportunidad validada, revisar sus condiciones de colaboracion y decidir si tiene encaje comercial antes de avanzar. El objetivo es que el profesional que busca producto pueda encontrar captaciones compatibles por zona, tipologia, precio y contexto de operacion.</p><!-- /wp:paragraph -->
-<!-- wp:heading {"level":3} --><h3>Vender captaciones inmobiliarias</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Vender captaciones inmobiliarias permite a quien ha generado una oportunidad monetizar su trabajo sin exponer datos sensibles desde el primer momento. La ficha publica puede mostrar la informacion comercial necesaria para despertar interes, mientras los datos privados, contactos, documentos y condiciones completas se reservan para fases posteriores del flujo.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>En el mercado inmobiliario profesional no siempre coincide quien tiene la captacion con quien tiene el comprador. Compra Captacion ordena ese intercambio con fichas orientativas, demandas estructuradas, reglas de confidencialidad y trazabilidad para que cada parte pueda valorar si existe encaje antes de compartir informacion sensible.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} --><h3>Comprar captaciones inmobiliarias con contexto</h3><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Comprar captaciones inmobiliarias no debe reducirse a recibir una direccion o un contacto. Un profesional necesita entender zona, tipologia, precio, estado comercial, condiciones de colaboracion y nivel de informacion disponible. Por eso la plataforma prioriza oportunidades con contexto y evita exponer datos privados del propietario desde el primer momento.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} --><h3>Vender captaciones inmobiliarias sin perder control</h3><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Vender captaciones inmobiliarias permite monetizar una oportunidad real cuando el captador no quiere o no puede trabajarla solo. La ficha publica muestra lo necesario para despertar interes profesional, mientras los datos sensibles, documentos, propietario y direccion exacta se reservan para fases protegidas del flujo.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Colaboracion inmobiliaria 50/50</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>La colaboracion inmobiliaria 50/50 es una de las formas mas simples de trabajar entre profesionales: un agente aporta la captacion y otro aporta comprador o demanda. Compra Captacion ayuda a ordenar ese proceso, dejar constancia de cada paso y reducir malentendidos sobre acceso, honorarios, disponibilidad y seguimiento de la operacion.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>La colaboracion inmobiliaria 50/50 sigue siendo una formula habitual entre agentes: una parte aporta producto y otra aporta comprador, inversor o demanda activa. Compra Captacion ayuda a ordenar esa colaboracion con solicitudes, condiciones, favoritos, alertas y seguimiento para reducir conversaciones dispersas.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Marketplace inmobiliario B2B</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Como marketplace inmobiliario B2B, la web no esta orientada al publico final, sino a profesionales que necesitan revisar oportunidades, publicar demandas, comparar opciones y construir relaciones comerciales con mas seguridad. Por eso la propuesta combina captaciones inmobiliarias, demandas activas, recursos, planes profesionales y area privada.</p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p>Desde aqui puedes visitar el <a href="/marketplace/">marketplace</a>, publicar una demanda en <a href="/buscar-captaciones/">buscar captaciones</a>, revisar como <a href="/ofrecer-captacion/">ofrecer una captacion</a>, consultar <a href="/recursos/">recursos profesionales</a> o comparar los <a href="/planes/">planes disponibles</a>.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El <a href="/marketplace/">marketplace inmobiliario B2B</a> conecta captaciones y demandas para profesionales, no para particulares. Desde una misma web puedes revisar oportunidades, <a href="/buscar-captaciones/">buscar captaciones inmobiliarias</a>, <a href="/ofrecer-captacion/">vender captaciones inmobiliarias</a>, consultar <a href="/recursos/">herramientas IA para agentes inmobiliarios</a> y comparar <a href="/planes/">planes para agentes inmobiliarios</a>.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} --><h3>Preguntas frecuentes sobre captaciones inmobiliarias</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li><strong>Que es una captacion inmobiliaria?</strong> Es una oportunidad vinculada a un inmueble, propietario o activo que puede trabajarse comercialmente.</li><li><strong>Para quien es Compra Captacion?</strong> Para agentes, agencias, personal shoppers, inversores profesionales y equipos inmobiliarios.</li><li><strong>Se muestran datos privados?</strong> No. La direccion exacta, propietario y documentos deben protegerse hasta que exista interes cualificado.</li><li><strong>Como empiezo?</strong> Revisa el marketplace, publica una demanda o prepara una captacion para compartirla con otros profesionales.</li></ul><!-- /wp:list -->
 HTML,
         'marketplace' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Marketplace inmobiliario B2B de captaciones y demandas</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Un marketplace inmobiliario B2B permite a agentes y agencias compartir captaciones, publicar demandas activas y encontrar oportunidades de colaboracion sin exponer informacion sensible desde el primer momento. Compra Captacion conecta profesionales que tienen producto con profesionales que tienen comprador.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Un marketplace inmobiliario B2B permite a agentes, agencias e inversores profesionales compartir captaciones, publicar demandas activas y detectar oportunidades de colaboracion sin convertir la web en un portal abierto para particulares. Compra Captacion conecta profesionales que tienen producto con profesionales que tienen comprador.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/property-defaults/edificio-default.jpg" alt="Marketplace inmobiliario B2B de captaciones y demandas"/></figure><!-- /wp:image -->
-<!-- wp:paragraph --><p>Esta pagina debe explicar el centro de la plataforma: un espacio privado para revisar captaciones inmobiliarias, demandas inmobiliarias y colaboraciones entre profesionales. No funciona como un portal abierto para particulares, sino como una red inmobiliaria profesional con reglas de acceso, contexto comercial y trazabilidad.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El marketplace concentra la parte operativa de la plataforma: fichas de captaciones inmobiliarias, demandas de compradores, oportunidades fuera de mercado, solicitudes de acceso, reglas de confidencialidad y enlaces con el <a href="/area-privada/">area privada inmobiliaria</a>. Cada publicacion debe aportar informacion comercial suficiente, pero sin revelar datos que puedan comprometer al captador.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Captaciones inmobiliarias activas</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Las captaciones inmobiliarias activas son oportunidades publicadas por profesionales que tienen relacion con un propietario, un inmueble o un activo vendible. En el marketplace se presentan con informacion orientativa: tipologia, zona, precio, modalidad, estado comercial y condiciones de colaboracion.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Las captaciones inmobiliarias activas son oportunidades publicadas por profesionales que tienen relacion con un propietario, un inmueble o un activo vendible. En el marketplace se presentan con informacion orientativa: tipologia, provincia, zona aproximada, precio, modalidad, estado comercial, exclusividad y condiciones de colaboracion.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Demandas inmobiliarias de compradores</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Las demandas inmobiliarias permiten que un agente con cliente comprador indique que tipo de propiedad busca. Al cruzar demanda y captacion, Compra Captacion ayuda a detectar coincidencias y abrir conversaciones con mas probabilidad de cierre.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Las demandas inmobiliarias permiten que un agente con cliente comprador indique que tipo de propiedad busca. Una demanda bien definida incluye territorio, presupuesto, habitaciones, superficie, urgencia y solvencia. Al cruzar demanda y captacion, Compra Captacion ayuda a detectar coincidencias y abrir conversaciones con mas probabilidad de cierre.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Colaboracion entre agentes y agencias</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>La colaboracion inmobiliaria es el eje del marketplace. Un profesional puede aportar la captacion y otro puede aportar comprador, inversor o demanda activa. La plataforma ayuda a ordenar la solicitud, el acceso, las condiciones y el seguimiento de cada oportunidad.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Marketplace privado, no portal para particulares</h3><!-- /wp:heading -->
@@ -1934,15 +1964,17 @@ HTML,
 <!-- wp:paragraph --><p>La direccion exacta, los datos del propietario, documentos privados y contactos directos deben quedar reservados hasta que exista un profesional cualificado y una solicitud con contexto. Esta capa de proteccion permite que el captador mantenga el control y que la contraparte revise la oportunidad con trazabilidad.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Ventajas frente a un portal inmobiliario tradicional</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Trabajar solo con profesionales y no con trafico generalista.</li><li>Publicar captaciones inmobiliarias con informacion limitada y acceso protegido.</li><li>Conectar demandas inmobiliarias con oportunidades compatibles.</li><li>Ordenar la colaboracion entre agencias y agentes con reglas claras.</li><li>Relacionar el marketplace con <a href="/buscar-captaciones/">buscar captaciones</a>, <a href="/ofrecer-captacion/">ofrecer captacion</a>, <a href="/como-funciona/">como funciona</a>, <a href="/planes/">planes</a>, <a href="/recursos/">recursos</a> y <a href="/normas-publicacion/">normas de publicacion</a>.</li></ul><!-- /wp:list -->
+<!-- wp:heading {"level":3} --><h3>Como usar el marketplace inmobiliario B2B</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li>Revisa captaciones disponibles por zona, tipologia y contexto comercial.</li><li>Publica una demanda desde <a href="/buscar-captaciones/">buscar captaciones inmobiliarias</a> si representas a un comprador.</li><li>Prepara una ficha desde <a href="/ofrecer-captacion/">vender captaciones inmobiliarias</a> si tienes producto o propietario.</li><li>Consulta <a href="/como-funciona/">como funciona Compra Captacion</a> antes de solicitar acceso protegido.</li><li>Aplica las <a href="/normas-publicacion/">normas de publicacion inmobiliaria</a> para mantener calidad y confidencialidad.</li></ul><!-- /wp:list -->
 HTML,
         'buscar-captaciones' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Buscar captaciones inmobiliarias para clientes compradores</h2><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Buscar captaciones inmobiliarias es clave cuando un agente tiene un cliente comprador, una demanda activa o una oportunidad de venta y necesita encontrar una propiedad compatible. Compra Captacion permite publicar lo que busca tu cliente y cruzarlo con captaciones disponibles dentro de un entorno profesional, protegido y trazable.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/property-defaults/piso-default.jpg" alt="Buscar captaciones inmobiliarias para clientes compradores"/></figure><!-- /wp:image -->
-<!-- wp:paragraph --><p>Esta seccion esta pensada para agentes inmobiliarios, agencias, personal shopper inmobiliario y profesionales que representan a un comprador real. El objetivo no es navegar inventario sin criterio, sino transformar una necesidad concreta en una demanda inmobiliaria clara: zona, presupuesto, tipo de propiedad, urgencia, solvencia y condiciones de colaboracion.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Esta seccion esta pensada para agentes inmobiliarios, agencias, personal shopper inmobiliario y profesionales que representan a un comprador real. El objetivo no es navegar inventario sin criterio, sino transformar una necesidad concreta en una demanda inmobiliaria clara: comunidad autonoma, provincia, municipio, presupuesto, tipo de propiedad, urgencia, solvencia y condiciones de colaboracion.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Publica una demanda inmobiliaria activa</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Una demanda inmobiliaria activa describe lo que busca un cliente comprador y permite que otros profesionales detecten si tienen una captacion compatible. Cuanto mejor se define la demanda, mas facil es encontrar propiedades que encajen con el comprador y evitar conversaciones improductivas.</p><!-- /wp:paragraph -->
-<!-- wp:list --><ul><li>Tipo de inmueble que busca el cliente comprador.</li><li>Municipio, zona o radio de busqueda prioritario.</li><li>Presupuesto minimo y maximo con margen realista.</li><li>Habitaciones, superficie, estado, uso previsto y requisitos no negociables.</li><li>Timing de compra, solvencia y condiciones de colaboracion.</li></ul><!-- /wp:list -->
+<!-- wp:list --><ul><li>Tipo de inmueble que busca el cliente comprador.</li><li>Comunidad autonoma, provincia, municipio y zona prioritaria.</li><li>Presupuesto minimo y maximo con margen realista.</li><li>Habitaciones, banos, superficie, estado y requisitos no negociables.</li><li>Timing de compra, solvencia, financiacion y condiciones de colaboracion.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Encuentra captaciones compatibles</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El valor de buscar captaciones inmobiliarias dentro de Compra Captacion esta en el cruce entre oferta y demanda. Si otro profesional tiene una propiedad, un activo discreto o una captacion fuera de mercado que encaja con tu comprador, la plataforma ayuda a identificar la coincidencia y ordenar el siguiente paso sin exponer datos sensibles antes de tiempo.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Trabaja como agente del comprador</h3><!-- /wp:heading -->
@@ -1953,19 +1985,21 @@ HTML,
 <!-- wp:paragraph --><p>El flujo recomendado es simple: defines la demanda, el sistema la cruza con captaciones inmobiliarias disponibles, revisas coincidencias, solicitas acceso protegido y avanzas solo cuando existe encaje real. Este modelo reduce ruido, protege al captador y ayuda al profesional con comprador a concentrarse en oportunidades con mas probabilidad de cierre.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Ventajas para agentes con cliente comprador</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Convertir una necesidad del comprador en una busqueda profesional estructurada.</li><li>Acceder a captaciones compatibles sin depender solo de portales generalistas.</li><li>Trabajar demandas inmobiliarias con trazabilidad y contexto comercial.</li><li>Encontrar oportunidades para colaborar con otros agentes de forma ordenada.</li><li>Conectar la busqueda con el <a href="/marketplace/">marketplace</a>, la pagina para <a href="/ofrecer-captacion/">ofrecer captacion</a>, el flujo de <a href="/como-funciona/">como funciona</a>, los <a href="/planes/">planes</a> y los <a href="/recursos/">recursos profesionales</a>.</li></ul><!-- /wp:list -->
+<!-- wp:heading {"level":3} --><h3>Preguntas frecuentes al buscar captaciones inmobiliarias</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li><strong>Necesito tener comprador real?</strong> Si, la demanda debe representar una necesidad profesional y verificable.</li><li><strong>Que datos debo evitar?</strong> No publiques documentos privados ni datos personales innecesarios del comprador.</li><li><strong>Como se detectan coincidencias?</strong> Por territorio, presupuesto, tipologia, habitaciones, banos, superficie y contexto de colaboracion.</li><li><strong>Que hago despues?</strong> Revisa el <a href="/marketplace/">marketplace inmobiliario B2B</a> y solicita acceso solo cuando exista encaje real.</li></ul><!-- /wp:list -->
 HTML,
         'ofrecer-captacion' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Vender captaciones inmobiliarias con acceso protegido</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Vender captaciones inmobiliarias permite a agentes y agencias monetizar oportunidades reales sin exponer datos sensibles desde el primer momento. Compra Captacion ayuda a publicar captaciones, encontrar profesionales con demanda activa y abrir colaboraciones con trazabilidad.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Vender captaciones inmobiliarias permite a agentes y agencias monetizar oportunidades reales sin exponer datos sensibles desde el primer momento. Compra Captacion ayuda a publicar captaciones, encontrar profesionales con demanda activa y abrir colaboraciones con trazabilidad comercial.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/property-defaults/casa-chalet-default.jpg" alt="Vender captaciones inmobiliarias con acceso protegido"/></figure><!-- /wp:image -->
 <!-- wp:paragraph --><p>Esta pagina esta pensada para profesionales que ya tienen una captacion inmobiliaria, un propietario vendedor, una oportunidad discreta o un inmueble con potencial de salida. En lugar de regalar toda la informacion desde el inicio, la plataforma permite publicar una ficha orientativa, controlar el acceso y decidir con quien avanzar.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Publica una captacion inmobiliaria</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Publicar captaciones inmobiliarias en Compra Captacion significa convertir una oportunidad en una ficha profesional lista para ser cruzada con demandas activas. La informacion publica debe ser suficiente para despertar interes: tipologia, zona aproximada, precio, estado de la operacion, condiciones de colaboracion y nivel de exclusividad.</p><!-- /wp:paragraph -->
-<!-- wp:list --><ul><li>Tipo de inmueble, municipio y zona de actuacion.</li><li>Precio estimado, superficie, habitaciones y estado comercial.</li><li>Modalidad: colaboracion, venta de captacion o acceso protegido.</li><li>Condiciones de honorarios y reparto previsto.</li><li>Documentacion disponible y nivel de confidencialidad necesario.</li></ul><!-- /wp:list -->
+<!-- wp:paragraph --><p>Publicar captaciones inmobiliarias en Compra Captacion significa convertir una oportunidad en una ficha profesional lista para ser cruzada con demandas activas. La informacion publica debe despertar interes sin comprometer la confidencialidad: tipologia, territorio aproximado, precio, superficie, habitaciones, estado comercial, modalidad y condiciones de colaboracion.</p><!-- /wp:paragraph -->
+<!-- wp:list --><ul><li>Tipo de inmueble, provincia, municipio y zona aproximada.</li><li>Precio estimado, superficie, habitaciones, banos y estado comercial.</li><li>Modalidad: colaboracion, venta de captacion o acceso protegido.</li><li>Condiciones de honorarios, reparto previsto y exclusividad.</li><li>Documentacion disponible y nivel de confidencialidad necesario.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Convierte propietarios vendedores en oportunidades</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>La captacion de propietarios es una de las tareas mas valiosas del negocio inmobiliario. Cuando un propietario vendedor confia en un profesional, esa relacion puede transformarse en una oportunidad comercial para otros agentes con comprador, inversores o agencias que trabajan esa zona.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Vende una captacion 100%</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>En algunos casos el profesional puede querer vender una captacion 100%, ceder la gestion completa o transferir la oportunidad a otro operador mejor posicionado. Esta modalidad debe explicarse con claridad para que el comprador entienda que adquiere una oportunidad profesional, no una simple direccion o dato sin contexto.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>En algunos casos el profesional puede querer vender una captacion 100%, ceder la gestion completa o transferir la oportunidad a otro operador mejor posicionado. Esta modalidad debe explicarse con claridad para que el comprador entienda que adquiere una oportunidad profesional, no una simple direccion ni un dato sin contexto.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Comparte captaciones en colaboracion inmobiliaria</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Tambien puedes compartir captaciones inmobiliarias mediante colaboracion 50/50, reparto de honorarios u otro acuerdo entre profesionales. Compra Captacion ayuda a ordenar la solicitud, la disponibilidad, el acceso a datos y la trazabilidad de cada paso antes de abrir informacion sensible.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Protege los datos sensibles del propietario</h3><!-- /wp:heading -->
@@ -1974,16 +2008,18 @@ HTML,
 <!-- wp:paragraph --><p>El flujo recomendado es sencillo: preparas la ficha, publicas la captacion, recibes solicitudes de profesionales interesados, revisas compatibilidad y avanzas solo cuando el contexto tiene sentido. Asi la captacion inmobiliaria pasa de ser un dato aislado a una oportunidad estructurada dentro de un marketplace inmobiliario B2B.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Ventajas para agentes y agencias</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Monetizar captaciones inmobiliarias sin perder control del activo.</li><li>Conectar con agentes que tienen demanda o cliente comprador.</li><li>Publicar oportunidades sin depender solo de portales generalistas.</li><li>Trabajar colaboraciones con mas contexto, reglas y trazabilidad.</li><li>Relacionar la captacion con el <a href="/marketplace/">marketplace</a>, las <a href="/buscar-captaciones/">demandas activas</a>, el flujo de <a href="/como-funciona/">como funciona</a>, los <a href="/planes/">planes</a>, los <a href="/recursos/">recursos</a> y las <a href="/normas-publicacion/">normas de publicacion</a>.</li></ul><!-- /wp:list -->
+<!-- wp:heading {"level":3} --><h3>Buenas practicas antes de vender captaciones inmobiliarias</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li>Comprueba que tienes legitimidad para compartir la oportunidad.</li><li>Evita publicar datos personales, telefono del propietario o direccion exacta.</li><li>Define si buscas colaboracion 50/50, cesion, acceso puntual o reparto de honorarios.</li><li>Usa las <a href="/normas-publicacion/">normas de publicacion inmobiliaria</a> para mantener calidad.</li><li>Consulta los <a href="/planes/">planes para agentes inmobiliarios</a> si necesitas publicar de forma recurrente.</li></ul><!-- /wp:list -->
 HTML,
         'como-funciona' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Como funciona Compra Captacion</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Compra Captacion funciona como una plataforma inmobiliaria B2B para agentes, agencias y profesionales que quieren publicar captaciones, crear demandas activas, cruzar oportunidades compatibles y colaborar con acceso protegido. El objetivo es ordenar lo que normalmente se gestiona por llamadas, mensajes privados y contactos dispersos.</p><!-- /wp:paragraph -->
-<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Como funciona una plataforma inmobiliaria B2B"/></figure><!-- /wp:image -->
+<!-- wp:heading {"level":2} --><h2>Como funciona una plataforma inmobiliaria B2B</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Como funciona una plataforma inmobiliaria B2B como Compra Captacion: permite a agentes, agencias e inversores publicar captaciones, crear demandas activas, cruzar oportunidades compatibles y colaborar con acceso protegido. El objetivo es ordenar lo que normalmente se gestiona por llamadas, mensajes privados y contactos dispersos.</p><!-- /wp:paragraph -->
+<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Como funciona una plataforma inmobiliaria B2B para agentes"/></figure><!-- /wp:image -->
 <!-- wp:paragraph --><p>La plataforma no esta pensada como un portal abierto para particulares, sino como un entorno profesional donde la informacion sensible se comparte por fases. Primero se publica el contexto comercial necesario; despues se valida el interes, la compatibilidad y las condiciones de colaboracion antes de avanzar.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>1. Publica una captacion o una demanda</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El profesional puede publicar una captacion inmobiliaria cuando tiene una oportunidad de propietario vendedor, un inmueble, un activo discreto o una operacion que puede interesar a otros agentes. Tambien puede crear una demanda inmobiliaria cuando tiene un cliente comprador o inversor que busca una propiedad concreta.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>2. Cruza oportunidades compatibles</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El sistema ayuda a relacionar captaciones y demandas por criterios como zona, tipologia, precio, estado comercial, modalidad de colaboracion y contexto de operacion. Asi, un agente con comprador puede encontrar producto y un captador puede detectar profesionales con demanda real.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El sistema ayuda a relacionar captaciones y demandas por criterios como comunidad autonoma, provincia, tipologia, precio, habitaciones, banos, superficie, estado comercial, modalidad de colaboracion y contexto de operacion. Asi, un agente con comprador puede encontrar producto y un captador puede detectar profesionales con demanda real.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>3. Solicita acceso protegido</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Los datos sensibles no deben mostrarse desde el primer momento. La direccion exacta, los datos del propietario, documentos privados y contactos directos quedan protegidos hasta que exista una solicitud con contexto profesional y una razon clara para avanzar.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>4. Define condiciones de colaboracion</h3><!-- /wp:heading -->
@@ -1996,6 +2032,8 @@ HTML,
 <!-- wp:list --><ul><li>Crear una red profesional para captaciones inmobiliarias y demandas activas.</li><li>Proteger informacion sensible hasta que exista interes cualificado.</li><li>Ordenar la colaboracion entre agentes, agencias e inversores.</li><li>Reducir fugas de informacion y conversaciones sin seguimiento.</li><li>Dar mas valor al trabajo de captacion de propietarios vendedores.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Que lograras usando la plataforma</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Un agente puede encontrar propiedades para compradores, publicar oportunidades que no quiere trabajar solo, colaborar con otros profesionales y apoyarse en herramientas de productividad. Una agencia puede organizar mejor sus operaciones compartidas, ampliar red profesional y convertir captaciones o demandas en oportunidades mas estructuradas.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} --><h3>Paginas clave para entender el flujo</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li><a href="/marketplace/">Marketplace inmobiliario B2B</a> para revisar captaciones y demandas.</li><li><a href="/buscar-captaciones/">Buscar captaciones inmobiliarias</a> para publicar necesidades de compradores.</li><li><a href="/ofrecer-captacion/">Vender captaciones inmobiliarias</a> para compartir oportunidades.</li><li><a href="/recursos/">Herramientas IA para agentes inmobiliarios</a> para mejorar productividad.</li><li><a href="/contacto/">Contacto Compra Captacion</a> para dudas, acceso y colaboraciones.</li></ul><!-- /wp:list -->
 HTML,
         'recursos' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Herramientas IA para agentes inmobiliarios</h2><!-- /wp:heading -->
@@ -2003,9 +2041,9 @@ HTML,
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Herramientas IA para agentes inmobiliarios"/></figure><!-- /wp:image -->
 <!-- wp:paragraph --><p>Esta seccion no debe funcionar como un simple repositorio de documentos. Recursos debe ser un centro de productividad inmobiliaria donde el agente pueda encontrar utilidades para captar mejor, responder antes, redactar fichas, cualificar compradores, calcular honorarios, preparar documentacion y usar inteligencia artificial en su trabajo diario.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Asistentes IA para inmobiliarias</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Un asistente IA inmobiliario puede ayudar a responder preguntas frecuentes, preparar mensajes, organizar informacion de una captacion, resumir expedientes y generar borradores de comunicaciones. La clave es que el agente mantenga el control profesional mientras la IA reduce tareas repetitivas.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Un asistente IA inmobiliario puede ayudar a responder preguntas frecuentes, preparar mensajes, organizar informacion de una captacion, resumir expedientes y generar borradores de comunicaciones. La clave es que el agente mantenga el control profesional mientras la IA reduce tareas repetitivas y mejora la velocidad de respuesta.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Herramientas para captar propiedades</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Los recursos deben incluir herramientas para captar propiedades, preparar propuestas de captacion, responder objeciones del propietario, crear argumentarios comerciales y convertir una oportunidad en una ficha lista para colaborar o vender dentro del marketplace.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Los recursos deben incluir herramientas para captar propiedades, preparar propuestas de captacion, responder objeciones del propietario, crear argumentarios comerciales y convertir una oportunidad en una ficha lista para colaborar o vender dentro del <a href="/marketplace/">marketplace inmobiliario B2B</a>.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Generadores de textos inmobiliarios</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Los generadores de textos inmobiliarios permiten redactar descripciones de inmuebles, mensajes para WhatsApp, emails de seguimiento, resumenes de captacion, publicaciones comerciales y textos para presentar oportunidades a otros profesionales con rapidez y coherencia.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Calculadoras inmobiliarias</h3><!-- /wp:heading -->
@@ -2018,31 +2056,33 @@ HTML,
 <!-- wp:paragraph --><p>Compra Captacion trabaja con captaciones, demandas y colaboracion entre profesionales. Por eso los recursos deben conectar con el <a href="/marketplace/">marketplace</a>, la pagina para <a href="/buscar-captaciones/">buscar captaciones</a>, la opcion de <a href="/ofrecer-captacion/">ofrecer captacion</a>, el flujo de <a href="/como-funciona/">como funciona</a>, los <a href="/planes/">planes</a> y el <a href="/area-privada/">area privada</a>.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Como usar IA en el trabajo diario del agente</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Generar una descripcion clara de una captacion inmobiliaria.</li><li>Preparar una propuesta para propietarios vendedores.</li><li>Cualificar una demanda de cliente comprador.</li><li>Crear mensajes de seguimiento para WhatsApp o email.</li><li>Calcular honorarios, repartos y escenarios de operacion.</li><li>Resumir informacion de una colaboracion antes de tomar decisiones.</li></ul><!-- /wp:list -->
+<!-- wp:heading {"level":3} --><h3>Recursos conectados con captaciones y demandas</h3><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Las herramientas IA para agentes inmobiliarios tienen mas valor cuando se conectan con un flujo comercial real. Puedes usarlas para preparar una ficha antes de <a href="/ofrecer-captacion/">vender captaciones inmobiliarias</a>, redactar una necesidad antes de <a href="/buscar-captaciones/">buscar captaciones inmobiliarias</a> o documentar una colaboracion desde el <a href="/area-privada/">area privada inmobiliaria</a>.</p><!-- /wp:paragraph -->
 HTML,
         'planes' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Planes para agentes inmobiliarios</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Los planes de Compra Captacion estan pensados para agentes inmobiliarios, agencias y profesionales que quieren usar una plataforma B2B para publicar captaciones, buscar demandas, acceder a recursos y trabajar oportunidades con mas orden. Starter permite empezar gratis y Professional activa un uso mas completo de la plataforma.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Los planes para agentes inmobiliarios de Compra Captacion estan pensados para profesionales, agencias y equipos que quieren usar una plataforma B2B para publicar captaciones, buscar demandas, acceder a recursos y trabajar oportunidades con mas orden. Starter permite empezar con acceso inicial y Professional activa un uso mas completo de la plataforma.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Planes para agentes inmobiliarios"/></figure><!-- /wp:image -->
 <!-- wp:shortcode -->[captacion_stripe_plans]<!-- /wp:shortcode -->
 <!-- wp:heading {"level":3} --><h3>Starter - 0 euros</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Starter esta orientado a profesionales que quieren conocer Compra Captacion antes de contratar un acceso avanzado. Sirve para explorar la propuesta, revisar recursos, entender el marketplace inmobiliario B2B y empezar a organizar la actividad sin coste de entrada.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Starter esta orientado a profesionales que quieren conocer Compra Captacion antes de contratar un acceso avanzado. Sirve para explorar la propuesta, revisar recursos, entender el <a href="/marketplace/">marketplace inmobiliario B2B</a> y empezar a organizar la actividad sin coste de entrada.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Que incluye el plan gratis</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Acceso inicial a la plataforma.</li><li>Exploracion del marketplace inmobiliario B2B.</li><li>Recursos gratuitos para agentes inmobiliarios.</li><li>Herramientas IA basicas para productividad.</li><li>Calculadoras y plantillas iniciales.</li><li>Perfil profesional basico.</li><li>Actualizaciones sobre nuevas funciones y oportunidades.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Plan Profesional</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El plan profesional esta pensado para agentes y agencias que quieren usar Compra Captacion como herramienta recurrente. Permite trabajar captaciones inmobiliarias, demandas activas, colaboraciones y recursos de inteligencia artificial con mayor profundidad operativa.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El plan profesional esta pensado para agentes y agencias que quieren usar Compra Captacion como herramienta recurrente. Permite trabajar captaciones inmobiliarias, demandas activas, colaboraciones y <a href="/recursos/">herramientas IA para agentes inmobiliarios</a> con mayor profundidad operativa.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Publicar captaciones inmobiliarias.</li><li>Publicar demandas de clientes compradores.</li><li>Solicitar acceso protegido a oportunidades compatibles.</li><li>Usar herramientas IA avanzadas para agentes inmobiliarios.</li><li>Generar textos comerciales, mensajes y descripciones.</li><li>Acceder a calculadoras, plantillas y documentos profesionales.</li><li>Recibir alertas y seguimiento de oportunidades.</li><li>Usar el area privada completa con favoritos, tareas y trazabilidad.</li><li>Contar con soporte prioritario segun disponibilidad del servicio.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Que plan elegir segun tu perfil</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Si quieres conocer la plataforma y revisar recursos, Starter es suficiente para empezar. Si ya trabajas con captaciones, compradores, inversores o colaboraciones entre agencias, Professional es el acceso recomendado para operar con mas continuidad.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Herramientas incluidas para agentes inmobiliarios</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Los planes conectan con las secciones clave de la web: <a href="/marketplace/">marketplace</a>, <a href="/buscar-captaciones/">buscar captaciones</a>, <a href="/ofrecer-captacion/">ofrecer captacion</a>, <a href="/recursos/">recursos con inteligencia artificial</a>, <a href="/como-funciona/">como funciona</a> y <a href="/contacto/">contacto</a>.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Preguntas frecuentes sobre los planes</h3><!-- /wp:heading -->
-<!-- wp:list --><ul><li>Starter esta previsto como acceso de entrada a 0 euros.</li><li>Professional esta orientado al uso recurrente de captaciones, demandas y recursos.</li><li>Si necesitas acceso, soporte comercial o una configuracion para agencia, puedes contactar con el equipo.</li><li>Las funcionalidades pueden evolucionar segun el despliegue final de la plataforma.</li></ul><!-- /wp:list -->
+<!-- wp:list --><ul><li><strong>Que plan debo elegir?</strong> Starter sirve para conocer la plataforma; Professional es mejor si trabajas captaciones y demandas de forma recurrente.</li><li><strong>Incluye recursos?</strong> Si, los planes conectan con recursos, calculadoras, plantillas y herramientas IA.</li><li><strong>Puedo publicar captaciones?</strong> El plan profesional esta orientado a publicar captaciones, demandas y solicitudes protegidas.</li><li><strong>Hay soporte para agencias?</strong> Si necesitas acceso, soporte comercial o una configuracion para agencia, puedes contactar con el equipo.</li><li><strong>Las funciones pueden cambiar?</strong> Si, las funcionalidades pueden evolucionar segun el despliegue final de la plataforma.</li></ul><!-- /wp:list -->
 HTML,
         'contacto' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Contacto con Compra Captacion</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>La pagina de contacto permite que agentes inmobiliarios, agencias, inversores y profesionales del sector se pongan en contacto con Compra Captacion para solicitar acceso, resolver dudas sobre planes, proponer colaboraciones o recibir soporte sobre el uso de la plataforma.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Contacto Compra Captacion</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Contacto Compra Captacion es la pagina para que agentes inmobiliarios, agencias, inversores y profesionales del sector soliciten acceso, resuelvan dudas sobre planes, propongan colaboraciones o pidan soporte sobre el uso de la plataforma.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Contacto Compra Captacion para profesionales inmobiliarios"/></figure><!-- /wp:image -->
-<!-- wp:paragraph --><p>Si quieres valorar el encaje de la plataforma con tu forma de trabajar, puedes escribir a <strong>contacto@captacion.app</strong>. Cuanto mas claro sea el contexto, mas facil sera orientar la respuesta hacia captaciones, demandas, recursos, planes o colaboraciones profesionales.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Si quieres valorar el encaje de la plataforma con tu forma de trabajar, puedes escribir a <strong>contacto@captacion.app</strong>. Cuanto mas claro sea el contexto, mas facil sera orientar la respuesta hacia <a href="/ofrecer-captacion/">captaciones inmobiliarias</a>, <a href="/buscar-captaciones/">demandas de compradores</a>, recursos, planes o colaboraciones profesionales.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Solicitar acceso a la plataforma</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El acceso guiado ayuda a entender como funciona Compra Captacion, como se publican captaciones inmobiliarias, como se crean demandas de compradores y como se protege el acceso a informacion sensible dentro del marketplace inmobiliario B2B.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Resolver dudas sobre planes</h3><!-- /wp:heading -->
@@ -2055,46 +2095,51 @@ HTML,
 <!-- wp:list --><ul><li>Nombre, agencia o perfil profesional.</li><li>Zona principal de trabajo.</li><li>Si buscas captar propiedades, encontrar producto para compradores o colaborar con otros agentes.</li><li>Volumen aproximado de captaciones o demandas.</li><li>Interes en Starter, Professional, Premium, acceso guiado o partnership.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Canales de contacto</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El canal principal es <strong>contacto@captacion.app</strong>. Tambien puedes revisar antes <a href="/como-funciona/">como funciona</a>, comparar los <a href="/planes/">planes</a>, explorar el <a href="/marketplace/">marketplace</a>, publicar una demanda en <a href="/buscar-captaciones/">buscar captaciones</a> o preparar una oportunidad en <a href="/ofrecer-captacion/">ofrecer captacion</a>.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} --><h3>Antes de contactar</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li>Indica si eres agente, agencia, inversor profesional o proveedor.</li><li>Explica tu zona principal de trabajo y tipo de operaciones.</li><li>Senala si buscas publicar captaciones, encontrar producto para compradores o colaborar con otros agentes.</li><li>Incluye si te interesa Starter, Professional, acceso guiado o partnership.</li></ul><!-- /wp:list -->
 HTML,
         'area-privada' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Area privada orientada a operativa real</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El area privada es donde Captacion.app deja de ser una promesa y se convierte en herramienta diaria. Aqui deben converger las captaciones aportadas, las demandas publicadas, las solicitudes recibidas, el seguimiento de operaciones y la trazabilidad de actividad.</p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p>El area privada anticipa modulos clave como favoritos, tareas, alertas, comunicaciones internas y seguimiento de estados. El objetivo de esta pagina es explicar claramente que valor operativo obtiene el usuario una vez entra en el producto.</p><!-- /wp:paragraph -->
-<!-- wp:heading {"level":3} --><h3>Que deberia resolver el panel privado</h3><!-- /wp:heading -->
-<!-- wp:list --><ul><li>Priorizar trabajo pendiente y oportunidades activas.</li><li>Evitar conversaciones dispersas fuera del contexto de cada expediente.</li><li>Concentrar evidencias, tareas y proxima accion de cada operacion.</li><li>Dar continuidad a la colaboracion entre profesionales sin perder control.</li></ul><!-- /wp:list -->
+<!-- wp:heading {"level":2} --><h2>Area privada inmobiliaria para captaciones y demandas</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>El area privada inmobiliaria es donde Captacion.app deja de ser una promesa y se convierte en herramienta diaria. Aqui deben converger las captaciones aportadas, las demandas publicadas, las solicitudes recibidas, el seguimiento de operaciones y la trazabilidad de actividad.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El area privada anticipa modulos clave como favoritos, tareas, alertas, comunicaciones internas y seguimiento de estados. El objetivo de esta pagina es explicar claramente que valor operativo obtiene el usuario una vez entra en el producto y empieza a trabajar oportunidades reales.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} --><h3>Que resuelve el area privada inmobiliaria</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li>Priorizar trabajo pendiente y oportunidades activas.</li><li>Evitar conversaciones dispersas fuera del contexto de cada expediente.</li><li>Concentrar evidencias, tareas y proxima accion de cada operacion.</li><li>Dar continuidad a la colaboracion entre profesionales sin perder control.</li><li>Conectar el <a href="/marketplace/">marketplace inmobiliario B2B</a> con alertas, favoritos y solicitudes.</li></ul><!-- /wp:list -->
+<!-- wp:heading {"level":3} --><h3>Funciones previstas para profesionales</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li>Mis captaciones publicadas y estado de cada oportunidad.</li><li>Mis demandas activas y posibles coincidencias.</li><li>Solicitudes de acceso protegido enviadas y recibidas.</li><li>Favoritos para seguir oportunidades relevantes.</li><li>Alertas cuando aparezcan captaciones o demandas compatibles.</li></ul><!-- /wp:list -->
+<!-- wp:paragraph --><p>Desde el area privada, el usuario puede dar continuidad a lo iniciado en <a href="/buscar-captaciones/">buscar captaciones inmobiliarias</a>, <a href="/ofrecer-captacion/">vender captaciones inmobiliarias</a> o revisar los <a href="/planes/">planes para agentes inmobiliarios</a> si necesita mayor capacidad operativa.</p><!-- /wp:paragraph -->
 HTML,
         'aviso-legal' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Aviso legal</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p><strong>TODO LEGAL — sustituir antes de produccion.</strong> Titular provisional de staging: EMPRESA PENDIENTE DE DEFINIR, S.L.; NIF/CIF B00000000; domicilio social pendiente de completar; privacidad@captacion.app; contacto@captacion.app. El dominio final tambien esta pendiente.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Aviso legal Captacion.app</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>El aviso legal Captacion.app recoge la informacion provisional sobre titularidad, condiciones de uso, responsabilidades y datos pendientes de validacion antes del lanzamiento comercial. <strong>TODO LEGAL — sustituir antes de produccion.</strong> Titular provisional de staging: EMPRESA PENDIENTE DE DEFINIR, S.L.; NIF/CIF B00000000; domicilio social pendiente de completar; privacidad@captacion.app; contacto@captacion.app.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Los flujos, formularios y contenidos deben alinearse con la operativa final, las condiciones de uso y la politica de privacidad revisada por asesoria juridica.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Pendientes antes del lanzamiento</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Insertar datos mercantiles y de contacto del titular real.</li><li>Revisar condiciones de uso, propiedad intelectual y limitaciones de responsabilidad.</li><li>Alinear textos con la operativa final y con la politica de privacidad definitiva.</li></ul><!-- /wp:list -->
 HTML,
         'privacidad' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Privacidad y tratamiento de datos</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p><strong>TODO LEGAL — sustituir antes de produccion.</strong> Responsable provisional de staging: EMPRESA PENDIENTE DE DEFINIR, S.L.; NIF/CIF B00000000; domicilio social pendiente de completar; privacidad@captacion.app. DPO no designado salvo confirmacion.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Politica de privacidad Captacion.app</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>La politica de privacidad Captacion.app debe explicar como se tratan los datos de profesionales, usuarios, leads y contrapartes dentro de la plataforma. <strong>TODO LEGAL — sustituir antes de produccion.</strong> Responsable provisional de staging: EMPRESA PENDIENTE DE DEFINIR, S.L.; NIF/CIF B00000000; domicilio social pendiente de completar; privacidad@captacion.app. DPO no designado salvo confirmacion.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Captacion.app trabaja con informacion comercial sensible y, potencialmente, con datos personales de profesionales, leads y contrapartes. Por eso la politica final debe definir con precision finalidades, bases juridicas, plazos de conservacion, destinatarios y derechos de los interesados.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Se recomienda limitar la captacion de datos al minimo imprescindible y evitar recoger informacion real de terceros hasta que el flujo de cumplimiento, seguridad y encargados del tratamiento este cerrado.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Recomendaciones para esta fase</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Usar formularios solo con datos de prueba o leads controlados.</li><li>Revisar textos de consentimiento y finalidades antes de campañas reales.</li><li>Definir politica de encargados, copias de seguridad y control de accesos.</li></ul><!-- /wp:list -->
 HTML,
         'cookies' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Politica de cookies</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Complianz es la fuente principal de consentimiento, bloqueo preventivo, inventario y declaracion de cookies de Captacion.app. Las tecnologias no necesarias deben permanecer desactivadas hasta obtener consentimiento valido.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Politica de cookies Captacion.app</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>La politica de cookies Captacion.app se apoya en Complianz como fuente principal de consentimiento, bloqueo preventivo, inventario y declaracion de cookies. Las tecnologias no necesarias deben permanecer desactivadas hasta obtener consentimiento valido.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Necesarias: activas para funcionamiento, sesion y seguridad.</li><li>Preferencias: sujetas a la clasificacion final de Complianz.</li><li>Estadisticas: desactivadas hasta consentimiento.</li><li>Marketing: desactivado hasta consentimiento.</li></ul><!-- /wp:list -->
 <!-- wp:paragraph --><p>El entorno de preproduccion utiliza localStorage para sesion demo, tema y datos operativos temporales. No se utiliza como consentimiento legal. El mapa usa Leaflet y teselas de OpenStreetMap como servicio tecnico solicitado; debe figurar en el inventario y revisarse antes de produccion.</p><!-- /wp:paragraph -->
 <!-- wp:shortcode -->[cmplz-document type="cookie-statement" region="eu"]<!-- /wp:shortcode -->
 <!-- wp:paragraph --><p><strong>TODO LEGAL — sustituir antes de produccion.</strong> Completar titular, NIF/CIF, domicilio, emails, dominio final e inventario definitivo mediante el wizard y escaner de Complianz.</p><!-- /wp:paragraph -->
 HTML,
         'normas-publicacion' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Normas de publicacion para profesionales</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Captacion.app debe mantener un estandar alto de calidad en todo lo que entra a la plataforma. Estas normas ayudan a proteger a quien publica, a quien compra informacion y a la reputacion del ecosistema.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Normas de publicacion inmobiliaria</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Las normas de publicacion inmobiliaria de Captacion.app ayudan a mantener un estandar alto de calidad en captaciones, demandas y colaboraciones. Estas normas protegen a quien publica, a quien compra informacion y a la reputacion del ecosistema profesional.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Publica solo informacion veraz, actualizada y comercialmente util.</li><li>No incluyas datos personales o de contacto del propietario en la ficha publica.</li><li>Indica con honestidad el estado documental, la urgencia y las condiciones de colaboracion.</li><li>No utilices la plataforma para captar datos de otros profesionales sin intencion real de operar.</li><li>Respeta la confidencialidad de todo expediente desbloqueado.</li></ul><!-- /wp:list -->
 <!-- wp:paragraph --><p>La calidad de las publicaciones es parte del producto. Cuanto mejor se define una captacion o una demanda, mejor funciona el matching y mas valor aporta la plataforma a todos los actores.</p><!-- /wp:paragraph -->
 HTML,
         'condiciones-de-contratacion' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Condiciones de contratación de Captacion.app</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Estas condiciones regulan la futura contratación de planes, servicios de acceso y funcionalidades de Captacion.app a través de su sitio web y de sus entornos autorizados. El texto definitivo deberá revisarse y aprobarse antes del lanzamiento comercial.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Condiciones de contratacion Captacion.app</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Las condiciones de contratacion Captacion.app regulan la futura contratacion de planes, servicios de acceso y funcionalidades a traves del sitio web y de sus entornos autorizados. El texto definitivo debera revisarse y aprobarse antes del lanzamiento comercial.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>1. Objeto</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Captacion.app ofrecerá acceso a funcionalidades de colaboración inmobiliaria B2B, publicación de captaciones y demandas, herramientas operativas, alertas, recursos y otros servicios vinculados a la plataforma según el plan contratado en cada momento.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>2. Partes intervinientes</h3><!-- /wp:heading -->
@@ -2114,8 +2159,8 @@ HTML,
 <!-- wp:paragraph --><p>La versión definitiva deberá indicar la legislación aplicable, el fuero competente y, en su caso, los mecanismos de resolución extrajudicial que resulten procedentes según la normativa española y europea aplicable.</p><!-- /wp:paragraph -->
 HTML,
         'canal-de-denuncias' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Canal de denuncias y sistema interno de información</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Captacion.app prevé disponer de un canal interno de información para que empleados, colaboradores, proveedores, usuarios profesionales y terceros puedan comunicar de buena fe posibles incumplimientos normativos, irregularidades o conductas contrarias a las políticas internas.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Canal de denuncias Captacion.app</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>El canal de denuncias Captacion.app preve disponer de un sistema interno de informacion para que empleados, colaboradores, proveedores, usuarios profesionales y terceros puedan comunicar de buena fe posibles incumplimientos normativos, irregularidades o conductas contrarias a las politicas internas.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>1. Finalidad del canal</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El canal servirá para recibir comunicaciones sobre hechos que puedan suponer infracciones legales, incumplimientos éticos, vulneraciones de confidencialidad, uso indebido de datos, conflictos de interés, fraudes o conductas contrarias a las normas internas de la plataforma.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>2. Principios de funcionamiento</h3><!-- /wp:heading -->
@@ -2158,43 +2203,78 @@ function captacion_app_rank_math_seo_map() {
     return array(
         'inicio' => array(
             'focus_keyword' => 'captaciones inmobiliarias',
-            'title' => 'Captaciones inmobiliarias | Compra, vende y colabora entre profesionales',
-            'description' => 'Compra Captacion es un marketplace B2B de captaciones inmobiliarias para profesionales. Publica oportunidades, busca demandas activas y colabora con acceso protegido.',
+            'title' => 'Captaciones inmobiliarias para profesionales | Compra Captacion',
+            'description' => 'Marketplace B2B para agentes inmobiliarios: publica captaciones, cruza demandas activas y colabora con acceso protegido y trazabilidad.',
         ),
         'marketplace' => array(
             'focus_keyword' => 'marketplace inmobiliario B2B',
-            'title' => 'Marketplace inmobiliario B2B | Captaciones y demandas para profesionales',
-            'description' => 'Compra Captacion es un marketplace inmobiliario B2B para agentes y agencias. Revisa captaciones, publica demandas y colabora con acceso protegido.',
+            'title' => 'Marketplace inmobiliario B2B | Captaciones y demandas',
+            'description' => 'Revisa captaciones inmobiliarias, demandas de compradores y oportunidades de colaboracion entre agentes en un marketplace B2B protegido.',
         ),
         'buscar-captaciones' => array(
             'focus_keyword' => 'buscar captaciones inmobiliarias',
-            'title' => 'Buscar captaciones inmobiliarias | Encuentra propiedades para compradores',
-            'description' => 'Publica demandas inmobiliarias y encuentra captaciones compatibles para clientes compradores. Compra Captacion conecta agentes con oportunidades protegidas.',
+            'title' => 'Buscar captaciones inmobiliarias para compradores',
+            'description' => 'Publica demandas de compradores y encuentra captaciones inmobiliarias compatibles por zona, presupuesto, tipologia y condiciones de colaboracion.',
         ),
         'ofrecer-captacion' => array(
             'focus_keyword' => 'vender captaciones inmobiliarias',
-            'title' => 'Vender captaciones inmobiliarias | Publica oportunidades para profesionales',
-            'description' => 'Publica y vende captaciones inmobiliarias con acceso protegido. Compra Captacion ayuda a agentes y agencias a compartir oportunidades y colaborar.',
+            'title' => 'Vender captaciones inmobiliarias con acceso protegido',
+            'description' => 'Publica y monetiza captaciones inmobiliarias con acceso protegido, control de datos sensibles y colaboracion profesional entre agencias.',
         ),
         'como-funciona' => array(
             'focus_keyword' => 'como funciona una plataforma inmobiliaria B2B',
-            'title' => 'Como funciona una plataforma inmobiliaria B2B | Compra Captacion',
-            'description' => 'Descubre como funciona Compra Captacion: publica captaciones, crea demandas, cruza oportunidades y colabora con acceso protegido y trazabilidad.',
+            'title' => 'Como funciona una plataforma inmobiliaria B2B',
+            'description' => 'Conoce como funciona Compra Captacion: publica captaciones y demandas, detecta coincidencias y colabora con trazabilidad comercial.',
         ),
         'recursos' => array(
             'focus_keyword' => 'herramientas IA para agentes inmobiliarios',
-            'title' => 'Herramientas IA para agentes inmobiliarios | Recursos y asistentes',
-            'description' => 'Encuentra herramientas IA para agentes inmobiliarios: asistentes, calculadoras, plantillas, generadores de textos y recursos para mejorar productividad.',
+            'title' => 'Herramientas IA para agentes inmobiliarios | Recursos',
+            'description' => 'Herramientas IA, calculadoras, plantillas y recursos para agentes inmobiliarios que quieren captar mejor y trabajar con mas productividad.',
         ),
         'planes' => array(
             'focus_keyword' => 'planes para agentes inmobiliarios',
-            'title' => 'Planes para agentes inmobiliarios | Gratis y Profesional',
-            'description' => 'Elige tu plan en Compra Captacion: acceso inicial gratis, herramientas para agentes inmobiliarios y plan profesional para publicar, buscar y colaborar.',
+            'title' => 'Planes para agentes inmobiliarios | Compra Captacion',
+            'description' => 'Compara planes para agentes inmobiliarios: acceso inicial, recursos profesionales, publicacion de captaciones y demandas, y funciones avanzadas.',
         ),
         'contacto' => array(
             'focus_keyword' => 'contacto Compra Captacion',
             'title' => 'Contacto Compra Captacion | Acceso, planes y colaboraciones',
-            'description' => 'Contacta con Compra Captacion para solicitar acceso, resolver dudas sobre planes o valorar colaboraciones profesionales en captaciones inmobiliarias.',
+            'description' => 'Contacta con Compra Captacion para solicitar acceso, resolver dudas sobre planes o proponer colaboraciones inmobiliarias profesionales.',
+        ),
+        'area-privada' => array(
+            'focus_keyword' => 'area privada inmobiliaria',
+            'title' => 'Area privada inmobiliaria | Gestion de captaciones y demandas',
+            'description' => 'Area privada para gestionar captaciones, demandas, favoritos, solicitudes, alertas y trazabilidad de operaciones inmobiliarias.',
+        ),
+        'aviso-legal' => array(
+            'focus_keyword' => 'aviso legal Captacion.app',
+            'title' => 'Aviso legal Captacion.app',
+            'description' => 'Aviso legal de Captacion.app con informacion del titular, condiciones de uso, responsabilidades y datos pendientes de validacion final.',
+        ),
+        'privacidad' => array(
+            'focus_keyword' => 'politica de privacidad Captacion.app',
+            'title' => 'Politica de privacidad Captacion.app',
+            'description' => 'Politica de privacidad de Captacion.app para tratamiento de datos, finalidades, derechos, seguridad y acceso profesional a la plataforma.',
+        ),
+        'cookies' => array(
+            'focus_keyword' => 'politica de cookies Captacion.app',
+            'title' => 'Politica de cookies Captacion.app',
+            'description' => 'Politica de cookies de Captacion.app con informacion sobre cookies necesarias, estadisticas, marketing y consentimiento mediante Complianz.',
+        ),
+        'normas-publicacion' => array(
+            'focus_keyword' => 'normas de publicacion inmobiliaria',
+            'title' => 'Normas de publicacion inmobiliaria | Captacion.app',
+            'description' => 'Normas para publicar captaciones y demandas inmobiliarias con calidad, confidencialidad, legalidad y respeto entre profesionales.',
+        ),
+        'condiciones-de-contratacion' => array(
+            'focus_keyword' => 'condiciones de contratacion Captacion.app',
+            'title' => 'Condiciones de contratacion Captacion.app',
+            'description' => 'Condiciones de contratacion de Captacion.app para planes, servicios, pagos, activacion, obligaciones y uso profesional de la plataforma.',
+        ),
+        'canal-de-denuncias' => array(
+            'focus_keyword' => 'canal de denuncias Captacion.app',
+            'title' => 'Canal de denuncias Captacion.app',
+            'description' => 'Canal de denuncias de Captacion.app para comunicar incumplimientos, irregularidades o riesgos con confidencialidad y proteccion.',
         ),
     );
 }
