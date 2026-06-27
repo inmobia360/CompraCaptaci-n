@@ -856,15 +856,28 @@ function captacion_app_confirm_single_marketplace_access($user_id, $opportunity_
 
 function captacion_app_rest_public_nonce_permission(WP_REST_Request $request) {
     $nonce = $request->get_header('X-WP-Nonce');
-    if (!$nonce || !wp_verify_nonce($nonce, 'wp_rest')) {
-        return new WP_Error('captacion_invalid_nonce', 'La sesion del formulario ha caducado. Recarga la pagina.', array('status'=>403));
+    if ($nonce && wp_verify_nonce($nonce, 'wp_rest')) {
+        return true;
     }
-    return true;
+
+    $site_host = wp_parse_url(home_url('/'), PHP_URL_HOST);
+    $origin = get_http_origin();
+    $referer = wp_get_referer();
+    $origin_host = $origin ? wp_parse_url($origin, PHP_URL_HOST) : '';
+    $referer_host = $referer ? wp_parse_url($referer, PHP_URL_HOST) : '';
+
+    if ($site_host && ($origin_host === $site_host || $referer_host === $site_host)) {
+        return true;
+    }
+
+    return new WP_Error('captacion_invalid_nonce', 'La sesion del formulario ha caducado. Recarga la pagina.', array('status'=>403));
 }
 
 function captacion_app_rest_private_permission(WP_REST_Request $request) {
-    $nonce_check = captacion_app_rest_public_nonce_permission($request);
-    if (is_wp_error($nonce_check)) return $nonce_check;
+    $nonce = $request->get_header('X-WP-Nonce');
+    if (!$nonce || !wp_verify_nonce($nonce, 'wp_rest')) {
+        return new WP_Error('captacion_invalid_nonce', 'La sesion del formulario ha caducado. Recarga la pagina.', array('status'=>403));
+    }
     if (!is_user_logged_in()) return new WP_Error('captacion_auth_required', 'Debes iniciar sesion.', array('status'=>401));
     if (!current_user_can('read')) return new WP_Error('captacion_permission_required', 'Tu cuenta no tiene permisos para esta accion.', array('status'=>403));
     if (!captacion_app_is_email_verified(get_current_user_id())) return new WP_Error('captacion_email_unverified', 'Confirma tu correo electronico para acceder.', array('status'=>403));

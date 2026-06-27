@@ -1158,7 +1158,6 @@ $captacion_current_user = wp_get_current_user();
                     <button id="inline-register-submit" class="sm:col-span-2 w-full py-3.5 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md">Crear cuenta profesional</button>
                   </form>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-4 leading-relaxed">El alta se conecta al usuario nativo de WordPress. La persistencia local permanece solo como fallback de preproduccion identificado en el codigo.</p>
               </div>
 
               <div id="auth-session-panel" class="hidden h-full flex flex-col justify-between">
@@ -3041,7 +3040,7 @@ $captacion_current_user = wp_get_current_user();
     async function validateAddressWithCartoCiudad({ address = '', postalCode = '', municipality = '', province = '' } = {}) {
       if (!CAPTACION_MAILCHIMP?.territoryValidationEndpoint) return { ok:false, results:[] };
       try {
-        const response = await fetch(CAPTACION_MAILCHIMP.territoryValidationEndpoint, { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json', ...(CAPTACION_MAILCHIMP.nonce ? {'X-WP-Nonce':CAPTACION_MAILCHIMP.nonce} : {})}, body:JSON.stringify({address,postalCode,municipality,province}) });
+        const response = await fetch(CAPTACION_MAILCHIMP.territoryValidationEndpoint, { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({address,postalCode,municipality,province}) });
         if (!response.ok) throw new Error('validation_failed');
         return await response.json();
       } catch (error) { return { ok:false, results:[] }; }
@@ -4874,7 +4873,7 @@ $captacion_current_user = wp_get_current_user();
       let backendReached = false;
       try {
         if (!CAPTACION_MAILCHIMP?.registerEndpoint) throw new Error('backend_unavailable');
-        const response = await fetch(CAPTACION_MAILCHIMP.registerEndpoint, { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json','X-WP-Nonce':CAPTACION_MAILCHIMP.nonce}, body:JSON.stringify({name,email,phone,password,privacyAccepted,commercialConsent}) });
+        const response = await fetch(CAPTACION_MAILCHIMP.registerEndpoint, { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,email,phone,password,privacyAccepted,commercialConsent}) });
         backendReached = true;
         const data = await response.json();
         if (!response.ok || !data?.ok) throw new Error(data?.message || 'No se pudo crear la cuenta.');
@@ -5004,7 +5003,6 @@ $captacion_current_user = wp_get_current_user();
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          ...(CAPTACION_MAILCHIMP.nonce ? { 'X-WP-Nonce': CAPTACION_MAILCHIMP.nonce } : {})
         },
         body: JSON.stringify(payload)
       })
@@ -5023,7 +5021,6 @@ $captacion_current_user = wp_get_current_user();
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          ...(CAPTACION_MAILCHIMP.nonce ? { 'X-WP-Nonce': CAPTACION_MAILCHIMP.nonce } : {})
         },
         body: JSON.stringify({
           type,
@@ -5253,7 +5250,7 @@ $captacion_current_user = wp_get_current_user();
       errorBox.classList.add('hidden'); submit.disabled = true; submit.textContent = 'Accediendo...';
       try {
         if (!CAPTACION_MAILCHIMP?.loginEndpoint) throw new Error('backend_unavailable');
-        const response = await fetch(CAPTACION_MAILCHIMP.loginEndpoint, {method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-WP-Nonce':CAPTACION_MAILCHIMP.nonce},body:JSON.stringify({email,password})});
+        const response = await fetch(CAPTACION_MAILCHIMP.loginEndpoint, {method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
         const data = await response.json();
         if (!response.ok || !data?.ok) throw new Error(data?.message || 'No se pudo iniciar sesión.');
         CAPTACION_MAILCHIMP.loggedIn = true; CAPTACION_MAILCHIMP.emailVerified = true; CAPTACION_MAILCHIMP.accessState = data.accessState; CAPTACION_MAILCHIMP.nonce = data.nonce || CAPTACION_MAILCHIMP.nonce;
@@ -5274,7 +5271,7 @@ $captacion_current_user = wp_get_current_user();
 
     async function resendVerificationEmail(email) {
       try {
-        const response = await fetch(CAPTACION_MAILCHIMP.resendVerificationEndpoint, {method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-WP-Nonce':CAPTACION_MAILCHIMP.nonce},body:JSON.stringify({email})});
+        const response = await fetch(CAPTACION_MAILCHIMP.resendVerificationEndpoint, {method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
         const data = await response.json();
         if (!response.ok || !data?.ok) throw new Error(data?.message || 'No se pudo reenviar el correo.');
         showToast(data.message, 'success');
@@ -7257,7 +7254,7 @@ $captacion_current_user = wp_get_current_user();
       try {
         const response = await fetch(CAPTACION_MAILCHIMP.contactEndpoint, {
           method:'POST', credentials:'same-origin',
-          headers:{'Content-Type':'application/json','X-WP-Nonce':CAPTACION_MAILCHIMP.nonce},
+          headers:{'Content-Type':'application/json'},
           body:JSON.stringify({name:contactName,email:contactEmail,phone:contactPhone,preference,message,privacyAccepted})
         });
         const data = await response.json();
