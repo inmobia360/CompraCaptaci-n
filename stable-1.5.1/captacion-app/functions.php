@@ -4149,10 +4149,14 @@ function captacion_app_privacy_exporter($email, $page = 1) {
     return array('data' => $export_items, 'done' => $done);
 }
 
-function captacion_app_register_privacy_exporter() {
-    register_privacy_personal_data_exporter('captacion-app-records', 'Captacion.app - Registros', 'captacion_app_privacy_exporter');
+function captacion_app_register_privacy_exporter($exporters) {
+    $exporters['captacion-app-records'] = array(
+        'exporter_friendly_name' => 'Captacion.app - Registros',
+        'callback' => 'captacion_app_privacy_exporter',
+    );
+    return $exporters;
 }
-add_action('admin_init', 'captacion_app_register_privacy_exporter');
+add_filter('wp_privacy_personal_data_exporters', 'captacion_app_register_privacy_exporter');
 
 function captacion_app_privacy_eraser($email, $page = 1) {
     global $wpdb;
@@ -4181,10 +4185,14 @@ function captacion_app_privacy_eraser($email, $page = 1) {
     );
 }
 
-function captacion_app_register_privacy_eraser() {
-    register_privacy_personal_data_eraser('captacion-app-records', 'Captacion.app - Registros', 'captacion_app_privacy_eraser');
+function captacion_app_register_privacy_eraser($erasers) {
+    $erasers['captacion-app-records'] = array(
+        'eraser_friendly_name' => 'Captacion.app - Registros',
+        'callback' => 'captacion_app_privacy_eraser',
+    );
+    return $erasers;
 }
-add_action('admin_init', 'captacion_app_register_privacy_eraser');
+add_filter('wp_privacy_personal_data_erasers', 'captacion_app_register_privacy_eraser');
 
 if (defined('WP_CLI') && WP_CLI) {
     class Captacion_App_Territory_CLI_Command {
