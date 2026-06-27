@@ -1145,14 +1145,15 @@ $captacion_current_user = wp_get_current_user();
                 <div class="h-full flex flex-col justify-center rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
                   <span class="inline-flex self-start px-3 py-1 rounded-full bg-blue-light text-blue text-[10px] font-black uppercase tracking-wider">Suscripción para profesional</span>
                   <h3 class="mt-4 text-2xl font-black text-navy">Empieza con los datos imprescindibles</h3>
-                  <p class="mt-3 text-sm leading-relaxed text-slate-500">Crea tu cuenta con nombre, correo, teléfono opcional y contraseña. La agencia y tu zona de trabajo se completan después desde el perfil profesional.</p>
+                  <p class="mt-3 text-sm leading-relaxed text-slate-500">Crea tu cuenta con nombre, correo, país, teléfono principal y contraseña. La agencia y tu zona de trabajo se completan después desde el perfil profesional.</p>
                   <form id="inline-professional-form" onsubmit="handleInlineProfessionalRegistration(event)" class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <label class="block"><span class="block text-[11px] font-bold text-slate-500 mb-1">Nombre y apellidos *</span><input id="inline-register-name" type="text" required minlength="3" autocomplete="name" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" /></label>
                     <label class="block"><span class="block text-[11px] font-bold text-slate-500 mb-1">Correo electrónico *</span><input id="inline-register-email" type="email" required autocomplete="email" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" /></label>
-                    <label class="block"><span class="block text-[11px] font-bold text-slate-500 mb-1">Número de contacto *</span><input id="inline-register-phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="+34 600 000 000" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" /></label>
-                    <label class="block"><span class="block text-[11px] font-bold text-slate-500 mb-1">Contraseña *</span><input id="inline-register-password" type="password" required minlength="8" autocomplete="new-password" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" /></label>
-                    <label class="sm:col-span-2 flex items-start gap-2 text-[11px] text-slate-500"><input id="inline-register-privacy" type="checkbox" required class="mt-0.5" /><span>He leído y acepto la <a href="#/privacidad" class="legal-link">Política de privacidad</a>.</span></label>
-                    <label class="sm:col-span-2 flex items-start gap-2 text-[11px] text-slate-500"><input id="inline-register-marketing" type="checkbox" class="mt-0.5" /><span>Quiero recibir novedades y comunicaciones comerciales de Captacion.app. Opcional y revocable.</span></label>
+                    <label class="block"><span class="block text-[11px] font-bold text-slate-500 mb-1">País *</span><select id="inline-register-country" autocomplete="tel-country-code" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white"><option value="+34" selected>España (+34)</option><option value="+351">Portugal (+351)</option><option value="+33">Francia (+33)</option><option value="+39">Italia (+39)</option><option value="+49">Alemania (+49)</option><option value="+44">Reino Unido (+44)</option><option value="+1">Estados Unidos/Canadá (+1)</option><option value="+52">México (+52)</option><option value="+54">Argentina (+54)</option><option value="+56">Chile (+56)</option><option value="+57">Colombia (+57)</option><option value="+51">Perú (+51)</option><option value="+58">Venezuela (+58)</option><option value="+593">Ecuador (+593)</option><option value="+598">Uruguay (+598)</option><option value="+595">Paraguay (+595)</option><option value="+55">Brasil (+55)</option><option value="+212">Marruecos (+212)</option></select></label>
+                    <label class="block"><span class="block text-[11px] font-bold text-slate-500 mb-1">Número de contacto *</span><input id="inline-register-phone" type="tel" required autocomplete="tel-national" inputmode="tel" placeholder="600 000 000" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm" /></label>
+                    <label class="block sm:col-span-2"><span class="block text-[11px] font-bold text-slate-500 mb-1">Contraseña *</span><div class="relative"><input id="inline-register-password" type="password" required minlength="8" autocomplete="new-password" class="w-full px-3 py-2.5 pr-20 rounded-xl border border-slate-200 text-sm" /><button type="button" onclick="togglePasswordVisibility('inline-register-password', this)" class="absolute inset-y-1 right-1 px-3 rounded-lg text-[10px] font-black text-blue hover:bg-blue-light">Mostrar</button></div></label>
+                    <label class="sm:col-span-2 flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600 cursor-pointer"><input id="inline-register-privacy" type="checkbox" required class="mt-0.5 h-5 w-5 shrink-0" /><span>He leído y acepto la <a href="#/privacidad" class="legal-link">Política de privacidad</a>.</span></label>
+                    <label class="sm:col-span-2 flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600 cursor-pointer"><input id="inline-register-marketing" type="checkbox" class="mt-0.5 h-5 w-5 shrink-0" /><span>Quiero recibir novedades y comunicaciones comerciales de Captacion.app. Opcional y revocable.</span></label>
                     <p id="inline-register-error" class="hidden sm:col-span-2 rounded-xl bg-red-50 border border-red-100 px-3 py-2 text-xs text-red-700" role="alert"></p>
                     <button id="inline-register-submit" class="sm:col-span-2 w-full py-3.5 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md">Crear cuenta profesional</button>
                   </form>
@@ -4808,10 +4809,10 @@ $captacion_current_user = wp_get_current_user();
           <form id="professional-subscription-form" onsubmit="handleProfessionalRegistration(event)" class="mt-6 space-y-4">
             <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Nombre y apellidos *</span><input id="professional-register-name" type="text" required autocomplete="name" minlength="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
             <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Correo electronico *</span><input id="professional-register-email" type="email" required autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
-            <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Número de contacto *</span><input id="professional-register-phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="+34 600 000 000" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
-            <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Contrasena *</span><input id="professional-register-password" type="password" required autocomplete="new-password" minlength="8" placeholder="Minimo 8 caracteres" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
-            <label class="flex items-start gap-2 text-[11px] leading-relaxed text-slate-500"><input id="professional-register-privacy" type="checkbox" required class="mt-0.5" /><span>Acepto la <a href="#/privacidad" class="legal-link">politica de privacidad</a> y el tratamiento necesario para crear mi cuenta profesional. *</span></label>
-            <label class="flex items-start gap-2 text-[11px] leading-relaxed text-slate-500"><input id="professional-register-marketing" type="checkbox" class="mt-0.5" /><span>Quiero recibir novedades y comunicaciones comerciales de Captacion.app. Opcional y revocable.</span></label>
+            <div class="grid grid-cols-1 sm:grid-cols-[0.95fr_1.05fr] gap-3"><label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">País *</span><select id="professional-register-country" autocomplete="tel-country-code" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white">${countryCodeOptionsHtml()}</select></label><label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Número de contacto *</span><input id="professional-register-phone" type="tel" required autocomplete="tel-national" inputmode="tel" placeholder="600 000 000" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label></div>
+            <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Contrasena *</span><div class="relative"><input id="professional-register-password" type="password" required autocomplete="new-password" minlength="8" placeholder="Minimo 8 caracteres" class="w-full px-4 py-3 pr-24 rounded-xl border border-slate-200 text-sm" /><button type="button" onclick="togglePasswordVisibility('professional-register-password', this)" class="absolute inset-y-1 right-1 px-3 rounded-lg text-[10px] font-black text-blue hover:bg-blue-light">Mostrar</button></div></label>
+            <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-600 cursor-pointer"><input id="professional-register-privacy" type="checkbox" required class="mt-0.5 h-5 w-5 shrink-0" /><span>Acepto la <a href="#/privacidad" class="legal-link">politica de privacidad</a> y el tratamiento necesario para crear mi cuenta profesional. *</span></label>
+            <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-600 cursor-pointer"><input id="professional-register-marketing" type="checkbox" class="mt-0.5 h-5 w-5 shrink-0" /><span>Quiero recibir novedades y comunicaciones comerciales de Captacion.app. Opcional y revocable.</span></label>
             <p id="professional-register-error" class="hidden rounded-xl bg-red-50 border border-red-100 px-3 py-2 text-xs text-red-700" role="alert"></p>
             <button id="professional-register-submit" type="submit" class="w-full py-3.5 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md">Crear cuenta profesional</button>
           </form>
@@ -4834,6 +4835,31 @@ $captacion_current_user = wp_get_current_user();
 
     function closeProfessionalSubscriptionModal() {
       getProfessionalSubscriptionModal().classList.add('hidden');
+    }
+
+    function countryCodeOptionsHtml(selected = '+34') {
+      const countries = [
+        ['+34','España'], ['+351','Portugal'], ['+33','Francia'], ['+39','Italia'], ['+49','Alemania'], ['+44','Reino Unido'],
+        ['+1','Estados Unidos/Canadá'], ['+52','México'], ['+54','Argentina'], ['+56','Chile'], ['+57','Colombia'], ['+51','Perú'],
+        ['+58','Venezuela'], ['+593','Ecuador'], ['+598','Uruguay'], ['+595','Paraguay'], ['+55','Brasil'], ['+212','Marruecos']
+      ];
+      return countries.map(([code, name]) => `<option value="${code}" ${code === selected ? 'selected' : ''}>${name} (${code})</option>`).join('');
+    }
+
+    function buildInternationalPhone(countryId, phoneId) {
+      const countryCode = cleanText(document.getElementById(countryId)?.value || '+34').replace(/[^0-9+]/g, '');
+      let phone = cleanText(document.getElementById(phoneId)?.value || '').replace(/[^0-9+]/g, '');
+      if (phone.startsWith('+')) return phone;
+      phone = phone.replace(/^0+/, '');
+      return `${countryCode}${phone}`;
+    }
+
+    function togglePasswordVisibility(inputId, button) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      if (button) button.textContent = show ? 'Ocultar' : 'Mostrar';
     }
 
     async function registerProfessionalAccount(fields, ui = {}) {
@@ -4872,7 +4898,7 @@ $captacion_current_user = wp_get_current_user();
       return registerProfessionalAccount({
         name: cleanText(document.getElementById('professional-register-name')?.value || ''),
         email: cleanText(document.getElementById('professional-register-email')?.value || '').toLowerCase(),
-        phone: cleanText(document.getElementById('professional-register-phone')?.value || '').replace(/[\s().-]/g, ''),
+        phone: buildInternationalPhone('professional-register-country', 'professional-register-phone'),
         password: document.getElementById('professional-register-password')?.value || '',
         privacyAccepted: Boolean(document.getElementById('professional-register-privacy')?.checked),
         commercialConsent: Boolean(document.getElementById('professional-register-marketing')?.checked)
@@ -4884,7 +4910,7 @@ $captacion_current_user = wp_get_current_user();
       return registerProfessionalAccount({
         name: cleanText(document.getElementById('inline-register-name')?.value || ''),
         email: cleanText(document.getElementById('inline-register-email')?.value || '').toLowerCase(),
-        phone: cleanText(document.getElementById('inline-register-phone')?.value || '').replace(/[\s().-]/g, ''),
+        phone: buildInternationalPhone('inline-register-country', 'inline-register-phone'),
         password: document.getElementById('inline-register-password')?.value || '',
         privacyAccepted: Boolean(document.getElementById('inline-register-privacy')?.checked),
         commercialConsent: Boolean(document.getElementById('inline-register-marketing')?.checked)
@@ -5066,6 +5092,7 @@ $captacion_current_user = wp_get_current_user();
       return {
         ...payload,
         id: payload.id || record.record_key || `record-${record.id}`,
+        userEmail: payload.userEmail || record.user_email || '',
         wpRecordId: record.id || '',
         wpStatus: record.status || '',
         wpUpdatedAt: record.updated_at || ''
@@ -5187,16 +5214,16 @@ $captacion_current_user = wp_get_current_user();
           <div class="mt-5 grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1"><button id="professional-access-login-tab" type="button" onclick="toggleProfessionalAccessMode('login')" class="px-3 py-2 rounded-lg bg-white text-navy text-xs font-black shadow-sm">Iniciar sesión</button><button id="professional-access-register-tab" type="button" onclick="toggleProfessionalAccessMode('register')" class="px-3 py-2 rounded-lg text-slate-500 text-xs font-black">Crear cuenta</button></div>
           <form id="professional-access-login-form" onsubmit="handleProfessionalLogin(event)" class="mt-5 space-y-4">
             <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Correo electrónico *</span><input id="professional-login-email" type="email" required autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
-            <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Contraseña *</span><input id="professional-login-password" type="password" required autocomplete="current-password" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
+            <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Contraseña *</span><div class="relative"><input id="professional-login-password" type="password" required autocomplete="current-password" class="w-full px-4 py-3 pr-24 rounded-xl border border-slate-200 text-sm" /><button type="button" onclick="togglePasswordVisibility('professional-login-password', this)" class="absolute inset-y-1 right-1 px-3 rounded-lg text-[10px] font-black text-blue hover:bg-blue-light">Mostrar</button></div></label>
             <p id="professional-login-error" class="hidden rounded-xl bg-red-50 border border-red-100 px-3 py-2 text-xs text-red-700" role="alert"></p>
             <button id="professional-login-submit" class="w-full py-3.5 rounded-xl bg-navy text-white text-xs font-black">Acceder</button><a href="${CAPTACION_MAILCHIMP.lostPasswordUrl}" class="block text-center text-xs font-bold text-blue">¿Has olvidado tu contraseña?</a><button type="button" onclick="toggleProfessionalAccessMode('register')" class="w-full text-xs font-bold text-blue">¿No tienes cuenta? Crear cuenta profesional</button>
           </form>
           <form id="professional-access-register-form" onsubmit="handleAccessProfessionalRegistration(event)" class="hidden mt-5 space-y-4">
             <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Nombre y apellidos *</span><input id="access-register-name" type="text" required minlength="3" autocomplete="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
             <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Correo electrónico *</span><input id="access-register-email" type="email" required autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
-            <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Número de contacto *</span><input id="access-register-phone" type="tel" required autocomplete="tel" placeholder="+34 600 000 000" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
-            <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Contraseña *</span><input id="access-register-password" type="password" required minlength="8" autocomplete="new-password" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label>
-            <label class="flex items-start gap-2 text-[11px] text-slate-500"><input id="access-register-privacy" type="checkbox" required class="mt-0.5" /><span>He leído y acepto la <a href="#/privacidad" class="legal-link">Política de privacidad</a>.</span></label>
+            <div class="grid grid-cols-1 sm:grid-cols-[0.95fr_1.05fr] gap-3"><label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">País *</span><select id="access-register-country" autocomplete="tel-country-code" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm bg-white">${countryCodeOptionsHtml()}</select></label><label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Número de contacto *</span><input id="access-register-phone" type="tel" required autocomplete="tel-national" placeholder="600 000 000" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" /></label></div>
+            <label class="block"><span class="block text-xs font-bold text-slate-500 mb-1">Contraseña *</span><div class="relative"><input id="access-register-password" type="password" required minlength="8" autocomplete="new-password" class="w-full px-4 py-3 pr-24 rounded-xl border border-slate-200 text-sm" /><button type="button" onclick="togglePasswordVisibility('access-register-password', this)" class="absolute inset-y-1 right-1 px-3 rounded-lg text-[10px] font-black text-blue hover:bg-blue-light">Mostrar</button></div></label>
+            <label class="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-3 text-xs text-slate-600 cursor-pointer"><input id="access-register-privacy" type="checkbox" required class="mt-0.5 h-5 w-5 shrink-0" /><span>He leído y acepto la <a href="#/privacidad" class="legal-link">Política de privacidad</a>.</span></label>
             <p id="access-register-error" class="hidden rounded-xl bg-red-50 border border-red-100 px-3 py-2 text-xs text-red-700" role="alert"></p>
             <button id="access-register-submit" class="w-full py-3.5 rounded-xl bg-blue text-white text-xs font-black">Crear cuenta profesional</button><button type="button" onclick="toggleProfessionalAccessMode('login')" class="w-full text-xs font-bold text-blue">¿Ya tienes cuenta? Iniciar sesión</button>
           </form>
@@ -5242,7 +5269,7 @@ $captacion_current_user = wp_get_current_user();
 
     async function handleAccessProfessionalRegistration(event) {
       event.preventDefault();
-      return registerProfessionalAccount({name:cleanText(document.getElementById('access-register-name')?.value||''),email:cleanText(document.getElementById('access-register-email')?.value||'').toLowerCase(),phone:cleanText(document.getElementById('access-register-phone')?.value||'').replace(/[\s().-]/g,''),password:document.getElementById('access-register-password')?.value||'',privacyAccepted:Boolean(document.getElementById('access-register-privacy')?.checked)}, {form:event.target,errorBox:document.getElementById('access-register-error'),submit:document.getElementById('access-register-submit')});
+      return registerProfessionalAccount({name:cleanText(document.getElementById('access-register-name')?.value||''),email:cleanText(document.getElementById('access-register-email')?.value||'').toLowerCase(),phone:buildInternationalPhone('access-register-country','access-register-phone'),password:document.getElementById('access-register-password')?.value||'',privacyAccepted:Boolean(document.getElementById('access-register-privacy')?.checked)}, {form:event.target,errorBox:document.getElementById('access-register-error'),submit:document.getElementById('access-register-submit')});
     }
 
     async function resendVerificationEmail(email) {
@@ -7040,7 +7067,9 @@ $captacion_current_user = wp_get_current_user();
         badgeText: exclusive ? "Exclusiva compartida" : "Abierta a colaboración",
         fundingConditions: "Sujeto a viabilidad y estudio de solvencia del perfil inversor.",
         image: hasCustomImage ? uploadedFileBase64 : '', // Solo guardamos la imagen personalizada optimizada; la predeterminada se reutiliza sin duplicar memoria.
-        imageIsDefault: !hasCustomImage
+        imageIsDefault: !hasCustomImage,
+        agency: getDemoSession()?.agency || 'Perfil profesional',
+        userEmail: getDemoSession()?.email || CAPTACION_MAILCHIMP?.currentUser?.email || ''
       };
 
       // Cabecera dinámica que muestra la foto previa si se ha subido
@@ -9050,8 +9079,16 @@ $captacion_current_user = wp_get_current_user();
       return state;
     }
 
-    function privatePropertyById(id) { return properties.find(item => item.id === id) || null; }
-    function privateNeedById(id) { return needs.find(item => item.id === id) || null; }
+    function currentPrivateUserEmail() { return (getDemoSession?.()?.email || CAPTACION_MAILCHIMP?.currentUser?.email || '').toLowerCase(); }
+    function isOwnedByCurrentUser(item = {}) {
+      const email = currentPrivateUserEmail();
+      if (!email) return false;
+      return String(item.userEmail || item.user_email || item.ownerEmail || '').toLowerCase() === email;
+    }
+    function privateProperties() { return properties.filter(isOwnedByCurrentUser); }
+    function privateNeeds() { return needs.filter(isOwnedByCurrentUser); }
+    function privatePropertyById(id) { return privateProperties().find(item => item.id === id) || properties.find(item => item.id === id) || null; }
+    function privateNeedById(id) { return privateNeeds().find(item => item.id === id) || needs.find(item => item.id === id) || null; }
     function privateStatusClasses(status = '') {
       const normalized = String(status).toLowerCase();
       if (normalized.includes('complet') || normalized.includes('disponible') || normalized.includes('desbloque')) return 'bg-green-light text-green';
@@ -9370,17 +9407,19 @@ $captacion_current_user = wp_get_current_user();
       const unread = (state.notifications || []).filter(item => !item.read).length;
       const salesMatches = getSalesMatchRecords();
       const matches = salesMatches.length;
-      const captureValue = properties.reduce((sum,item)=>sum+(Number(item.price)||0),0);
+      const myProperties = privateProperties();
+      const myNeeds = privateNeeds();
+      const captureValue = myProperties.reduce((sum,item)=>sum+(Number(item.price)||0),0);
       const requestValue = (state.requestsReceived || []).reduce((sum,item)=>sum+linkedPropertyValue(item),0);
       const matchValue = salesMatches.reduce((sum,item)=>sum+(Number(item.estimatedValue)||0),0);
-      const demandValue = needs.reduce((sum,item)=>sum+(Number(item.budget)||0),0);
+      const demandValue = myNeeds.reduce((sum,item)=>sum+(Number(item.budget)||0),0);
       const favoriteValue = getFavoriteIds('capture').reduce((sum,id)=>sum+(Number(privatePropertyById(id)?.price)||0),0) + getFavoriteIds('demand').reduce((sum,id)=>sum+(Number(privateNeedById(id)?.budget)||0),0) + getFavoriteIds('match').reduce((sum,id)=>sum+(Number(salesMatches.find(item=>item.id===id)?.estimatedValue)||0),0);
       const activeValue = activeOperationRows.reduce((sum,item)=>sum+linkedPropertyValue(item),0);
       const completedValue = completedOperationRows.reduce((sum,item)=>sum+linkedPropertyValue(item),0) + closedOperations.reduce((sum,item)=>sum+(Number(item.price)||0),0);
       const canceledValue = canceledOperationRows.reduce((sum,item)=>sum+linkedPropertyValue(item),0);
       let cards = [];
-      if (privateDashboardFocus !== 'demands') cards.push(privateKpiCard('Captaciones publicadas', properties.length, 'text-blue', 'offers', privateEstimateLabel(captureValue, properties.length > 0)), privateKpiCard('Solicitudes recibidas', (state.requestsReceived || []).length, 'text-amber', 'requests', privateEstimateLabel(requestValue, requestValue > 0)), privateKpiCard('Coincidencias detectadas', matches, 'text-green', 'overview', privateEstimateLabel(matchValue, matches > 0)));
-      if (privateDashboardFocus !== 'offers') cards.push(privateKpiCard('Demandas activas', needs.length, 'text-navy', 'demands', privateEstimateLabel(demandValue, needs.length > 0)), privateKpiCard('Favoritos', getFavoriteIds('capture').length + getFavoriteIds('demand').length + getFavoriteIds('match').length, 'text-amber', 'favorites', privateEstimateLabel(favoriteValue, favoriteValue > 0)));
+      if (privateDashboardFocus !== 'demands') cards.push(privateKpiCard('Mis captaciones publicadas', myProperties.length, 'text-blue', 'offers', privateEstimateLabel(captureValue, myProperties.length > 0)), privateKpiCard('Solicitudes recibidas', (state.requestsReceived || []).length, 'text-amber', 'requests', privateEstimateLabel(requestValue, requestValue > 0)), privateKpiCard('Coincidencias detectadas', matches, 'text-green', 'overview', privateEstimateLabel(matchValue, matches > 0)));
+      if (privateDashboardFocus !== 'offers') cards.push(privateKpiCard('Mis demandas activas', myNeeds.length, 'text-navy', 'demands', privateEstimateLabel(demandValue, myNeeds.length > 0)), privateKpiCard('Favoritos', getFavoriteIds('capture').length + getFavoriteIds('demand').length + getFavoriteIds('match').length, 'text-amber', 'favorites', privateEstimateLabel(favoriteValue, favoriteValue > 0)));
       cards.push(privateKpiCard('Operaciones en curso', activeOps, 'text-blue', 'operations', privateEstimateLabel(activeValue, activeValue > 0)), privateKpiCard('Operaciones cerradas', completedOps, 'text-green', 'operations', privateEstimateLabel(completedValue, completedOps > 0)), privateKpiCard('Operaciones canceladas', canceledOps, 'text-red-600', 'operations', privateEstimateLabel(canceledValue, canceledValue > 0)), privateKpiCard('Tareas pendientes', pendingTasks, 'text-amber', 'tasks'), privateKpiCard('Avisos sin leer', unread, 'text-red-600', 'notifications'), privateKpiCard('Clientes asignados', (state.clients || []).length, 'text-navy', 'overview'), privateKpiCard('Leads activos', (state.leads || []).filter(item => item.status !== 'Convertido').length, 'text-blue', 'overview'));
       container.innerHTML = cards.join('');
       const sidebarRequests = document.getElementById('private-sidebar-requests'); if (sidebarRequests) sidebarRequests.textContent = String((state.requestsReceived || []).filter(item => item.status.includes('Pendiente')).length);
@@ -9401,10 +9440,10 @@ $captacion_current_user = wp_get_current_user();
     function renderPrivateMatches() {
       const container = document.getElementById('private-matches-list'); if (!container) return;
       if (privateMatchesMode === 'offers') {
-        const cards = properties.slice(0, 8).map(property => ({ property, matches:getCompatibleNeedsForProperty(property, 5) })).filter(item => item.matches.length).slice(0, 4);
+        const cards = privateProperties().slice(0, 8).map(property => ({ property, matches:getCompatibleNeedsForProperty(property, 5) })).filter(item => item.matches.length).slice(0, 4);
         container.innerHTML = cards.length ? cards.map(({property,matches}) => `<article class="private-mini-card"><div class="flex items-start justify-between gap-3"><div><span class="text-[10px] font-black text-blue">${escapeHTML(property.reference || property.id)}</span><strong class="block text-sm text-navy mt-1">${escapeHTML(property.title)}</strong><span class="block text-[11px] text-slate-500 mt-1">${formatPropertyFeatures(property,true)} · C.P. ${escapeHTML(property.postalCode || 'N/D')}</span></div><span class="private-status-pill bg-green-light text-green">${matches[0].score}%</span></div><p class="text-[11px] text-slate-500 mt-3">${matches.length} demanda${matches.length===1?'':'s'} compatible${matches.length===1?'':'s'} detectada${matches.length===1?'':'s'}.</p><div class="flex flex-wrap gap-2 mt-3"><button onclick="openMapPropertyCard('${property.id}')" class="px-3 py-2 rounded-lg bg-blue text-white text-[10px] font-bold">Abrir captación</button><button onclick="switchPrivateDashboardPanel('demands')" class="px-3 py-2 rounded-lg border border-slate-200 text-[10px] font-bold text-navy">Ver demandas</button></div></article>`).join('') : `<p class="text-xs text-slate-500">No se han detectado coincidencias todavía.</p>`;
       } else {
-        const cards = needs.slice(0, 8).map(need => ({ need, matches:getCompatiblePropertiesForNeed(need, 5) })).filter(item => item.matches.length).slice(0, 4);
+        const cards = privateNeeds().slice(0, 8).map(need => ({ need, matches:getCompatiblePropertiesForNeed(need, 5) })).filter(item => item.matches.length).slice(0, 4);
         container.innerHTML = cards.length ? cards.map(({need,matches}) => `<article class="private-mini-card"><div class="flex items-start justify-between gap-3"><div><span class="text-[10px] font-black text-green">Intención de búsqueda</span><strong class="block text-sm text-navy mt-1">${escapeHTML(need.title)}</strong><span class="block text-[11px] text-slate-500 mt-1">Hasta ${formatCurrency(need.budget)} · C.P. ${escapeHTML(need.postalCode || 'N/D')}</span></div><span class="private-status-pill bg-green-light text-green">${matches[0].score}%</span></div><p class="text-[11px] text-slate-500 mt-3">${matches.length} captación${matches.length===1?'':'es'} compatible${matches.length===1?'':'s'} detectada${matches.length===1?'':'s'}.</p><div class="flex flex-wrap gap-2 mt-3"><button onclick="openMapNeedCard('${need.id}')" class="px-3 py-2 rounded-lg bg-navy text-white text-[10px] font-bold">Abrir demanda</button><button onclick="switchPrivateDashboardPanel('offers')" class="px-3 py-2 rounded-lg border border-slate-200 text-[10px] font-bold text-navy">Ver propiedades</button></div></article>`).join('') : `<p class="text-xs text-slate-500">No se han detectado coincidencias todavía.</p>`;
       }
     }
@@ -9458,7 +9497,7 @@ $captacion_current_user = wp_get_current_user();
     function renderPrivateOffers() {
       const tbody = document.getElementById('private-offers-table'); if (!tbody) return;
       const search = normalizeMatchText(document.getElementById('private-offers-search')?.value || '');
-      const list = properties.filter(property => !search || normalizeMatchText(`${property.reference} ${property.title} ${property.province} ${property.municipality} ${property.postalCode}`).includes(search));
+      const list = privateProperties().filter(property => !search || normalizeMatchText(`${property.reference} ${property.title} ${property.province} ${property.municipality} ${property.postalCode}`).includes(search));
       const summary = document.getElementById('private-offers-summary'); if (summary) summary.innerHTML = [ ['Publicadas',list.length,'text-blue'], ['Con solicitudes',(getPrivateDashboardState().requestsReceived||[]).length,'text-amber'], ['Coincidencias',list.reduce((sum,item)=>sum+getCompatibleNeedsForProperty(item,10).length,0),'text-green'], ['Cerradas',closedOperations.length,'text-navy'] ].map(([label,value,color])=>privateKpiCard(label,value,color,'offers')).join('');
       tbody.innerHTML = list.slice(0, 80).map(property => { const matches=getCompatibleNeedsForProperty(property,10); return `<tr class="border-b border-slate-100"><td class="px-4 py-3"><strong class="text-blue">${escapeHTML(property.reference || property.id)}</strong></td><td class="px-4 py-3"><strong class="block text-xs text-navy">${escapeHTML(property.title)}</strong><span class="text-[10px] text-slate-500">${escapeHTML(property.province || property.location)} · C.P. ${escapeHTML(property.postalCode || 'N/D')}</span></td><td class="px-4 py-3 font-bold text-navy">${formatCurrency(property.price)}</td><td class="px-4 py-3"><span class="private-status-pill ${Number(property.score)>=85?'bg-green-light text-green':'bg-blue-light text-blue'}">★ ${escapeHTML(property.score || 80)}/100</span></td><td class="px-4 py-3"><span class="private-status-pill bg-blue-light text-blue">${matches.length}</span></td><td class="px-4 py-3"><span class="private-status-pill bg-green-light text-green">Publicada</span></td><td class="px-4 py-3"><button onclick="openMapPropertyCard('${property.id}')" class="text-[11px] font-bold text-blue">Abrir →</button></td></tr>`; }).join('') || `<tr><td colspan="7" class="p-5 text-xs text-slate-500">No hay captaciones con esos criterios.</td></tr>`;
     }
@@ -9466,7 +9505,7 @@ $captacion_current_user = wp_get_current_user();
     function renderPrivateDemands() {
       const tbody = document.getElementById('private-demands-table'); if (!tbody) return;
       const search = normalizeMatchText(document.getElementById('private-demands-search')?.value || '');
-      const list = needs.filter(need => !search || normalizeMatchText(`${need.id} ${need.title} ${need.province} ${need.municipality} ${need.postalCode}`).includes(search));
+      const list = privateNeeds().filter(need => !search || normalizeMatchText(`${need.id} ${need.title} ${need.province} ${need.municipality} ${need.postalCode}`).includes(search));
       const summary = document.getElementById('private-demands-summary'); if (summary) summary.innerHTML = [ ['Activas',list.length,'text-navy'], ['Con coincidencias',list.filter(item=>getCompatiblePropertiesForNeed(item,10).length).length,'text-green'], ['Sin resultados',list.filter(item=>!getCompatiblePropertiesForNeed(item,10).length).length,'text-amber'], ['Solicitudes enviadas',(getPrivateDashboardState().requestsSent||[]).length,'text-blue'] ].map(([label,value,color])=>privateKpiCard(label,value,color,'demands')).join('');
       tbody.innerHTML = list.slice(0, 80).map(need => { const matches=getCompatiblePropertiesForNeed(need,10); return `<tr class="border-b border-slate-100"><td class="px-4 py-3"><strong class="text-green">${escapeHTML(need.id)}</strong></td><td class="px-4 py-3"><strong class="block text-xs text-navy">${escapeHTML(need.title)}</strong><span class="text-[10px] text-slate-500">${escapeHTML(need.province || '')} · C.P. ${escapeHTML(need.postalCode || 'N/D')} · ${formatPropertyFeatures(need,true)}</span></td><td class="px-4 py-3 font-bold text-navy">Hasta ${formatCurrency(need.budget)}</td><td class="px-4 py-3"><span class="private-status-pill ${matches.length?'bg-green-light text-green':'bg-amber-light text-amber'}">${matches.length}</span></td><td class="px-4 py-3"><span class="private-status-pill bg-green-light text-green">Activa</span></td><td class="px-4 py-3"><button onclick="openHomeNeedMatches('${need.id}')" class="text-[11px] font-bold text-blue">Abrir →</button></td></tr>`; }).join('') || `<tr><td colspan="6" class="p-5 text-xs text-slate-500">No hay demandas con esos criterios.</td></tr>`;
     }
