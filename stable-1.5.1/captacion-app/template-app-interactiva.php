@@ -2390,6 +2390,7 @@ $captacion_current_user = wp_get_current_user();
               <button type="button" data-private-panel="communications" onclick="switchPrivateDashboardPanel('communications')" class="private-dashboard-nav"><span>💬</span><span>Comunicación interna</span><span id="private-sidebar-messages" class="ml-auto px-2 py-0.5 rounded-full bg-green-light text-green text-[9px] font-black">0</span></button>
               <button type="button" data-private-panel="traceability" onclick="switchPrivateDashboardPanel('traceability')" class="private-dashboard-nav"><span>⧉</span><span>Trazabilidad</span></button>
               <button type="button" data-private-panel="feeds" onclick="switchPrivateDashboardPanel('feeds')" class="private-dashboard-nav"><span>↻</span><span>Feeds XML</span></button>
+              <button type="button" data-private-panel="data" onclick="switchPrivateDashboardPanel('data')" class="private-dashboard-nav"><span>🔒</span><span>Datos y privacidad</span></button>
               <button type="button" data-private-panel="ai" onclick="switchPrivateDashboardPanel('ai')" class="private-dashboard-nav"><span>✦</span><span>Configuración IA</span></button>
               <button type="button" data-private-panel="profile" onclick="switchPrivateDashboardPanel('profile')" class="private-dashboard-nav"><span>◉</span><span>Perfil profesional</span></button>
             </nav>
@@ -2539,7 +2540,47 @@ $captacion_current_user = wp_get_current_user();
             <div id="private-panel-feeds" class="private-dashboard-panel">
               <div class="mb-5"><h3 class="text-xl font-black text-navy">Feeds XML</h3><p class="text-xs text-slate-500 mt-1">Importa, actualiza y elimina inventario externo.</p></div>
               <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 mb-6"><div class="flex flex-col lg:flex-row lg:items-end gap-4"><div class="flex-grow"><label for="private-xml-url" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">URL del fichero XML</label><input id="private-xml-url" type="url" placeholder="https://dominio.es/feed-inmuebles.xml" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue/20" /></div><button id="private-xml-save-btn" type="button" onclick="savePrivateXmlUrl()" class="px-5 py-3 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md transition-all">Guardar e importar XML</button></div><div id="private-xml-feeds-list" class="mt-5 space-y-3"></div></div>
-              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6"><div class="flex flex-col xl:flex-row xl:items-center justify-between gap-5"><div><span class="inline-flex px-3 py-1 rounded-full bg-amber-light text-amber text-[10px] font-black uppercase tracking-wider">Módulo demo nacional</span><h3 class="text-lg font-black text-navy mt-3">Cargar datos de prueba distribuidos por España</h3><p class="text-xs text-slate-500 mt-2 max-w-3xl leading-relaxed">Genera 150 captaciones y 300 demandas ficticias para probar mapas, filtros y coincidencias.</p></div><div class="flex flex-wrap gap-3 shrink-0"><button type="button" onclick="loadSpainScaleDemoData()" class="px-5 py-3 rounded-xl bg-navy hover:bg-navy-light text-white text-xs font-black shadow-md">Cargar demo nacional</button><button type="button" onclick="clearSpainScaleDemoData()" class="px-5 py-3 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-black">Eliminar datos demo</button></div></div><div id="spain-demo-status" class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3"></div></div>
+            </div>
+            <!-- DATOS Y PRIVACIDAD -->
+            <div id="private-panel-data" class="private-dashboard-panel">
+              <div class="mb-5"><h3 class="text-xl font-black text-navy">Datos y privacidad</h3><p class="text-xs text-slate-500 mt-1">Importa, exporta y administra tus datos personales según RGPD.</p></div>
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 mb-6">
+                <h4 class="text-sm font-black text-navy mb-3">Importar XML privado</h4>
+                <p class="text-xs text-slate-500 mb-4">Selecciona un archivo XML con tus captaciones y demandas. Los datos se asignarán a tu usuario.</p>
+                <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+                  <div class="flex-grow w-full">
+                    <input id="private-data-xml-file" type="file" accept=".xml" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm" />
+                  </div>
+                  <button type="button" onclick="importPrivateUserXml()" class="px-5 py-3 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md shrink-0">Importar XML</button>
+                </div>
+                <div id="private-xml-import-result" class="mt-3 text-xs hidden"></div>
+              </div>
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h4 class="text-sm font-black text-navy">Exportar mis datos</h4>
+                    <p class="text-xs text-slate-500 mt-1">Descarga un XML con todos tus registros privados.</p>
+                  </div>
+                  <button type="button" onclick="exportMyPrivateData()" class="px-5 py-3 rounded-xl bg-navy hover:bg-navy-light text-white text-xs font-black shadow-md text-center">Exportar XML</button>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 mb-6">
+                <h4 class="text-sm font-black text-navy mb-3">Mis lotes importados</h4>
+                <div id="private-import-batches-list" class="space-y-2">
+                  <p class="text-xs text-slate-400">Cargando...</p>
+                </div>
+              </div>
+              <div class="bg-white rounded-2xl border border-red-50 shadow-sm p-5 sm:p-6 border border-red-200">
+                <h4 class="text-sm font-black text-red-600 mb-3">Zona de peligro</h4>
+                <p class="text-xs text-slate-500 mb-4">Elimina todos tus datos privados de la plataforma. Esta acción no se puede deshacer.</p>
+                <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+                  <div class="flex-grow w-full">
+                    <input id="private-delete-confirm-input" type="text" placeholder="Escribe CONFIRMAR para eliminar" class="w-full px-4 py-3 rounded-xl border border-red-200 text-sm" />
+                  </div>
+                  <button type="button" onclick="deleteAllMyPrivateData()" class="px-5 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black shadow-md shrink-0">Eliminar mis datos</button>
+                </div>
+                <div id="private-delete-result" class="mt-3 text-xs hidden"></div>
+              </div>
             </div>
 
             <!-- IA -->
@@ -3065,159 +3106,8 @@ $captacion_current_user = wp_get_current_user();
     }
 
     // ==========================================
-    // 2. DATOS SEMILLA PARA INICIALIZACIÓN
+    // 2. COORDENADAS GEOGRÁFICAS (mapa público)
     // ==========================================
-    const initialProperties = [
-      {
-        id: "prop-1",
-        title: "Piso para reforma en Galicia",
-        type: "Piso",
-        location: "Galicia",
-        neighborhood: "Ourense · O Couto",
-        postalCode: "32002",
-        bedrooms: 3,
-        bathrooms: 1,
-        surface: 92,
-        price: 120000,
-        fee: "4.5%",
-        score: 86,
-        rehab: true,
-        exclusive: false,
-        urgency: "Media",
-        docs: "Básico",
-        description: "Excelente oportunidad para inversores en Ourense. Edificio residencial tranquilo con baja cuota de comunidad. El propietario está dispuesto a escuchar ofertas para agilizar la venta.",
-        badgeColor: "blue",
-        badgeText: "Exclusiva compartida",
-        fundingConditions: "Sujeto a aportación de fondos propios mínimos (20%) y simulación hipotecaria pre-aprobada.",
-        image: ""
-      },
-      {
-        id: "prop-2",
-        title: "Edificio de Oficinas con parking subterráneo",
-        type: "Edificio",
-        location: "Madrid",
-        neighborhood: "Madrid · Chamartín",
-        postalCode: "28036",
-        bedrooms: 0,
-        bathrooms: 6,
-        surface: 1850,
-        price: 3450000,
-        fee: "4.0%",
-        score: 94,
-        rehab: false,
-        exclusive: true,
-        urgency: "Baja",
-        docs: "Completo",
-        description: "Edificio corporativo con ocupación del 85%. Excelente rentabilidad recurrentes garantizada. Toda la documentación técnica validada en nuestro expediente.",
-        badgeColor: "blue",
-        badgeText: "Exclusiva compartida",
-        fundingConditions: "Financiación corporativa disponible bajo estudio de viabilidad con Banco Sabadell.",
-        image: ""
-      },
-      {
-        id: "prop-3",
-        title: "Local comercial prime en rentabilidad",
-        type: "Local Comercial",
-        location: "Barcelona",
-        neighborhood: "Barcelona · Eixample",
-        postalCode: "08009",
-        bedrooms: 0,
-        bathrooms: 1,
-        surface: 145,
-        price: 520000,
-        fee: "5.0%",
-        score: 91,
-        rehab: false,
-        exclusive: true,
-        urgency: "Alta",
-        docs: "Auditoría Completa",
-        description: "Local en esquina comercial de alto tránsito peatonal. Ideal para franquicias o marcas de retail. Certificaciones estructurales correctas.",
-        badgeColor: "amber",
-        badgeText: "Alta motivación",
-        fundingConditions: "Requiere fondos propios acreditados mediante certificado bancario antes de la firma del pre-contrato.",
-        image: ""
-      }
-    ];
-
-    const initialNeeds = [
-      {
-        id: "need-1",
-        title: "Inversor busca piso para reformar en O Couto",
-        type: "Piso",
-        operation: "Venta",
-        buyerType: "Inversor",
-        urgency: "Media (1-3 meses)",
-        funding: "Fondos propios / Al contado",
-        ccaa: "Galicia",
-        province: "Ourense",
-        municipality: "Ourense",
-        locality: "O Couto",
-        postalCode: "32002",
-        bedrooms: 2,
-        bathrooms: 1,
-        surface: 70,
-        budget: 90000,
-        feeSplit: "50/50",
-        description: "Inversor local solvente con capital disponible busca piso de 2 o 3 dormitorios en zona centro o El Couto. Indispensable ascensor, no importa estado de conservación.",
-        date: Date.now() - 3600000 * 48,
-        agency: "Real Galicia Investments"
-      },
-      {
-        id: "need-2",
-        title: "Particular busca Chalet de lujo en Pozuelo",
-        type: "Casa/Chalet",
-        operation: "Venta",
-        buyerType: "Particular",
-        urgency: "Alta (Menos de 1 mes)",
-        funding: "Financiación preaprobada",
-        ccaa: "Madrid",
-        province: "Madrid",
-        municipality: "Pozuelo de Alarcón",
-        locality: "Somosaguas",
-        postalCode: "28223",
-        bedrooms: 4,
-        bathrooms: 3,
-        surface: 240,
-        budget: 950000,
-        feeSplit: "A consultar",
-        description: "Buscamos chalet independiente o pareado con jardín amplio, mínimo 4 habitaciones y piscina. Cliente premium de alta solvencia con hipoteca preaprobada.",
-        date: Date.now() - 3600000 * 6,
-        agency: "Capital & Luxury Homes"
-      },
-      {
-        id: "need-3",
-        title: "Profesional busca Nave Industrial para logística",
-        type: "Nave",
-        operation: "Alquiler con Opción a Compra",
-        buyerType: "Profesional",
-        urgency: "Alta (Menos de 1 mes)",
-        funding: "No requiere",
-        ccaa: "Comunidad Valenciana",
-        province: "Alicante",
-        municipality: "Elche",
-        locality: "Torrellano",
-        postalCode: "03295",
-        bedrooms: 0,
-        bathrooms: 2,
-        surface: 1200,
-        budget: 450000,
-        feeSplit: "50/50",
-        description: "Buscamos nave industrial de mínimo 1200m² con muelle de carga activo y fácil acceso a autovía principal. Preferible alquiler con opción a compra.",
-        date: Date.now() - 3600000 * 24,
-        agency: "Levante Logística"
-      }
-    ];
-
-
-    const initialClosedOperations = [
-      { id: "closed-1", title: "Piso reformado vendido en Ourense", zone: "Ourense", price: 148000, date: Date.now() - 3600000 * 24 * 12 },
-      { id: "closed-2", title: "Local comercial en rentabilidad", zone: "Madrid", price: 310000, date: Date.now() - 3600000 * 24 * 20 },
-      { id: "closed-3", title: "Chalet residencial compartido", zone: "Pontevedra", price: 425000, date: Date.now() - 3600000 * 24 * 31 },
-      { id: "closed-4", title: "Nave logística con comprador activo", zone: "Valencia", price: 520000, date: Date.now() - 3600000 * 24 * 43 },
-      { id: "closed-5", title: "Piso de inversión", zone: "Barcelona", price: 235000, date: Date.now() - 3600000 * 24 * 55 },
-      { id: "closed-6", title: "Solar residencial", zone: "A Coruña", price: 195000, date: Date.now() - 3600000 * 24 * 70 }
-    ];
-
     // Coordenadas aproximadas para el mapa público. En producción deberán llegar del backend geoespacial.
     const geoCenters = {
       "Andalucía": [37.45, -4.65], "Aragón": [41.35, -0.65], "Asturias": [43.36, -5.85],
@@ -3370,41 +3260,20 @@ $captacion_current_user = wp_get_current_user();
     let properties = [];
     try {
       properties = JSON.parse(localStorage.getItem('captacion_properties_v3'));
-    } catch (e) {
-      console.error("Error al leer captacion_properties_v3", e);
-    }
-    if (!properties || properties.length === 0) {
-      properties = [...initialProperties];
-      try {
-        localStorage.setItem('captacion_properties_v3', JSON.stringify(properties));
-      } catch (e) {}
-    }
+    } catch (e) {}
+    if (!Array.isArray(properties)) properties = [];
 
     let needs = [];
     try {
       needs = JSON.parse(localStorage.getItem('captacion_needs_v3'));
-    } catch (e) {
-      console.error("Error al leer captacion_needs_v3", e);
-    }
-    if (!needs || needs.length === 0) {
-      needs = [...initialNeeds];
-      try {
-        localStorage.setItem('captacion_needs_v3', JSON.stringify(needs));
-      } catch (e) {}
-    }
+    } catch (e) {}
+    if (!Array.isArray(needs)) needs = [];
 
     let closedOperations = [];
     try {
       closedOperations = JSON.parse(localStorage.getItem('captacion_closed_operations_v4'));
-    } catch (e) {
-      console.error("Error al leer captacion_closed_operations_v4", e);
-    }
-    if (!closedOperations || closedOperations.length === 0) {
-      closedOperations = [...initialClosedOperations];
-      try {
-        localStorage.setItem('captacion_closed_operations_v4', JSON.stringify(closedOperations));
-      } catch (e) {}
-    }
+    } catch (e) {}
+    if (!Array.isArray(closedOperations)) closedOperations = [];
 
     properties = properties.map((property, index) => normalizePropertyRecord(property, index));
     needs = needs.map((need, index) => normalizeNeedRecord(need, index));
@@ -3468,7 +3337,7 @@ $captacion_current_user = wp_get_current_user();
         setTimeout(initNeedsMap, 0);
       }
       if (activePageId === 'page-area-privada') {
-        setTimeout(() => { renderDashboard(); renderAIConnections(); renderPrivateXmlFeeds(); renderSpainScaleDemoStatus(); }, 0);
+        setTimeout(() => { renderDashboard(); renderAIConnections(); renderPrivateXmlFeeds(); }, 0);
       }
 
       // Sincronizar clases visuales de los links del menú
@@ -5156,7 +5025,6 @@ $captacion_current_user = wp_get_current_user();
         renderDashboard();
         filterNeeds();
         renderHome();
-        renderSpainScaleDemoStatus();
         return true;
       } catch (error) {
         console.warn('[Captacion.app] Persistencia WordPress no disponible; se mantiene fallback local.', error);
@@ -8035,346 +7903,7 @@ $captacion_current_user = wp_get_current_user();
 
 
     // ==========================================
-    // 12. MÓDULO DEMO NACIONAL: 150 CAPTACIONES Y 300 DEMANDAS
-    // ==========================================
-    const SPAIN_SCALE_DEMO_BATCH = 'spain-scale-demo-v1';
-
-    function getSpainDemoLocations() {
-      const locations = [];
-      Object.entries(geoDb).forEach(([ccaa, provinces]) => {
-        Object.entries(provinces).forEach(([province, municipalities]) => {
-          municipalities.forEach(municipality => {
-            locations.push({ ccaa, province, municipality });
-          });
-        });
-      });
-      return locations;
-    }
-
-    function createSeededRandom(seed = 20260601) {
-      let state = seed >>> 0;
-      return function random() {
-        state = (Math.imul(1664525, state) + 1013904223) >>> 0;
-        return state / 4294967296;
-      };
-    }
-
-    function pickDemoValue(list, random) {
-      return list[Math.floor(random() * list.length) % list.length];
-    }
-
-    const DEMO_POSTAL_PREFIXES = {
-      'A Coruña':'15','Álava':'01','Albacete':'02','Alicante':'03','Almería':'04','Asturias':'33','Ávila':'05','Badajoz':'06','Barcelona':'08','Bizkaia':'48','Burgos':'09','Cáceres':'10','Cádiz':'11','Cantabria':'39','Castellón':'12','Ceuta':'51','Ciudad Real':'13','Córdoba':'14','Cuenca':'16','Girona':'17','Granada':'18','Guadalajara':'19','Gipuzkoa':'20','Huelva':'21','Huesca':'22','Illes Balears':'07','Jaén':'23','La Rioja':'26','Las Palmas':'35','León':'24','Lleida':'25','Lugo':'27','Madrid':'28','Málaga':'29','Melilla':'52','Murcia':'30','Navarra':'31','Ourense':'32','Palencia':'34','Pontevedra':'36','Salamanca':'37','Santa Cruz de Tenerife':'38','Segovia':'40','Sevilla':'41','Soria':'42','Tarragona':'43','Teruel':'44','Toledo':'45','Valencia':'46','Valladolid':'47','Zamora':'49','Zaragoza':'50','Araba':'01'
-    };
-
-    function buildDemoPostalCode(province, index = 0) {
-      const prefix = DEMO_POSTAL_PREFIXES[province] || '28';
-      return `${prefix}${String((index * 37 + 101) % 1000).padStart(3, '0')}`;
-    }
-
-    function buildSpainScaleDemoProperties(total = 150) {
-      const random = createSeededRandom(1502026);
-      const locations = getSpainDemoLocations();
-      const propertyTypes = ['Piso', 'Casa/Chalet', 'Local Comercial', 'Nave', 'Oficina', 'Edificio', 'Suelo/Terreno'];
-      const propertyTitles = {
-        'Piso': ['Piso urbano con potencial de actualización', 'Vivienda luminosa para inversión', 'Piso residencial en zona consolidada'],
-        'Casa/Chalet': ['Chalet con parcela para familia', 'Casa independiente con espacio exterior', 'Vivienda unifamiliar para reposicionamiento'],
-        'Local Comercial': ['Local comercial con visibilidad', 'Bajo comercial para nueva actividad', 'Local en zona de paso'],
-        'Nave': ['Nave industrial para actividad logística', 'Nave con acceso rodado', 'Activo industrial para empresa operadora'],
-        'Oficina': ['Oficina profesional bien comunicada', 'Espacio de trabajo para empresa', 'Oficina en entorno empresarial'],
-        'Edificio': ['Edificio para estrategia de inversión', 'Activo completo para reposicionamiento', 'Edificio con recorrido comercial'],
-        'Suelo/Terreno': ['Parcela con potencial inmobiliario', 'Terreno para proyecto residencial', 'Suelo para desarrollo a estudiar']
-      };
-      const feeOptions = ['3.0%', '3.5%', '4.0%', '4.5%', '5.0%'];
-      const urgencyOptions = ['Baja', 'Media', 'Alta'];
-      const docsOptions = ['Básico', 'Completo', 'Auditoría Completa'];
-      const badgeOptions = ['Colaboración B2B', 'Exclusiva compartida', 'Oportunidad activa', 'Venta prioritaria'];
-
-      return Array.from({ length: total }, (_, index) => {
-        const location = locations[(index * 7 + Math.floor(random() * locations.length)) % locations.length];
-        const type = propertyTypes[index % propertyTypes.length];
-        const basePrice = type === 'Edificio' ? 580000 : type === 'Suelo/Terreno' ? 175000 : type === 'Casa/Chalet' ? 245000 : type === 'Nave' ? 310000 : type === 'Local Comercial' ? 145000 : 118000;
-        const price = Math.round((basePrice + random() * basePrice * 2.4) / 5000) * 5000;
-        const title = `${pickDemoValue(propertyTitles[type], random)} en ${location.municipality}`;
-        return normalizePropertyRecord({
-          id: `demo-prop-${String(index + 1).padStart(4, '0')}`,
-          reference: `DEMO-P-${String(index + 1).padStart(4, '0')}`,
-          demoBatch: SPAIN_SCALE_DEMO_BATCH,
-          demoRecord: true,
-          title,
-          type,
-          ccaa: location.ccaa,
-          province: location.province,
-          municipality: location.municipality,
-          locality: '',
-          postalCode: buildDemoPostalCode(location.province, index),
-          bedrooms: ['Piso', 'Casa/Chalet'].includes(type) ? 1 + Math.floor(random() * 5) : 0,
-          bathrooms: ['Piso', 'Casa/Chalet'].includes(type) ? 1 + Math.floor(random() * 3) : Math.floor(random() * 3),
-          surface: Math.round((type === 'Edificio' ? 650 + random() * 1900 : type === 'Nave' ? 350 + random() * 1700 : type === 'Suelo/Terreno' ? 500 + random() * 4500 : type === 'Local Comercial' ? 60 + random() * 340 : 55 + random() * 240)),
-          location: location.province,
-          neighborhood: `${location.municipality} · ubicación aproximada`,
-          price,
-          fee: pickDemoValue(feeOptions, random),
-          score: 10 + Math.floor(random() * 91),
-          rehab: random() > .58,
-          exclusive: random() > .36,
-          urgency: pickDemoValue(urgencyOptions, random),
-          docs: pickDemoValue(docsOptions, random),
-          description: `Captación ficticia de demostración en ${location.municipality}. La información pública permite probar filtros y mapas sin mostrar datos personales ni direcciones exactas.`,
-          badgeText: pickDemoValue(badgeOptions, random),
-          fundingConditions: 'Condiciones disponibles mediante solicitud validada. Registro creado exclusivamente para pruebas de interfaz.',
-          image: '',
-          imageIsDefault: true,
-          date: Date.now() - index * 3600000 * 3
-        }, index);
-      });
-    }
-
-    function buildSpainScaleDemoNeeds(total = 300) {
-      const random = createSeededRandom(3002026);
-      const locations = getSpainDemoLocations();
-      const needTypes = ['Piso', 'Casa/Chalet', 'Local Comercial', 'Nave', 'Oficina', 'Edificio', 'Suelo/Terreno'];
-      const buyerTypes = ['Particular', 'Inversor', 'Profesional', 'Empresa'];
-      const urgencyOptions = ['Inmediata (Menos de 1 mes)', 'Media (1-3 meses)', 'Baja (Sin prisa)'];
-      const fundingOptions = ['Fondos propios / Al contado', 'Financiación preaprobada', 'Sujeto a hipoteca', 'No requiere'];
-      const operations = ['Venta', 'Alquiler', 'Alquiler con Opción a Compra'];
-
-      return Array.from({ length: total }, (_, index) => {
-        const location = locations[(index * 11 + Math.floor(random() * locations.length)) % locations.length];
-        const type = needTypes[index % needTypes.length];
-        const buyerType = buyerTypes[index % buyerTypes.length];
-        const baseBudget = type === 'Edificio' ? 720000 : type === 'Suelo/Terreno' ? 230000 : type === 'Casa/Chalet' ? 330000 : type === 'Nave' ? 390000 : type === 'Local Comercial' ? 165000 : 145000;
-        const budget = Math.round((baseBudget + random() * baseBudget * 2.1) / 5000) * 5000;
-        return normalizeNeedRecord({
-          id: `demo-need-${String(index + 1).padStart(4, '0')}`,
-          demoBatch: SPAIN_SCALE_DEMO_BATCH,
-          demoRecord: true,
-          title: `${buyerType} busca ${type.toLowerCase()} en ${location.municipality}`,
-          type,
-          operation: pickDemoValue(operations, random),
-          buyerType,
-          urgency: pickDemoValue(urgencyOptions, random),
-          funding: pickDemoValue(fundingOptions, random),
-          ccaa: location.ccaa,
-          province: location.province,
-          municipality: location.municipality,
-          locality: '',
-          postalCode: buildDemoPostalCode(location.province, index + 400),
-          bedrooms: ['Piso', 'Casa/Chalet'].includes(type) ? 1 + Math.floor(random() * 5) : 0,
-          bathrooms: ['Piso', 'Casa/Chalet'].includes(type) ? 1 + Math.floor(random() * 3) : Math.floor(random() * 3),
-          surface: Math.round((type === 'Edificio' ? 650 + random() * 1900 : type === 'Nave' ? 350 + random() * 1700 : type === 'Suelo/Terreno' ? 500 + random() * 4500 : type === 'Local Comercial' ? 60 + random() * 340 : 55 + random() * 240)),
-          budget,
-          feeSplit: random() > .28 ? '50/50' : 'A consultar',
-          description: `Demanda ficticia para probar el filtrado territorial y comercial en ${location.municipality}. Perfil simulado con requisitos básicos y datos sensibles protegidos.`,
-          date: Date.now() - index * 3600000 * 1.4,
-          agency: `Agencia Demo ${String((index % 35) + 1).padStart(2, '0')}`
-        }, index);
-      });
-    }
-
-    function renderSpainScaleDemoStatus() {
-      const container = document.getElementById('spain-demo-status');
-      if (!container) return;
-      const demoProperties = properties.filter(item => item.demoBatch === SPAIN_SCALE_DEMO_BATCH).length;
-      const demoNeeds = needs.filter(item => item.demoBatch === SPAIN_SCALE_DEMO_BATCH).length;
-      const active = demoProperties > 0 || demoNeeds > 0;
-      container.innerHTML = `
-        <div class="p-4 rounded-xl border ${active ? 'border-blue/20 bg-blue-light/40' : 'border-slate-200 bg-slate-50'}">
-          <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Estado</span>
-          <strong class="block text-sm font-black ${active ? 'text-blue' : 'text-slate-500'} mt-1">${active ? 'Demo nacional activa' : 'Demo sin cargar'}</strong>
-        </div>
-        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
-          <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Captaciones demo</span>
-          <strong class="block text-2xl font-black text-navy mt-1">${demoProperties}</strong>
-        </div>
-        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50">
-          <span class="block text-[10px] font-black uppercase tracking-wider text-slate-400">Demandas demo</span>
-          <strong class="block text-2xl font-black text-navy mt-1">${demoNeeds}</strong>
-        </div>`;
-    }
-
-    function refreshAfterSpainScaleDemoChange() {
-      persistDemoState();
-      renderMarketplace();
-      renderDashboard();
-      filterNeeds();
-      renderHome();
-      renderSpainScaleDemoStatus();
-      if (marketplaceViewMode === 'map') setTimeout(initMarketplaceMap, 0);
-      if (needsMapVisible) setTimeout(initNeedsMap, 0);
-    }
-
-    function resetSpainScaleDemoVisibleFilters() {
-      const setters = {
-        'market-reference-filter': '',
-        'market-postal-code-filter': '',
-        'market-sort': 'newest',
-        'need-filter-time': 'newest',
-        'need-filter-ccaa': 'all',
-        'need-filter-province': 'all',
-        'need-filter-municipality': 'all',
-        'need-filter-postal-code': '',
-        'need-filter-locality': '',
-        'need-filter-price': 'all'
-      };
-      Object.entries(setters).forEach(([id, value]) => {
-        const element = document.getElementById(id);
-        if (element) element.value = value;
-      });
-      updateGeoDropdowns('filter');
-    }
-
-    function persistAndVerifySpainScaleDemoData(expectedProperties = 150, expectedNeeds = 300) {
-      try {
-        localStorage.setItem('captacion_properties_v3', JSON.stringify(properties));
-        localStorage.setItem('captacion_needs_v3', JSON.stringify(needs));
-        localStorage.setItem('captacion_closed_operations_v4', JSON.stringify(closedOperations));
-        localStorage.setItem('captacion_spain_scale_demo_v1', 'active');
-
-        const storedProperties = JSON.parse(localStorage.getItem('captacion_properties_v3') || '[]');
-        const storedNeeds = JSON.parse(localStorage.getItem('captacion_needs_v3') || '[]');
-        const storedDemoProperties = storedProperties.filter(item => item.demoBatch === SPAIN_SCALE_DEMO_BATCH).length;
-        const storedDemoNeeds = storedNeeds.filter(item => item.demoBatch === SPAIN_SCALE_DEMO_BATCH).length;
-
-        if (storedDemoProperties !== expectedProperties || storedDemoNeeds !== expectedNeeds) {
-          throw new Error(`Verificación incompleta: se guardaron ${storedDemoProperties} captaciones y ${storedDemoNeeds} demandas demo.`);
-        }
-        return { storedDemoProperties, storedDemoNeeds };
-      } catch (error) {
-        throw new Error(`No se pudo guardar el lote demo completo en el navegador. ${error.message || 'Comprueba el espacio disponible de almacenamiento local.'}`);
-      }
-    }
-
-    function restoreSpainScaleDemoStorageSnapshot(snapshot) {
-      const restore = (key, value) => {
-        if (value === null) localStorage.removeItem(key);
-        else localStorage.setItem(key, value);
-      };
-      try {
-        restore('captacion_properties_v3', snapshot.properties);
-        restore('captacion_needs_v3', snapshot.needs);
-        restore('captacion_closed_operations_v4', snapshot.closedOperations);
-        restore('captacion_spain_scale_demo_v1', snapshot.demoFlag);
-      } catch (error) {
-        console.warn('No se pudo restaurar completamente el estado anterior de la demo.', error);
-      }
-    }
-
-    function loadSpainScaleDemoData() {
-      const currentDemoProperties = properties.filter(item => item.demoBatch === SPAIN_SCALE_DEMO_BATCH).length;
-      const currentDemoNeeds = needs.filter(item => item.demoBatch === SPAIN_SCALE_DEMO_BATCH).length;
-      const actionText = currentDemoProperties || currentDemoNeeds ? 'regenerar' : 'cargar';
-      if (!window.confirm(`Se van a ${actionText} 150 captaciones y 300 demandas ficticias distribuidas por España. ¿Continuar?`)) return;
-
-      const previousProperties = [...properties];
-      const previousNeeds = [...needs];
-      const storageSnapshot = {
-        properties: localStorage.getItem('captacion_properties_v3'),
-        needs: localStorage.getItem('captacion_needs_v3'),
-        closedOperations: localStorage.getItem('captacion_closed_operations_v4'),
-        demoFlag: localStorage.getItem('captacion_spain_scale_demo_v1')
-      };
-
-      try {
-        const generatedProperties = buildSpainScaleDemoProperties(150);
-        const generatedNeeds = buildSpainScaleDemoNeeds(300);
-        if (generatedProperties.length !== 150 || generatedNeeds.length !== 300) {
-          throw new Error(`El generador produjo ${generatedProperties.length} captaciones y ${generatedNeeds.length} demandas.`);
-        }
-
-        properties = [...generatedProperties, ...properties.filter(item => item.demoBatch !== SPAIN_SCALE_DEMO_BATCH)];
-        needs = [...generatedNeeds, ...needs.filter(item => item.demoBatch !== SPAIN_SCALE_DEMO_BATCH)];
-        const verified = persistAndVerifySpainScaleDemoData(150, 300);
-        resetSpainScaleDemoVisibleFilters();
-        refreshAfterSpainScaleDemoChange();
-        showToast(`Demo nacional cargada y verificada: ${verified.storedDemoProperties} captaciones y ${verified.storedDemoNeeds} demandas ficticias. Se han restablecido los filtros para mostrar el catálogo completo.`, 'success');
-      } catch (error) {
-        properties = previousProperties;
-        needs = previousNeeds;
-        restoreSpainScaleDemoStorageSnapshot(storageSnapshot);
-        resetSpainScaleDemoVisibleFilters();
-        refreshAfterSpainScaleDemoChange();
-        showToast(error.message || 'No se pudo cargar el lote demo completo.', 'info');
-      }
-    }
-
-    function clearSpainScaleDemoData() {
-      const demoProperties = properties.filter(item => item.demoBatch === SPAIN_SCALE_DEMO_BATCH).length;
-      const demoNeeds = needs.filter(item => item.demoBatch === SPAIN_SCALE_DEMO_BATCH).length;
-      if (!demoProperties && !demoNeeds) {
-        showToast('No hay datos demo nacionales para eliminar.', 'info');
-        return;
-      }
-      if (!window.confirm(`Se eliminarán ${demoProperties} captaciones y ${demoNeeds} demandas ficticias. Tus registros reales y los XML importados permanecerán intactos. ¿Continuar?`)) return;
-      properties = properties.filter(item => item.demoBatch !== SPAIN_SCALE_DEMO_BATCH);
-      needs = needs.filter(item => item.demoBatch !== SPAIN_SCALE_DEMO_BATCH);
-      try { localStorage.removeItem('captacion_spain_scale_demo_v1'); } catch (error) {}
-      refreshAfterSpainScaleDemoChange();
-      showToast('Datos demo nacionales eliminados. Las publicaciones reales y los XML importados no se han modificado.', 'success');
-    }
-
-
-    const REQUESTED_DEMO_BATCH = 'requested-demo-65-42-30-v1';
-
-    function buildRequestedDemoOwners(total = 42) {
-      return Array.from({ length: total }, (_, index) => ({
-        id: `owner-demo-${String(index + 1).padStart(3, '0')}`,
-        name: `Propietario Demo ${String(index + 1).padStart(2, '0')}`,
-        email: `propietario.demo${String(index + 1).padStart(2, '0')}@example.com`,
-        phone: `+34 600 ${String(100000 + index).slice(0, 6)}`,
-        category: index % 3 === 0 ? 'particular' : (index % 3 === 1 ? 'inversor' : 'sociedad'),
-        demoBatch: REQUESTED_DEMO_BATCH,
-        demoRecord: true
-      }));
-    }
-
-    function buildRequestedDemoDemanders(total = 30) {
-      return Array.from({ length: total }, (_, index) => ({
-        id: `demander-demo-${String(index + 1).padStart(3, '0')}`,
-        name: `Demandante Demo ${String(index + 1).padStart(2, '0')}`,
-        email: `demandante.demo${String(index + 1).padStart(2, '0')}@example.com`,
-        agency: `Agencia Compradora Demo ${String((index % 12) + 1).padStart(2, '0')}`,
-        demoBatch: REQUESTED_DEMO_BATCH,
-        demoRecord: true
-      }));
-    }
-
-    function ensureRequestedDemoData() {
-      try {
-        if (localStorage.getItem('captacion_requested_demo_v1') === 'active') return;
-        const generatedProperties = buildSpainScaleDemoProperties(65).map((item, index) => ({
-          ...item,
-          id: `demo65-prop-${String(index + 1).padStart(3, '0')}`,
-          reference: `DEMO65-P-${String(index + 1).padStart(3, '0')}`,
-          demoBatch: REQUESTED_DEMO_BATCH,
-          ownerId: `owner-demo-${String((index % 42) + 1).padStart(3, '0')}`,
-          date: Date.now() - index * 3600000
-        }));
-        const generatedNeeds = buildSpainScaleDemoNeeds(30).map((item, index) => ({
-          ...item,
-          id: `demo30-need-${String(index + 1).padStart(3, '0')}`,
-          reference: `DEMO30-D-${String(index + 1).padStart(3, '0')}`,
-          title: item.title || `Busco captación demo ${String(index + 1).padStart(2, '0')}`,
-          demoBatch: REQUESTED_DEMO_BATCH,
-          demanderId: `demander-demo-${String(index + 1).padStart(3, '0')}`,
-          date: Date.now() - index * 5400000
-        }));
-        const owners = buildRequestedDemoOwners(42);
-        const demanders = buildRequestedDemoDemanders(30);
-        properties = [...generatedProperties, ...properties.filter(item => item.demoBatch !== REQUESTED_DEMO_BATCH)];
-        needs = [...generatedNeeds, ...needs.filter(item => item.demoBatch !== REQUESTED_DEMO_BATCH)];
-        localStorage.setItem('captacion_demo_owners_v1', JSON.stringify(owners));
-        localStorage.setItem('captacion_demo_demanders_v1', JSON.stringify(demanders));
-        localStorage.setItem('captacion_requested_demo_v1', 'active');
-        persistDemoState();
-      } catch (error) {
-        console.warn('No se pudieron cargar los datos demo solicitados.', error);
-      }
-    }
-
-
-    // ==========================================
-    // 13. CAJA DE HERRAMIENTAS INMOBILIARIAS B2B
+    // 12. CAJA DE HERRAMIENTAS INMOBILIARIAS B2B
     // ==========================================
     const resourceCatalog = [
       { id:'sale-readiness', category:'captacion', icon:'✅', title:'Informe de preparación para la venta', description:'Evalúa documentación, cargas, certificado energético, fotografías, precio, ocupación e incidencias.', time:'5 min', result:'Puntúa 0–100', access:'registro', revision:'Diseño funcional', status:'roadmap' },
@@ -9337,7 +8866,8 @@ $captacion_current_user = wp_get_current_user();
       document.querySelectorAll('[data-private-panel]').forEach(button => button.classList.toggle('active', button.dataset.privatePanel === panel));
       const mobile = document.getElementById('private-dashboard-mobile-select');
       if (mobile) mobile.value = panel;
-      if (panel === 'feeds') { loadPrivateXmlUrl(); renderPrivateXmlFeeds(); renderSpainScaleDemoStatus(); }
+      if (panel === 'feeds') { loadPrivateXmlUrl(); renderPrivateXmlFeeds(); }
+      if (panel === 'data') loadImportBatches();
       if (panel === 'ai') renderAIConnections();
       renderDashboard();
     }
@@ -9758,7 +9288,6 @@ $captacion_current_user = wp_get_current_user();
       const storedSession = getDemoSession();
       if (storedSession && !storedSession.emailVerified) localStorage.removeItem('captacion_demo_session_v4');
       ensureWordPressSession();
-      ensureRequestedDemoData();
       startRegistrationPromptCycle();
       window.addEventListener('hashchange', handleRoute);
       if (!window.location.hash) {
@@ -9782,7 +9311,6 @@ $captacion_current_user = wp_get_current_user();
       showEmailVerificationResult();
       activateProfessionalMembershipFromReturn();
       loadPrivateXmlUrl();
-      renderSpainScaleDemoStatus();
       renderAIConnections();
       fetchMarketplaceAccessState().then(() => { applyDashboardPlanAccess(); loadWordPressTasks(); }).catch(() => applyDashboardPlanAccess());
       loadWordPressRealEstateRecords();
@@ -9797,7 +9325,6 @@ $captacion_current_user = wp_get_current_user();
         filterNeeds();
         renderHome();
         applyInternalPilotMessaging();
-        renderSpainScaleDemoStatus();
       });
     }
 
@@ -9806,6 +9333,140 @@ $captacion_current_user = wp_get_current_user();
       window.addEventListener('DOMContentLoaded', initApp);
     } else {
       initApp();
+    }
+
+    /* =============================================
+       DATA & PRIVACY MANAGEMENT (XML import/export, batches, deletion)
+       ============================================= */
+
+    async function importPrivateUserXml() {
+      const fileInput = document.getElementById('private-data-xml-file');
+      const resultDiv = document.getElementById('private-xml-import-result');
+      const file = fileInput?.files?.[0];
+      if (!file) { showToast('Selecciona un archivo XML.', 'error'); return; }
+      if (!file.name.endsWith('.xml')) { showToast('El archivo debe tener extensión .xml.', 'error'); return; }
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = '<span class="text-blue">Importando...</span>';
+      try {
+        const text = await file.text();
+        const res = await fetch(CAPTACION_API + '/captacion/v1/xml/user/import', {
+          method: 'POST',
+          headers: { 'X-WP-Nonce': CAPTACION_NONCE, 'Content-Type': 'application/xml', 'X-Filename': encodeURIComponent(file.name) },
+          body: text
+        });
+        const data = await res.json();
+        if (data.ok) {
+          resultDiv.innerHTML = `<span class="text-green">Importación completada: ${data.imported} registros importados, ${data.rejected} rechazados.</span>`;
+          loadImportBatches();
+        } else {
+          resultDiv.innerHTML = `<span class="text-red">Error: ${data.message || 'Error desconocido'}</span>`;
+        }
+      } catch (e) {
+        resultDiv.innerHTML = `<span class="text-red">Error de red: ${e.message}</span>`;
+      }
+    }
+
+    async function loadImportBatches() {
+      const listDiv = document.getElementById('private-import-batches-list');
+      if (!listDiv) return;
+      try {
+        const res = await fetch(CAPTACION_API + '/captacion/v1/import-batches', {
+          headers: { 'X-WP-Nonce': CAPTACION_NONCE }
+        });
+        const data = await res.json();
+        if (!data.ok || !data.batches?.length) {
+          listDiv.innerHTML = '<p class="text-xs text-slate-400">No tienes lotes importados.</p>';
+          return;
+        }
+        listDiv.innerHTML = data.batches.map(b => {
+          const date = new Date(b.created_at).toLocaleDateString('es-ES');
+          const statusBadge = b.status === 'completed' ? 'bg-green-light text-green' : b.status === 'completed_with_errors' ? 'bg-amber-light text-amber' : 'bg-slate-100 text-slate-500';
+          return `<div class="flex items-center justify-between p-3 rounded-xl border border-slate-200">
+            <div>
+              <span class="text-xs font-bold text-navy block">${b.import_batch_id}</span>
+              <span class="text-[10px] text-slate-500">${date} · ${b.data_origin} · ${b.records_imported}/${b.records_total} registros</span>
+              <span class="inline-block ml-2 px-2 py-0.5 rounded-full text-[9px] font-bold ${statusBadge}">${b.status}</span>
+            </div>
+            <button onclick="deleteImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold">Eliminar</button>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        listDiv.innerHTML = '<p class="text-xs text-red">Error al cargar lotes.</p>';
+      }
+    }
+
+    async function deleteImportBatch(batchId) {
+      if (!confirm('¿Eliminar este lote? Los registros se marcarán como eliminados y no podrán recuperarse.')) return;
+      try {
+        const res = await fetch(CAPTACION_API + '/captacion/v1/import-batches/' + encodeURIComponent(batchId), {
+          method: 'DELETE',
+          headers: { 'X-WP-Nonce': CAPTACION_NONCE, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirm: 'CONFIRMAR' })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('Lote eliminado correctamente.', 'success');
+          loadImportBatches();
+        } else {
+          showToast(data.message || 'Error al eliminar.', 'error');
+        }
+      } catch (e) {
+        showToast('Error de red: ' + e.message, 'error');
+      }
+    }
+
+    async function exportMyPrivateData() {
+      try {
+        const res = await fetch(CAPTACION_API + '/captacion/v1/xml/user/export', {
+          headers: { 'X-WP-Nonce': CAPTACION_NONCE }
+        });
+        const data = await res.json();
+        if (data.ok && data.xml) {
+          const blob = new Blob([data.xml], { type: 'application/xml' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = data.filename || 'captacion-app-export.xml';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast('Exportación completada: ' + data.total_records + ' registros.', 'success');
+        } else {
+          showToast(data.message || 'Error al exportar.', 'error');
+        }
+      } catch (e) {
+        showToast('Error de red: ' + e.message, 'error');
+      }
+    }
+
+    async function deleteAllMyPrivateData() {
+      const input = document.getElementById('private-delete-confirm-input');
+      const resultDiv = document.getElementById('private-delete-result');
+      if (!input || input.value.trim() !== 'CONFIRMAR') {
+        showToast('Escribe CONFIRMAR para eliminar todos tus datos privados.', 'error');
+        return;
+      }
+      if (!confirm('¿Estás SEGURO? Esta acción eliminará TODOS tus datos privados de forma irreversible.')) return;
+      resultDiv.classList.remove('hidden');
+      resultDiv.innerHTML = '<span class="text-red">Eliminando datos...</span>';
+      try {
+        const res = await fetch(CAPTACION_API + '/captacion/v1/my-data', {
+          method: 'DELETE',
+          headers: { 'X-WP-Nonce': CAPTACION_NONCE, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirm: 'CONFIRMAR' })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          resultDiv.innerHTML = '<span class="text-green">Todos tus datos privados han sido eliminados.</span>';
+          loadImportBatches();
+          input.value = '';
+        } else {
+          resultDiv.innerHTML = `<span class="text-red">Error: ${data.message || 'Error desconocido'}</span>`;
+        }
+      } catch (e) {
+        resultDiv.innerHTML = `<span class="text-red">Error de red: ${e.message}</span>`;
+      }
     }
   </script>
 

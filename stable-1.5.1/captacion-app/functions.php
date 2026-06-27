@@ -451,26 +451,103 @@ function captacion_app_install_records_table() {
         payload LONGTEXT NULL,
         created_at DATETIME NOT NULL,
         updated_at DATETIME NOT NULL,
+        owner_user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        import_batch_id VARCHAR(80) DEFAULT '' NOT NULL,
+        data_origin VARCHAR(40) DEFAULT 'manual' NOT NULL,
+        is_demo TINYINT(1) DEFAULT 0 NOT NULL,
+        privacy_scope VARCHAR(40) DEFAULT 'private_user' NOT NULL,
+        consent_status VARCHAR(40) DEFAULT '' NOT NULL,
+        source_file_name VARCHAR(190) DEFAULT '' NOT NULL,
+        source_hash CHAR(64) DEFAULT '' NOT NULL,
+        deleted_at DATETIME NULL,
         PRIMARY KEY (id),
         UNIQUE KEY record_type_key (record_type, record_key),
         KEY record_type (record_type),
         KEY user_email (user_email),
         KEY status (status),
         KEY related_id (related_id),
-        KEY updated_at (updated_at)
+        KEY updated_at (updated_at),
+        KEY owner_user_id (owner_user_id),
+        KEY import_batch_id (import_batch_id),
+        KEY data_origin (data_origin),
+        KEY is_demo (is_demo),
+        KEY privacy_scope (privacy_scope),
+        KEY deleted_at (deleted_at)
     ) {$charset_collate};";
     dbDelta($sql);
-    update_option('captacion_app_records_table_version', '20260616');
+    update_option('captacion_app_records_table_version', '20260627');
 }
 add_action('after_switch_theme', 'captacion_app_install_records_table');
 
 function captacion_app_maybe_install_records_table() {
-    if (get_option('captacion_app_records_table_version') !== '20260616') {
+    if (get_option('captacion_app_records_table_version') !== '20260627') {
         captacion_app_install_records_table();
     }
 }
 add_action('admin_init', 'captacion_app_maybe_install_records_table');
 add_action('init', 'captacion_app_maybe_install_records_table');
+
+function captacion_app_migrate_existing_records_ownership() {
+    if (get_option('captacion_app_records_data_migration') === '20260627') return;
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $wpdb->query("UPDATE {$table} SET owner_user_id = user_id WHERE owner_user_id = 0 AND user_id > 0");
+    $wpdb->query("UPDATE {$table} SET data_origin = 'manual' WHERE data_origin = ''");
+    $wpdb->query("UPDATE {$table} SET privacy_scope = 'private_user' WHERE privacy_scope = ''");
+    update_option('captacion_app_records_data_migration', '20260627');
+}
+add_action('admin_init', 'captacion_app_migrate_existing_records_ownership');
+
+function captacion_app_import_batches_table_name() {
+    global $wpdb;
+    return $wpdb->prefix . 'captacion_import_batches';
+}
+
+function captacion_app_install_import_batches_table() {
+    global $wpdb;
+    $table = captacion_app_import_batches_table_name();
+    $charset_collate = $wpdb->get_charset_collate();
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    $sql = "CREATE TABLE {$table} (
+        id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+        import_batch_id VARCHAR(80) NOT NULL,
+        owner_user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        created_by BIGINT UNSIGNED NOT NULL DEFAULT 0,
+        data_origin VARCHAR(40) NOT NULL,
+        is_demo TINYINT(1) NOT NULL DEFAULT 0,
+        privacy_scope VARCHAR(40) NOT NULL,
+        source_file_name VARCHAR(190) DEFAULT '' NOT NULL,
+        source_hash CHAR(64) DEFAULT '' NOT NULL,
+        schema_version VARCHAR(20) DEFAULT '1.0' NOT NULL,
+        status VARCHAR(40) NOT NULL DEFAULT 'pending',
+        records_total INT UNSIGNED NOT NULL DEFAULT 0,
+        records_imported INT UNSIGNED NOT NULL DEFAULT 0,
+        records_rejected INT UNSIGNED NOT NULL DEFAULT 0,
+        summary_json LONGTEXT NULL,
+        created_at DATETIME NOT NULL,
+        updated_at DATETIME NOT NULL,
+        deleted_at DATETIME NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY import_batch_id (import_batch_id),
+        KEY owner_user_id (owner_user_id),
+        KEY data_origin (data_origin),
+        KEY privacy_scope (privacy_scope),
+        KEY status (status),
+        KEY deleted_at (deleted_at)
+    ) {$charset_collate};";
+    dbDelta($sql);
+    update_option('captacion_import_batches_table_version', '20260627');
+}
+add_action('after_switch_theme', 'captacion_app_install_import_batches_table');
+
+function captacion_app_maybe_install_import_batches_table() {
+    if (get_option('captacion_import_batches_table_version') !== '20260627') {
+        captacion_app_install_import_batches_table();
+    }
+}
+add_action('admin_init', 'captacion_app_maybe_install_import_batches_table');
+add_action('init', 'captacion_app_maybe_install_import_batches_table');
 
 function captacion_app_allowed_record_types() {
     return array(
@@ -486,6 +563,62 @@ function captacion_app_allowed_record_types() {
         'task',
         'generated_pdf',
     );
+}
+
+function captacion_app_generate_import_batch_id() {
+    return 'batch_' . bin2hex(random_bytes(12));
+}
+
+function captacion_app_create_import_batch($data) {
+    global $wpdb;
+    captacion_app_maybe_install_import_batches_table();
+    $table = captacion_app_import_batches_table_name();
+    $now = current_time('mysql');
+    $batch_id = $data['import_batch_id'] ?? captacion_app_generate_import_batch_id();
+    $row = array(
+        'import_batch_id' => $batch_id,
+        'owner_user_id' => absint($data['owner_user_id'] ?? 0),
+        'created_by' => absint($data['created_by'] ?? get_current_user_id()),
+        'data_origin' => sanitize_key($data['data_origin'] ?? 'manual'),
+        'is_demo' => !empty($data['is_demo']) ? 1 : 0,
+        'privacy_scope' => sanitize_key($data['privacy_scope'] ?? 'private_user'),
+        'source_file_name' => sanitize_text_field($data['source_file_name'] ?? ''),
+        'source_hash' => sanitize_text_field($data['source_hash'] ?? ''),
+        'schema_version' => sanitize_text_field($data['schema_version'] ?? '1.0'),
+        'status' => 'pending',
+        'records_total' => absint($data['records_total'] ?? 0),
+        'records_imported' => 0,
+        'records_rejected' => 0,
+        'summary_json' => !empty($data['summary_json']) ? wp_json_encode($data['summary_json']) : null,
+        'created_at' => $now,
+        'updated_at' => $now,
+    );
+    $wpdb->insert($table, $row);
+    return absint($wpdb->insert_id);
+}
+
+function captacion_app_update_import_batch_status($batch_id, $status, $extra = array()) {
+    global $wpdb;
+    $table = captacion_app_import_batches_table_name();
+    $data = array('status' => sanitize_key($status), 'updated_at' => current_time('mysql'));
+    if (isset($extra['records_imported'])) $data['records_imported'] = absint($extra['records_imported']);
+    if (isset($extra['records_rejected'])) $data['records_rejected'] = absint($extra['records_rejected']);
+    if (isset($extra['summary_json'])) $data['summary_json'] = wp_json_encode($extra['summary_json']);
+    return $wpdb->update($table, $data, array('import_batch_id' => $batch_id));
+}
+
+function captacion_app_get_import_batch($batch_id) {
+    global $wpdb;
+    $table = captacion_app_import_batches_table_name();
+    $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE import_batch_id = %s", $batch_id), ARRAY_A);
+    return $row;
+}
+
+function captacion_app_user_can_manage_import_batch($batch) {
+    if (!$batch || !is_array($batch)) return false;
+    if (current_user_can('manage_options')) return true;
+    $user_id = get_current_user_id();
+    return absint($batch['owner_user_id']) === $user_id;
 }
 
 function captacion_app_resource_catalog_defaults() {
@@ -687,7 +820,7 @@ function captacion_app_download_generated_pdf() {
     check_admin_referer('captacion_generated_pdf_' . $file_id);
     $table = captacion_app_records_table_name();
     $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE id=%d AND record_type='generated_pdf'", $file_id), ARRAY_A);
-    if (!$row || (!current_user_can('manage_options') && absint($row['user_id']) !== get_current_user_id())) wp_die('Acceso denegado.', 403);
+    if (!$row || (!current_user_can('manage_options') && absint($row['owner_user_id'] ?: $row['user_id']) !== get_current_user_id())) wp_die('Acceso denegado.', 403);
     $payload = json_decode($row['payload'], true);
     $path = $payload['path'] ?? '';
     if (!$path || !is_file($path)) wp_die('Archivo no disponible.', 404);
@@ -1161,7 +1294,7 @@ function captacion_app_rest_list_tasks() {
     global $wpdb;
     captacion_app_maybe_install_records_table();
     $table = captacion_app_records_table_name();
-    $rows = $wpdb->get_results($wpdb->prepare("SELECT record_key, title, status, related_id, payload, created_at, updated_at FROM {$table} WHERE record_type = 'task' AND user_id = %d ORDER BY updated_at DESC LIMIT 200", get_current_user_id()), ARRAY_A);
+    $rows = $wpdb->get_results($wpdb->prepare("SELECT record_key, title, status, related_id, payload, created_at, updated_at FROM {$table} WHERE record_type = 'task' AND owner_user_id = %d AND deleted_at IS NULL ORDER BY updated_at DESC LIMIT 200", get_current_user_id()), ARRAY_A);
     foreach ($rows as &$row) $row['payload'] = json_decode($row['payload'] ?: '{}', true);
     return rest_ensure_response(array('ok'=>true,'tasks'=>$rows));
 }
@@ -1384,20 +1517,32 @@ function captacion_app_upsert_record($data) {
     if (!$record_key) {
         $record_key = sanitize_title($type . '-' . ($payload['id'] ?? '') . '-' . md5(wp_json_encode($payload)));
     }
+    $current_user_id = get_current_user_id();
     $now = current_time('mysql');
     $row = array(
         'record_type' => $type,
         'record_key' => $record_key,
-        'user_id' => absint($data['user_id'] ?? get_current_user_id()),
+        'user_id' => absint($data['user_id'] ?? $current_user_id),
         'user_email' => sanitize_email($data['user_email'] ?? ''),
         'title' => sanitize_text_field($data['title'] ?? ''),
         'status' => sanitize_text_field($data['status'] ?? ''),
         'related_id' => sanitize_text_field($data['related_id'] ?? ''),
         'payload' => wp_json_encode($payload),
         'updated_at' => $now,
+        'owner_user_id' => absint($data['owner_user_id'] ?? $current_user_id),
+        'created_by' => absint($data['created_by'] ?? $current_user_id),
+        'import_batch_id' => sanitize_text_field($data['import_batch_id'] ?? ''),
+        'data_origin' => sanitize_key($data['data_origin'] ?? 'manual'),
+        'is_demo' => !empty($data['is_demo']) ? 1 : 0,
+        'privacy_scope' => sanitize_key($data['privacy_scope'] ?? 'private_user'),
+        'consent_status' => sanitize_text_field($data['consent_status'] ?? ''),
+        'source_file_name' => sanitize_text_field($data['source_file_name'] ?? ''),
+        'source_hash' => sanitize_text_field($data['source_hash'] ?? ''),
+        'deleted_at' => $data['deleted_at'] ?? null,
     );
     $existing_id = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$table} WHERE record_type = %s AND record_key = %s", $type, $record_key));
     if ($existing_id) {
+        unset($row['created_at']);
         $wpdb->update($table, $row, array('id' => absint($existing_id)));
         return absint($existing_id);
     }
@@ -1418,15 +1563,21 @@ function captacion_app_rest_save_record(WP_REST_Request $request) {
         $record_payload = captacion_app_sanitize_real_estate_payload($record_type, $record_payload);
         if (is_wp_error($record_payload)) return $record_payload;
     }
+    $user_id = get_current_user_id();
     $result = captacion_app_upsert_record(array(
         'record_type' => $record_type,
         'record_key' => $payload['record_key'] ?? '',
-        'user_id' => get_current_user_id(),
+        'user_id' => $user_id,
         'user_email' => wp_get_current_user()->user_email,
         'title' => $record_payload['title'] ?? $payload['title'] ?? '',
         'status' => $payload['status'] ?? '',
         'related_id' => $payload['related_id'] ?? '',
         'payload' => $record_payload,
+        'owner_user_id' => $user_id,
+        'created_by' => $user_id,
+        'data_origin' => 'manual',
+        'is_demo' => 0,
+        'privacy_scope' => 'private_user',
     ));
     if (is_wp_error($result)) {
         return $result;
@@ -1441,11 +1592,23 @@ function captacion_app_rest_list_records(WP_REST_Request $request) {
     $type = sanitize_key((string) $request->get_param('record_type'));
     $email = sanitize_email((string) $request->get_param('user_email'));
     $limit = min(200, max(1, absint($request->get_param('limit') ?: 100)));
-    $where = array('1=1');
+    $include_demo = rest_sanitize_boolean($request->get_param('include_demo') ?? false);
+    $where = array('deleted_at IS NULL');
     $params = array();
-    if (!current_user_can('manage_options')) { $where[] = 'user_id = %d'; $params[] = get_current_user_id(); }
+    $user_id = get_current_user_id();
+    if (current_user_can('manage_options')) {
+        if ($email) { $where[] = 'user_email = %s'; $params[] = $email; }
+    } else {
+        $owner_conditions = array('owner_user_id = %d');
+        $params[] = $user_id;
+        $owner_conditions[] = 'user_id = %d';
+        $params[] = $user_id;
+        if ($include_demo) {
+            $owner_conditions[] = '(is_demo = 1 AND privacy_scope = \'global_demo\')';
+        }
+        $where[] = '(' . implode(' OR ', $owner_conditions) . ')';
+    }
     if ($type) { $where[] = 'record_type = %s'; $params[] = $type; }
-    if ($email && current_user_can('manage_options')) { $where[] = 'user_email = %s'; $params[] = $email; }
     $sql = "SELECT * FROM {$table} WHERE " . implode(' AND ', $where) . " ORDER BY updated_at DESC LIMIT %d";
     $params[] = $limit;
     $rows = $wpdb->get_results($wpdb->prepare($sql, $params), ARRAY_A);
@@ -1453,6 +1616,414 @@ function captacion_app_rest_list_records(WP_REST_Request $request) {
         $row['payload'] = json_decode($row['payload'] ?: '{}', true);
     }
     return rest_ensure_response(array('ok' => true, 'records' => $rows));
+}
+
+define('CAPTACION_XML_MAX_SIZE', 10 * 1024 * 1024);
+define('CAPTACION_XML_MAX_RECORDS', 1000);
+define('CAPTACION_DEMO_OWNER_USER_ID', 1);
+
+function captacion_app_validate_import_xml($raw_xml) {
+    if (empty($raw_xml) || strlen(trim($raw_xml)) === 0) {
+        return new WP_Error('captacion_xml_empty', 'El XML está vacío.', array('status' => 400));
+    }
+    if (strlen($raw_xml) > CAPTACION_XML_MAX_SIZE) {
+        return new WP_Error('captacion_xml_too_large', 'El XML supera el tamaño máximo de 10 MB.', array('status' => 413));
+    }
+    if (stripos($raw_xml, '<!DOCTYPE') !== false || stripos($raw_xml, '<!ENTITY') !== false) {
+        return new WP_Error('captacion_xml_doctype', 'El XML contiene DOCTYPE o entidades no permitidas.', array('status' => 400));
+    }
+    libxml_use_internal_errors(true);
+    $xml = simplexml_load_string($raw_xml, 'SimpleXMLElement', LIBXML_NONET);
+    if ($xml === false) {
+        $errors = libxml_get_errors();
+        libxml_clear_errors();
+        $msg = 'Error al parsear XML: ' . ($errors[0]->message ?? 'formato inválido');
+        return new WP_Error('captacion_xml_parse', $msg, array('status' => 400));
+    }
+    libxml_clear_errors();
+    if ($xml->getName() !== 'captacionData') {
+        return new WP_Error('captacion_xml_root', 'El elemento raíz debe ser captacionData.', array('status' => 400));
+    }
+    $schema_version = (string) $xml['schemaVersion'];
+    if (empty($schema_version)) {
+        return new WP_Error('captacion_xml_schema', 'Falta schemaVersion en el elemento raíz.', array('status' => 400));
+    }
+    $data_origin = (string) $xml['dataOrigin'];
+    $privacy_scope = (string) $xml['privacyScope'];
+    $record_count = 0;
+    $records = array();
+    foreach ($xml->children() as $child) {
+        $tag = $child->getName();
+        if (!in_array($tag, captacion_app_allowed_record_types(), true)) continue;
+        $record_count++;
+        if ($record_count > CAPTACION_XML_MAX_RECORDS) {
+            return new WP_Error('captacion_xml_max_records', 'El XML supera el máximo de ' . CAPTACION_XML_MAX_RECORDS . ' registros.', array('status' => 413));
+        }
+        $record_key = (string) $child['recordKey'];
+        if (empty($record_key)) {
+            return new WP_Error('captacion_xml_key', 'Falta recordKey en un registro.', array('status' => 400));
+        }
+        $payload = array();
+        foreach ($child->children() as $field) {
+            $fname = $field->getName();
+            $fval = (string) $field;
+            if (!empty($fname)) $payload[$fname] = $fval;
+        }
+        $records[] = array(
+            'record_type' => $tag,
+            'record_key' => $record_key,
+            'title' => $payload['title'] ?? '',
+            'status' => $payload['status'] ?? '',
+            'related_id' => $payload['related_id'] ?? '',
+            'payload' => $payload,
+        );
+    }
+    return array(
+        'schemaVersion' => $schema_version,
+        'dataOrigin' => $data_origin,
+        'privacyScope' => $privacy_scope,
+        'records' => $records,
+        'total' => count($records),
+    );
+}
+
+function captacion_app_generate_xml_summary($records, $imported, $rejected) {
+    $types = array_count_values(array_column($records, 'record_type'));
+    return array(
+        'totalRecords' => count($records),
+        'recordsImported' => $imported,
+        'recordsRejected' => $rejected,
+        'byType' => $types,
+    );
+}
+
+function captacion_app_import_records_from_xml($parsed, $overrides) {
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $user_id = absint($overrides['user_id'] ?? get_current_user_id());
+    $user = get_userdata($user_id);
+    $user_email = $user ? $user->user_email : '';
+    $import_batch_id = $overrides['import_batch_id'] ?? '';
+    $data_origin = $overrides['data_origin'] ?? 'user_xml';
+    $is_demo = !empty($overrides['is_demo']) ? 1 : 0;
+    $privacy_scope = $overrides['privacy_scope'] ?? 'private_user';
+    $owner_user_id = absint($overrides['owner_user_id'] ?? $user_id);
+    $source_file_name = sanitize_text_field($overrides['source_file_name'] ?? '');
+    $source_hash = $overrides['source_hash'] ?? '';
+    $imported = 0;
+    $rejected = 0;
+    $errors = array();
+    foreach ($parsed['records'] as $rec) {
+        $record_type = sanitize_key($rec['record_type']);
+        $record_key = sanitize_text_field($rec['record_key']);
+        $payload_raw = is_array($rec['payload']) ? $rec['payload'] : array();
+        if (in_array($record_type, array('property', 'need'), true)) {
+            $sanitized = captacion_app_sanitize_real_estate_payload($record_type, $payload_raw);
+            if (is_wp_error($sanitized)) {
+                $rejected++;
+                $errors[] = array('key' => $record_key, 'error' => $sanitized->get_error_message());
+                continue;
+            }
+            $payload_raw = $sanitized;
+        }
+        $title = sanitize_text_field($rec['title'] ?: ($payload_raw['title'] ?? ''));
+        $status = sanitize_text_field($rec['status'] ?: ($payload_raw['status'] ?? ''));
+        $related_id = sanitize_text_field($rec['related_id'] ?: ($payload_raw['related_id'] ?? ''));
+        $now = current_time('mysql');
+        $row = array(
+            'record_type' => $record_type,
+            'record_key' => $record_key,
+            'user_id' => $user_id,
+            'user_email' => $user_email,
+            'title' => $title,
+            'status' => $status,
+            'related_id' => $related_id,
+            'payload' => wp_json_encode($payload_raw),
+            'created_at' => $now,
+            'updated_at' => $now,
+            'owner_user_id' => $owner_user_id,
+            'created_by' => $user_id,
+            'import_batch_id' => $import_batch_id,
+            'data_origin' => $data_origin,
+            'is_demo' => $is_demo,
+            'privacy_scope' => $privacy_scope,
+            'consent_status' => $overrides['consent_status'] ?? '',
+            'source_file_name' => $source_file_name,
+            'source_hash' => $source_hash,
+            'deleted_at' => null,
+        );
+        $existing_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM {$table} WHERE record_type = %s AND record_key = %s",
+            $record_type, $record_key
+        ));
+        if ($existing_id) {
+            $row['id'] = absint($existing_id);
+        }
+        $result = captacion_app_upsert_record($row);
+        if (is_wp_error($result)) {
+            $rejected++;
+            $errors[] = array('key' => $record_key, 'error' => $result->get_error_message());
+        } else {
+            $imported++;
+        }
+    }
+    return array(
+        'imported' => $imported,
+        'rejected' => $rejected,
+        'errors' => $errors,
+        'summary' => captacion_app_generate_xml_summary($parsed['records'], $imported, $rejected),
+    );
+}
+
+function captacion_app_rest_xml_demo_import(WP_REST_Request $request) {
+    if (!current_user_can('manage_options')) {
+        return new WP_Error('captacion_forbidden', 'Solo administradores.', array('status' => 403));
+    }
+    $raw_xml = $request->get_body();
+    $parsed = captacion_app_validate_import_xml($raw_xml);
+    if (is_wp_error($parsed)) return $parsed;
+    $hash = hash('sha256', $raw_xml);
+    $batch_id = captacion_app_generate_import_batch_id();
+    $batch_row_id = captacion_app_create_import_batch(array(
+        'import_batch_id' => $batch_id,
+        'owner_user_id' => CAPTACION_DEMO_OWNER_USER_ID,
+        'created_by' => get_current_user_id(),
+        'data_origin' => 'demo_xml',
+        'is_demo' => true,
+        'privacy_scope' => 'global_demo',
+        'source_file_name' => 'demo-import.xml',
+        'source_hash' => $hash,
+        'records_total' => $parsed['total'],
+    ));
+    $result = captacion_app_import_records_from_xml($parsed, array(
+        'user_id' => CAPTACION_DEMO_OWNER_USER_ID,
+        'import_batch_id' => $batch_id,
+        'data_origin' => 'demo_xml',
+        'is_demo' => true,
+        'privacy_scope' => 'global_demo',
+        'owner_user_id' => CAPTACION_DEMO_OWNER_USER_ID,
+        'source_file_name' => 'demo-import.xml',
+        'source_hash' => $hash,
+    ));
+    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'completed_with_errors' : 'completed', array(
+        'records_imported' => $result['imported'],
+        'records_rejected' => $result['rejected'],
+        'summary_json' => $result['summary'],
+    ));
+    captacion_app_log_resource_event(array('resource_id' => 'xml_demo_import'), 'xml_import_completed', array(
+        'import_batch_id' => $batch_id,
+        'imported' => $result['imported'],
+        'rejected' => $result['rejected'],
+    ));
+    return rest_ensure_response(array(
+        'ok' => true,
+        'import_batch_id' => $batch_id,
+        'imported' => $result['imported'],
+        'rejected' => $result['rejected'],
+        'summary' => $result['summary'],
+    ));
+}
+
+function captacion_app_rest_xml_user_import(WP_REST_Request $request) {
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        return new WP_Error('captacion_auth', 'Debes iniciar sesión.', array('status' => 401));
+    }
+    $raw_xml = $request->get_body();
+    $parsed = captacion_app_validate_import_xml($raw_xml);
+    if (is_wp_error($parsed)) return $parsed;
+    $hash = hash('sha256', $raw_xml);
+    $batch_id = captacion_app_generate_import_batch_id();
+    $batch_row_id = captacion_app_create_import_batch(array(
+        'import_batch_id' => $batch_id,
+        'owner_user_id' => $user_id,
+        'created_by' => $user_id,
+        'data_origin' => 'user_xml',
+        'is_demo' => false,
+        'privacy_scope' => 'private_user',
+        'source_file_name' => sanitize_text_field($request->get_header('X-Filename') ?: 'user-import.xml'),
+        'source_hash' => $hash,
+        'records_total' => $parsed['total'],
+    ));
+    $result = captacion_app_import_records_from_xml($parsed, array(
+        'user_id' => $user_id,
+        'import_batch_id' => $batch_id,
+        'data_origin' => 'user_xml',
+        'is_demo' => false,
+        'privacy_scope' => 'private_user',
+        'owner_user_id' => $user_id,
+        'source_file_name' => sanitize_text_field($request->get_header('X-Filename') ?: 'user-import.xml'),
+        'source_hash' => $hash,
+    ));
+    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'completed_with_errors' : 'completed', array(
+        'records_imported' => $result['imported'],
+        'records_rejected' => $result['rejected'],
+        'summary_json' => $result['summary'],
+    ));
+    captacion_app_log_resource_event(array('resource_id' => 'xml_user_import'), 'xml_import_completed', array(
+        'import_batch_id' => $batch_id,
+        'imported' => $result['imported'],
+        'rejected' => $result['rejected'],
+    ));
+    return rest_ensure_response(array(
+        'ok' => true,
+        'import_batch_id' => $batch_id,
+        'imported' => $result['imported'],
+        'rejected' => $result['rejected'],
+        'summary' => $result['summary'],
+    ));
+}
+
+function captacion_app_rest_xml_user_export(WP_REST_Request $request) {
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        return new WP_Error('captacion_auth', 'Debes iniciar sesión.', array('status' => 401));
+    }
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $rows = $wpdb->get_results($wpdb->prepare(
+        "SELECT * FROM {$table} WHERE owner_user_id = %d AND deleted_at IS NULL ORDER BY record_type, created_at ASC",
+        $user_id
+    ), ARRAY_A);
+    $dom = new DOMDocument('1.0', 'UTF-8');
+    $dom->formatOutput = true;
+    $root = $dom->createElement('captacionData');
+    $root->setAttribute('schemaVersion', '1.0');
+    $root->setAttribute('dataOrigin', 'user_export');
+    $root->setAttribute('privacyScope', 'private_user');
+    $root->setAttribute('isDemo', 'false');
+    $root->setAttribute('generatedAt', current_time('c'));
+    $root->setAttribute('exportUserId', (string) $user_id);
+    foreach ($rows as $row) {
+        $el = $dom->createElement($row['record_type']);
+        $el->setAttribute('recordKey', $row['record_key']);
+        if (!empty($row['title'])) $el->setAttribute('title', $row['title']);
+        if (!empty($row['status'])) $el->setAttribute('status', $row['status']);
+        if (!empty($row['related_id'])) $el->setAttribute('relatedId', $row['related_id']);
+        $payload = json_decode($row['payload'], true);
+        if (is_array($payload)) {
+            foreach ($payload as $k => $v) {
+                if (is_scalar($v)) {
+                    $field = $dom->createElement(sanitize_key($k), htmlspecialchars((string) $v, ENT_XML1, 'UTF-8'));
+                    $el->appendChild($field);
+                }
+            }
+        }
+        $root->appendChild($el);
+    }
+    $summary = $dom->createElement('summary');
+    $total = $dom->createElement('totalRecords', (string) count($rows));
+    $summary->appendChild($total);
+    $types = array_count_values(array_column($rows, 'record_type'));
+    foreach ($types as $type => $count) {
+        $te = $dom->createElement($type, (string) $count);
+        $summary->appendChild($te);
+    }
+    $root->appendChild($summary);
+    $dom->appendChild($root);
+    $xml_content = $dom->saveXML();
+    $hash_attr = $dom->createAttribute('hash');
+    $hash_attr->value = hash('sha256', $xml_content);
+    $root->appendChild($hash_attr);
+    $xml_content = $dom->saveXML();
+    captacion_app_log_resource_event(array('resource_id' => 'xml_user_export'), 'user_private_data_exported', array(
+        'owner_user_id' => $user_id,
+        'total_records' => count($rows),
+    ));
+    return rest_ensure_response(array(
+        'ok' => true,
+        'xml' => $xml_content,
+        'filename' => 'captacion-app-export-' . $user_id . '.xml',
+        'total_records' => count($rows),
+    ));
+}
+
+function captacion_app_rest_delete_import_batch(WP_REST_Request $request) {
+    $batch_id = sanitize_text_field($request->get_param('import_batch_id'));
+    $confirm = sanitize_text_field($request->get_param('confirm') ?? '');
+    if ($confirm !== 'CONFIRMAR') {
+        return new WP_Error('captacion_confirm_required', 'Debes enviar confirm=CONFIRMAR para eliminar.', array('status' => 400));
+    }
+    $batch = captacion_app_get_import_batch($batch_id);
+    if (!$batch || !empty($batch['deleted_at'])) {
+        return new WP_Error('captacion_batch_not_found', 'Lote no encontrado.', array('status' => 404));
+    }
+    if (!captacion_app_user_can_manage_import_batch($batch)) {
+        return new WP_Error('captacion_forbidden', 'No tienes permiso para eliminar este lote.', array('status' => 403));
+    }
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $now = current_time('mysql');
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$table} SET deleted_at = %s WHERE import_batch_id = %s",
+        $now, $batch_id
+    ));
+    $batches_table = captacion_app_import_batches_table_name();
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$batches_table} SET deleted_at = %s, status = 'deleted', updated_at = %s WHERE import_batch_id = %s",
+        $now, $now, $batch_id
+    ));
+    captacion_app_log_resource_event(array('resource_id' => 'import_batch_delete'), 'xml_batch_deleted', array(
+        'import_batch_id' => $batch_id,
+        'owner_user_id' => $batch['owner_user_id'],
+    ));
+    return rest_ensure_response(array('ok' => true, 'message' => 'Lote eliminado correctamente.'));
+}
+
+function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
+    global $wpdb;
+    $batches_table = captacion_app_import_batches_table_name();
+    $user_id = get_current_user_id();
+    if (current_user_can('manage_options')) {
+        $rows = $wpdb->get_results("SELECT * FROM {$batches_table} WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 100", ARRAY_A);
+    } else {
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$batches_table} WHERE owner_user_id = %d AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 100",
+            $user_id
+        ), ARRAY_A);
+    }
+    return rest_ensure_response(array('ok' => true, 'batches' => $rows));
+}
+
+function captacion_app_rest_delete_my_data(WP_REST_Request $request) {
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        return new WP_Error('captacion_auth', 'Debes iniciar sesión.', array('status' => 401));
+    }
+    $confirm = sanitize_text_field($request->get_param('confirm') ?? '');
+    if ($confirm !== 'CONFIRMAR') {
+        return new WP_Error('captacion_confirm_required', 'Debes enviar confirm=CONFIRMAR para eliminar tus datos.', array('status' => 400));
+    }
+    global $wpdb;
+    $now = current_time('mysql');
+    $table = captacion_app_records_table_name();
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$table} SET deleted_at = %s WHERE owner_user_id = %d AND deleted_at IS NULL",
+        $now, $user_id
+    ));
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$table} SET deleted_at = %s WHERE user_id = %d AND owner_user_id = 0 AND deleted_at IS NULL",
+        $now, $user_id
+    ));
+    $batches_table = captacion_app_import_batches_table_name();
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$batches_table} SET deleted_at = %s, status = 'deleted', updated_at = %s WHERE owner_user_id = %d AND deleted_at IS NULL",
+        $now, $now, $user_id
+    ));
+    $access_log_table = captacion_app_access_log_table_name();
+    $wpdb->query($wpdb->prepare(
+        "DELETE FROM {$access_log_table} WHERE user_id = %d",
+        $user_id
+    ));
+    $events_table = captacion_app_events_table_name();
+    $wpdb->query($wpdb->prepare(
+        "DELETE FROM {$events_table} WHERE email = %s",
+        wp_get_current_user()->user_email
+    ));
+    captacion_app_log_resource_event(array('resource_id' => 'user_data_deletion'), 'user_private_data_deleted', array(
+        'owner_user_id' => $user_id,
+    ));
+    return rest_ensure_response(array('ok' => true, 'message' => 'Todos tus datos privados han sido eliminados.'));
 }
 
 function captacion_app_register_records_routes() {
@@ -1520,6 +2091,36 @@ function captacion_app_register_records_routes() {
     register_rest_route('captacion/v1', '/reports', array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'captacion_app_rest_submit_report',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/xml/demo/import', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_rest_xml_demo_import',
+        'permission_callback' => function () { return current_user_can('manage_options'); },
+    ));
+    register_rest_route('captacion/v1', '/xml/user/import', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_rest_xml_user_import',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/xml/user/export', array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => 'captacion_app_rest_xml_user_export',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/import-batches', array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => 'captacion_app_rest_list_import_batches',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/import-batches/(?P<import_batch_id>[a-zA-Z0-9_-]+)', array(
+        'methods' => WP_REST_Server::DELETABLE,
+        'callback' => 'captacion_app_rest_delete_import_batch',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/my-data', array(
+        'methods' => WP_REST_Server::DELETABLE,
+        'callback' => 'captacion_app_rest_delete_my_data',
         'permission_callback' => 'captacion_app_rest_private_permission',
     ));
 }
@@ -3502,6 +4103,88 @@ function captacion_app_register_territory_routes() {
     register_rest_route('captacion/v1', '/territories/import', array('methods'=>WP_REST_Server::CREATABLE,'callback'=>'captacion_app_rest_import_territories','permission_callback'=>'captacion_app_rest_admin_permission'));
 }
 add_action('rest_api_init', 'captacion_app_register_territory_routes');
+
+function captacion_app_privacy_exporter($email, $page = 1) {
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $user = get_user_by('email', $email);
+    if (!$user) {
+        return array('data' => array(), 'done' => true);
+    }
+    $user_id = $user->ID;
+    $limit = 100;
+    $offset = ($page - 1) * $limit;
+    $rows = $wpdb->get_results($wpdb->prepare(
+        "SELECT * FROM {$table} WHERE (owner_user_id = %d OR user_id = %d OR user_email = %s) AND deleted_at IS NULL ORDER BY id ASC LIMIT %d OFFSET %d",
+        $user_id, $user_id, $email, $limit, $offset
+    ), ARRAY_A);
+    $total = absint($wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM {$table} WHERE (owner_user_id = %d OR user_id = %d OR user_email = %s) AND deleted_at IS NULL",
+        $user_id, $user_id, $email
+    )));
+    $export_items = array();
+    foreach ($rows as $row) {
+        $item_id = 'captacion-record-' . $row['id'];
+        $group_id = 'captacion_app_records';
+        $group_label = 'Captacion.app - Registros';
+        $data = array(
+            array('name' => 'ID', 'value' => $row['id']),
+            array('name' => 'Tipo de registro', 'value' => $row['record_type']),
+            array('name' => 'Clave', 'value' => $row['record_key']),
+            array('name' => 'Título', 'value' => $row['title']),
+            array('name' => 'Estado', 'value' => $row['status']),
+            array('name' => 'Fecha creación', 'value' => $row['created_at']),
+            array('name' => 'Origen', 'value' => $row['data_origin']),
+            array('name' => 'Ámbito privacidad', 'value' => $row['privacy_scope']),
+            array('name' => 'Es demo', 'value' => $row['is_demo'] ? 'Sí' : 'No'),
+        );
+        $export_items[] = array(
+            'item_id' => $item_id,
+            'group_id' => $group_id,
+            'group_label' => $group_label,
+            'data' => $data,
+        );
+    }
+    $done = ($offset + $limit) >= $total;
+    return array('data' => $export_items, 'done' => $done);
+}
+
+function captacion_app_register_privacy_exporter() {
+    register_privacy_personal_data_exporter('captacion-app-records', 'Captacion.app - Registros', 'captacion_app_privacy_exporter');
+}
+add_action('admin_init', 'captacion_app_register_privacy_exporter');
+
+function captacion_app_privacy_eraser($email, $page = 1) {
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $batches_table = captacion_app_import_batches_table_name();
+    $user = get_user_by('email', $email);
+    if (!$user) {
+        return array('items_removed' => false, 'items_retained' => false, 'messages' => array(), 'done' => true);
+    }
+    $user_id = $user->ID;
+    $now = current_time('mysql');
+    $records_updated = $wpdb->query($wpdb->prepare(
+        "UPDATE {$table} SET deleted_at = %s WHERE (owner_user_id = %d OR user_id = %d OR user_email = %s) AND deleted_at IS NULL",
+        $now, $user_id, $user_id, $email
+    ));
+    $batches_updated = $wpdb->query($wpdb->prepare(
+        "UPDATE {$batches_table} SET deleted_at = %s, status = 'deleted', updated_at = %s WHERE owner_user_id = %d AND deleted_at IS NULL",
+        $now, $now, $user_id
+    ));
+    $items_removed = ($records_updated > 0 || $batches_updated > 0);
+    return array(
+        'items_removed' => $items_removed,
+        'items_retained' => false,
+        'messages' => array(sprintf('Se han marcado %d registros como eliminados.', $records_updated)),
+        'done' => true,
+    );
+}
+
+function captacion_app_register_privacy_eraser() {
+    register_privacy_personal_data_eraser('captacion-app-records', 'Captacion.app - Registros', 'captacion_app_privacy_eraser');
+}
+add_action('admin_init', 'captacion_app_register_privacy_eraser');
 
 if (defined('WP_CLI') && WP_CLI) {
     class Captacion_App_Territory_CLI_Command {
