@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<captacionData schemaVersion="1.0" dataOrigin="demo_xml" privacyScope="global_demo" isDemo="true" generatedAt="2026-06-27T12:00:00+02:00">
+  <property recordKey="demo-prop-galicia-001" title="Piso para reforma en Ourense" status="disponible">
+    <id>demo-prop-galicia-001</id>
+    <title>Piso para reforma en Ourense</title>
+    <description>Oportunidad sintética para probar el flujo demo de captaciones inmobiliarias. Vivienda urbana con potencial de actualización, zona consolidada y datos privados omitidos.</description>
+    <property_type>Piso</property_type>
+    <type>Piso</type>
+    <community_code>12</community_code>
+    <province_code>32</province_code>
+    <municipality_code>32054</municipality_code>
+    <rooms>3</rooms>
+    <bedrooms>3</bedrooms>
+    <bathrooms>1</bathrooms>
+    <total_area_m2>92</total_area_m2>
+    <surface>92</surface>
+    <indicative_price>120000</indicative_price>
+    <price>120000</price>
+    <offered_commission>4.5%</offered_commission>
+    <fee>4.5%</fee>
+    <property_condition>Reforma integral</property_condition>
+    <mandate_type>Exclusiva compartida</mandate_type>
+    <sale_urgency>Media</sale_urgency>
+    <urgency>Media</urgency>
+    <documentation_level>Nota simple + planos</documentation_level>
+    <docs>Nota simple + planos</docs>
+  </property>
+  <property recordKey="demo-prop-madrid-001" title="Edificio residencial en Madrid" status="disponible">
+    <id>demo-prop-madrid-001</id>
+    <title>Edificio residencial en Madrid</title>
+    <description>Registro sintético para validar importación XML demo. Activo completo en zona urbana, con información comercial suficiente y sin datos identificativos reales.</description>
+    <property_type>Edificio residencial</property_type>
+    <type>Edificio residencial</type>
+    <community_code>13</community_code>
+    <province_code>28</province_code>
+    <municipality_code>28079</municipality_code>
+    <rooms>0</rooms>
+    <bedrooms>0</bedrooms>
+    <bathrooms>6</bathrooms>
+    <total_area_m2>1850</total_area_m2>
+    <surface>1850</surface>
+    <indicative_price>3450000</indicative_price>
+    <price>3450000</price>
+    <offered_commission>4.0%</offered_commission>
+    <fee>4.0%</fee>
+    <property_condition>Buen estado</property_condition>
+    <mandate_type>Sí, con exclusividad</mandate_type>
+    <sale_urgency>Baja</sale_urgency>
+    <urgency>Baja</urgency>
+    <documentation_level>Expediente jurídico completo</documentation_level>
+    <docs>Expediente jurídico completo</docs>
+  </property>
+  <property recordKey="demo-prop-barcelona-001" title="Local comercial en Barcelona" status="disponible">
+    <id>demo-prop-barcelona-001</id>
+    <title>Local comercial en Barcelona</title>
+    <description>Captación sintética para entorno demo. Local comercial con visibilidad, datos orientativos y protección de cualquier información sensible de propietario.</description>
+    <property_type>Local comercial</property_type>
+    <type>Local comercial</type>
+    <community_code>09</community_code>
+    <province_code>08</province_code>
+    <municipality_code>08019</municipality_code>
+    <rooms>0</rooms>
+    <bedrooms>0</bedrooms>
+    <bathrooms>1</bathrooms>
+    <total_area_m2>145</total_area_m2>
+    <surface>145</surface>
+    <indicative_price>520000</indicative_price>
+    <price>520000</price>
+    <offered_commission>5.0%</offered_commission>
+    <fee>5.0%</fee>
+    <property_condition>Buen estado</property_condition>
+    <mandate_type>Encargo de agente único</mandate_type>
+    <sale_urgency>Alta</sale_urgency>
+    <urgency>Alta</urgency>
+    <documentation_level>Tasación disponible</documentation_level>
+    <docs>Tasación disponible</docs>
+  </property>
+  <need recordKey="demo-need-galicia-001" title="Inversor busca piso para reformar en Ourense" status="activa">
+    <id>demo-need-galicia-001</id>
+    <title>Inversor busca piso para reformar en Ourense</title>
+    <description>Demanda sintética para validar coincidencias. Perfil inversor con búsqueda definida por territorio, presupuesto, superficie mínima y condiciones de colaboración.</description>
+    <property_type>Piso</property_type>
+    <type>Piso</type>
+    <community_code>12</community_code>
+    <province_code>32</province_code>
+    <municipality_code>32054</municipality_code>
+    <min_rooms>2</min_rooms>
+    <bedrooms>2</bedrooms>
+    <min_bathrooms>1</min_bathrooms>
+    <bathrooms>1</bathrooms>
+    <desired_area_min_m2>70</desired_area_min_m2>
+    <surface>70</surface>
+    <max_budget>90000</max_budget>
+    <budget>90000</budget>
+    <accepted_commission>50/50</accepted_commission>
+    <feeSplit>50/50</feeSplit>
+    <accepted_property_conditions>Buen estado</accepted_property_conditions>
+    <accepted_property_conditions>Necesita actualización</accepted_property_conditions>
+    <accepted_property_conditions>Reforma integral</accepted_property_conditions>
+    <accepted_mandate_types>Exclusiva compartida</accepted_mandate_types>
+    <accepted_mandate_types>Nota de encargo abierta</accepted_mandate_types>
+    <search_urgency>Media</search_urgency>
+    <urgency>Media</urgency>
+    <required_documentation_level>Nota simple únicamente</required_documentation_level>
+  </need>
+  <need recordKey="demo-need-madrid-001" title="Comprador busca casa en Madrid" status="activa">
+    <id>demo-need-madrid-001</id>
+    <title>Comprador busca casa en Madrid</title>
+    <description>Demanda sintética para entorno demo. Comprador cualificado busca vivienda familiar con requisitos mínimos claros, sin incluir datos personales reales.</description>
+    <property_type>Casa / chalet</property_type>
+    <type>Casa / chalet</type>
+    <community_code>13</community_code>
+    <province_code>28</province_code>
+    <municipality_code>28115</municipality_code>
+    <min_rooms>4</min_rooms>
+    <bedrooms>4</bedrooms>
+    <min_bathrooms>3</min_bathrooms>
+    <bathrooms>3</bathrooms>
+    <desired_area_min_m2>240</desired_area_min_m2>
+    <surface>240</surface>
+    <max_budget>950000</max_budget>
+    <budget>950000</budget>
+    <accepted_commission>A consultar</accepted_commission>
+    <feeSplit>A consultar</feeSplit>
+    <accepted_property_conditions>Buen estado</accepted_property_conditions>
+    <accepted_property_conditions>Sin reforma necesaria</accepted_property_conditions>
+    <accepted_mandate_types>Con exclusividad</accepted_mandate_types>
+    <accepted_mandate_types>Cualquiera</accepted_mandate_types>
+    <search_urgency>Alta</search_urgency>
+    <urgency>Alta</urgency>
+    <required_documentation_level>Nota simple + certificado energético</required_documentation_level>
+  </need>
+  <need recordKey="demo-need-alicante-001" title="Empresa busca nave logística en Alicante" status="activa">
+    <id>demo-need-alicante-001</id>
+    <title>Empresa busca nave logística en Alicante</title>
+    <description>Demanda sintética orientada a uso profesional. Empresa busca nave con superficie mínima, acceso operativo y condiciones de colaboración definidas.</description>
+    <property_type>Nave</property_type>
+    <type>Nave</type>
+    <community_code>10</community_code>
+    <province_code>03</province_code>
+    <municipality_code>03065</municipality_code>
+    <min_rooms>0</min_rooms>
+    <bedrooms>0</bedrooms>
+    <min_bathrooms>2</min_bathrooms>
+    <bathrooms>2</bathrooms>
+    <desired_area_min_m2>1200</desired_area_min_m2>
+    <surface>1200</surface>
+    <max_budget>450000</max_budget>
+    <budget>450000</budget>
+    <accepted_commission>50/50</accepted_commission>
+    <feeSplit>50/50</feeSplit>
+    <accepted_property_conditions>Buen estado</accepted_property_conditions>
+    <accepted_property_conditions>Lista para entrar / operar</accepted_property_conditions>
+    <accepted_mandate_types>Exclusiva compartida</accepted_mandate_types>
+    <accepted_mandate_types>Cualquiera</accepted_mandate_types>
+    <search_urgency>Alta</search_urgency>
+    <urgency>Alta</urgency>
+    <required_documentation_level>Expediente jurídico completo</required_documentation_level>
+  </need>
+  <summary>
+    <totalRecords>6</totalRecords>
+    <property>3</property>
+    <need>3</need>
+  </summary>
+</captacionData>

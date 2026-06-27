@@ -1693,7 +1693,14 @@ function captacion_app_validate_import_xml($raw_xml) {
         foreach ($child->children() as $field) {
             $fname = $field->getName();
             $fval = (string) $field;
-            if (!empty($fname)) $payload[$fname] = $fval;
+            if (!empty($fname)) {
+                if (isset($payload[$fname])) {
+                    if (!is_array($payload[$fname])) $payload[$fname] = array($payload[$fname]);
+                    $payload[$fname][] = $fval;
+                } else {
+                    $payload[$fname] = $fval;
+                }
+            }
         }
         $records[] = array(
             'record_type' => $tag,
