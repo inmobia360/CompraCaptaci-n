@@ -3277,6 +3277,20 @@ $captacion_current_user = wp_get_current_user();
 
     properties = properties.map((property, index) => normalizePropertyRecord(property, index));
     needs = needs.map((need, index) => normalizeNeedRecord(need, index));
+    if (!localStorage.getItem('captacion_demo_cleanup_v2')) {
+      const oldPropsCount = properties.filter(p => p.demoBatch || String(p.id).startsWith('demo-')).length;
+      const oldNeedsCount = needs.filter(n => n.demoBatch || String(n.id).startsWith('demo-')).length;
+      if (oldPropsCount || oldNeedsCount) {
+        properties = properties.filter(p => !p.demoBatch && !String(p.id).startsWith('demo-'));
+        needs = needs.filter(n => !n.demoBatch && !String(n.id).startsWith('demo-'));
+        closedOperations = [];
+        try { localStorage.removeItem('captacion_spain_scale_demo_v1'); } catch (e) {}
+        try { localStorage.removeItem('captacion_requested_demo_v1'); } catch (e) {}
+        try { localStorage.removeItem('captacion_demo_owners_v1'); } catch (e) {}
+        try { localStorage.removeItem('captacion_demo_demanders_v1'); } catch (e) {}
+      }
+      try { localStorage.setItem('captacion_demo_cleanup_v2', '1'); } catch (e) {}
+    }
     persistDemoState();
 
 
