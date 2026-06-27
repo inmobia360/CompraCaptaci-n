@@ -1752,7 +1752,7 @@ function captacion_app_import_records_from_xml($parsed, $overrides) {
         $record_type = sanitize_key($rec['record_type']);
         $record_key = sanitize_text_field($rec['record_key']);
         $payload_raw = is_array($rec['payload']) ? $rec['payload'] : array();
-        if (in_array($record_type, array('property', 'need'), true)) {
+        if ($data_origin !== 'xml_url' && in_array($record_type, array('property', 'need'), true)) {
             $sanitized = captacion_app_sanitize_real_estate_payload($record_type, $payload_raw);
             if (is_wp_error($sanitized)) {
                 $rejected++;
@@ -1808,6 +1808,162 @@ function captacion_app_import_records_from_xml($parsed, $overrides) {
         'errors' => $errors,
         'summary' => captacion_app_generate_xml_summary($parsed['records'], $imported, $rejected),
     );
+}
+
+function captacion_app_download_xml_feed_url($url) {
+    $url = esc_url_raw(trim((string) $url));
+    if (!$url || !wp_http_validate_url($url)) {
+        return new WP_Error('captacion_xml_url_invalid', 'Introduce una URL XML valida.', array('status' => 422));
+    }
+    if (strlen($url) > 190) {
+        return new WP_Error('captacion_xml_url_length', 'La URL del XML no puede superar 190 caracteres.', array('status' => 422));
+    }
+    $parts = wp_parse_url($url);
+    if (empty($parts['scheme']) || !in_array(strtolower($parts['scheme']), array('http', 'https'), true)) {
+        return new WP_Error('captacion_xml_url_scheme', 'La URL debe empezar por http:// o https://.', array('status' => 422));
+    }
+    $response = wp_remote_get($url, array(
+        'timeout' => 25,
+        'redirection' => 3,
+        'limit_response_size' => CAPTACION_XML_MAX_SIZE + 1024,
+        'user-agent' => 'Captacion.app XML Feed Importer',
+    ));
+    if (is_wp_error($response)) {
+        return new WP_Error('captacion_xml_url_fetch', 'No se pudo descargar el XML: ' . $response->get_error_message(), array('status' => 400));
+    }
+    $code = wp_remote_retrieve_response_code($response);
+    if ($code < 200 || $code >= 300) {
+        return new WP_Error('captacion_xml_url_http', 'El servidor XML respondio con HTTP ' . $code . '.', array('status' => 400));
+    }
+    $body = wp_remote_retrieve_body($response);
+    if (!$body || strlen(trim($body)) === 0) {
+        return new WP_Error('captacion_xml_url_empty', 'El XML descargado esta vacio.', array('status' => 400));
+    }
+    if (strlen($body) > CAPTACION_XML_MAX_SIZE) {
+        return new WP_Error('captacion_xml_url_size', 'El XML supera el tamano maximo permitido.', array('status' => 413));
+    }
+    if (stripos($body, '<!DOCTYPE') !== false || stripos($body, '<!ENTITY') !== false) {
+        return new WP_Error('captacion_xml_url_doctype', 'El XML contiene DOCTYPE o entidades no permitidas.', array('status' => 400));
+    }
+    return array('url' => $url, 'body' => $body, 'hash' => hash('sha256', $body));
+}
+
+function captacion_app_xml_child_value($node, $names, $default = '') {
+    foreach ((array) $names as $name) {
+        if (isset($node->{$name}) && trim((string) $node->{$name}) !== '') return sanitize_text_field((string) $node->{$name});
+    }
+    return $default;
+}
+
+function captacion_app_xml_first_image($node) {
+    $names = array('image', 'images', 'photo', 'photos', 'picture', 'url');
+    foreach ($names as $name) {
+        if (!isset($node->{$name})) continue;
+        $value = '';
+        if ($node->{$name}->children()->count()) {
+            foreach ($node->{$name}->children() as $child) {
+                $value = trim((string) $child);
+                if ($value) break;
+            }
+        } else {
+            $value = trim((string) $node->{$name});
+        }
+        if ($value) return esc_url_raw($value);
+    }
+    return '';
+}
+
+function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
+    libxml_use_internal_errors(true);
+    $xml = simplexml_load_string($raw_xml, 'SimpleXMLElement', LIBXML_NONET);
+    if ($xml === false) {
+        libxml_clear_errors();
+        return new WP_Error('captacion_xml_external_parse', 'No se pudo interpretar el XML descargado.', array('status' => 400));
+    }
+    libxml_clear_errors();
+    $candidate_names = array('property', 'realty', 'offer', 'listing', 'item', 'ad', 'object', 'estate');
+    $nodes = array();
+    foreach ($candidate_names as $name) {
+        foreach ($xml->xpath('//*[local-name()="' . $name . '"]') ?: array() as $node) $nodes[] = $node;
+    }
+    if (!$nodes && in_array($xml->getName(), $candidate_names, true)) $nodes[] = $xml;
+    $records = array();
+    $seen = array();
+    foreach ($nodes as $index => $node) {
+        if (count($records) >= CAPTACION_XML_MAX_RECORDS) break;
+        $external_id = captacion_app_xml_child_value($node, array('id', 'reference', 'ref', 'external_id', 'mls_id'), 'xml-' . ($index + 1));
+        $record_key = 'xmlurl-' . substr(md5($source_url . '|' . $external_id . '|' . $index), 0, 18);
+        if (isset($seen[$record_key])) continue;
+        $seen[$record_key] = true;
+        $title = captacion_app_xml_child_value($node, array('title', 'name', 'headline'), 'Propiedad importada XML');
+        $description = captacion_app_xml_child_value($node, array('description', 'desc', 'remarks', 'text'), 'Propiedad importada desde feed XML externo.');
+        $type = captacion_app_normalize_property_type(captacion_app_xml_child_value($node, array('property_type', 'type', 'category'), 'Piso'));
+        if (!in_array($type, captacion_app_property_types(), true)) $type = 'Piso';
+        $price = (float) preg_replace('/[^0-9.]/', '', captacion_app_xml_child_value($node, array('price', 'amount', 'value'), '0'));
+        $surface = (float) preg_replace('/[^0-9.]/', '', captacion_app_xml_child_value($node, array('surface', 'area', 'built_area', 'size'), '0'));
+        $payload = array(
+            'id' => $external_id,
+            'external_id' => $external_id,
+            'title' => $title,
+            'description' => sanitize_textarea_field($description),
+            'property_type' => $type,
+            'type' => $type,
+            'operation' => captacion_app_xml_child_value($node, array('operation', 'transaction', 'offer_type'), 'venta'),
+            'price' => $price,
+            'indicative_price' => $price,
+            'currency' => captacion_app_xml_child_value($node, array('currency'), 'EUR'),
+            'country' => captacion_app_xml_child_value($node, array('country'), ''),
+            'province' => captacion_app_xml_child_value($node, array('province', 'region', 'state'), ''),
+            'municipality' => captacion_app_xml_child_value($node, array('city', 'municipality', 'town', 'locality'), ''),
+            'address_approx' => captacion_app_xml_child_value($node, array('address', 'street'), ''),
+            'surface' => $surface,
+            'total_area_m2' => $surface,
+            'rooms' => absint(captacion_app_xml_child_value($node, array('rooms', 'bedrooms'), '0')),
+            'bedrooms' => absint(captacion_app_xml_child_value($node, array('rooms', 'bedrooms'), '0')),
+            'bathrooms' => absint(captacion_app_xml_child_value($node, array('bathrooms', 'baths'), '0')),
+            'image' => captacion_app_xml_first_image($node),
+            'source_url' => esc_url_raw($source_url),
+            'publication_status' => 'active',
+            'imported_at' => current_time('mysql'),
+            'updated_at' => current_time('mysql'),
+        );
+        $records[] = array('record_type' => 'property', 'record_key' => $record_key, 'title' => $title, 'status' => 'active', 'related_id' => $external_id, 'payload' => $payload);
+    }
+    return array('schemaVersion' => 'external-url-1.0', 'dataOrigin' => 'xml_url', 'privacyScope' => 'private_user', 'records' => $records, 'total' => count($records));
+}
+
+function captacion_app_rest_xml_feed_import_url(WP_REST_Request $request) {
+    $user_id = get_current_user_id();
+    if (!$user_id) return new WP_Error('captacion_auth', 'Debes iniciar sesion.', array('status' => 401));
+    $download = captacion_app_download_xml_feed_url($request->get_param('url'));
+    if (is_wp_error($download)) return $download;
+    $parsed = captacion_app_parse_external_xml_properties($download['body'], $download['url']);
+    if (is_wp_error($parsed)) return $parsed;
+    if (empty($parsed['records'])) return new WP_Error('captacion_xml_no_properties', 'No se detectaron propiedades importables en este XML.', array('status' => 422));
+    $batch_id = captacion_app_generate_import_batch_id();
+    $source_label = substr($download['url'], 0, 190);
+    captacion_app_create_import_batch(array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'created_by' => $user_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'source_file_name' => $source_label, 'source_hash' => $download['hash'], 'records_total' => $parsed['total']));
+    $result = captacion_app_import_records_from_xml($parsed, array('user_id' => $user_id, 'import_batch_id' => $batch_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => $user_id, 'source_file_name' => $source_label, 'source_hash' => $download['hash']));
+    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'], 'records_rejected' => $result['rejected'], 'summary_json' => $result['summary']));
+    return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'rejected' => $result['rejected'], 'summary' => $result['summary']));
+}
+
+function captacion_app_rest_xml_feed_sync(WP_REST_Request $request) {
+    $batch_id = sanitize_text_field($request->get_param('import_batch_id'));
+    $batch = captacion_app_get_import_batch($batch_id);
+    if (!$batch || !empty($batch['deleted_at'])) return new WP_Error('captacion_batch_not_found', 'Lote no encontrado.', array('status' => 404));
+    if (!captacion_app_user_can_manage_import_batch($batch)) return new WP_Error('captacion_forbidden', 'No tienes permiso para sincronizar este XML.', array('status' => 403));
+    if ($batch['data_origin'] !== 'xml_url' || empty($batch['source_file_name'])) return new WP_Error('captacion_batch_not_url', 'Este lote no procede de una URL XML sincronizable.', array('status' => 400));
+    $download = captacion_app_download_xml_feed_url($batch['source_file_name']);
+    if (is_wp_error($download)) return $download;
+    $parsed = captacion_app_parse_external_xml_properties($download['body'], $batch['source_file_name']);
+    if (is_wp_error($parsed)) return $parsed;
+    global $wpdb;
+    $records_table = captacion_app_records_table_name();
+    $wpdb->query($wpdb->prepare("UPDATE {$records_table} SET deleted_at = %s WHERE import_batch_id = %s AND deleted_at IS NULL", current_time('mysql'), $batch_id));
+    $result = captacion_app_import_records_from_xml($parsed, array('user_id' => absint($batch['owner_user_id']), 'import_batch_id' => $batch_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => absint($batch['owner_user_id']), 'source_file_name' => $batch['source_file_name'], 'source_hash' => $download['hash']));
+    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'], 'records_rejected' => $result['rejected'], 'summary_json' => $result['summary']));
+    return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'rejected' => $result['rejected']));
 }
 
 function captacion_app_rest_xml_demo_import(WP_REST_Request $request) {
@@ -2173,6 +2329,16 @@ function captacion_app_register_records_routes() {
     register_rest_route('captacion/v1', '/xml/user/export', array(
         'methods' => WP_REST_Server::READABLE,
         'callback' => 'captacion_app_rest_xml_user_export',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/xml-feeds/import-url', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_rest_xml_feed_import_url',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/xml-feeds/(?P<import_batch_id>[a-zA-Z0-9_-]+)/sync', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_rest_xml_feed_sync',
         'permission_callback' => 'captacion_app_rest_private_permission',
     ));
     register_rest_route('captacion/v1', '/import-batches', array(

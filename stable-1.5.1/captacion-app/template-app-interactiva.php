@@ -3173,6 +3173,20 @@ $captacion_current_user = wp_get_current_user();
     const STRIPE_PREMIUM_URL = STRIPE_MEMBERSHIP_LINKS?.premium || '';
     const STRIPE_PAYMENT_PRODUCT_NAME = 'Desbloqueo de captacion profesional';
     const CAPTACION_MAILCHIMP = <?php echo wp_json_encode($captacion_mailchimp_config); ?>;
+    window.CAPTACION_API = {
+      restUrl: <?php echo wp_json_encode(rtrim(rest_url(), '/')); ?>,
+      nonce: <?php echo wp_json_encode($captacion_rest_nonce); ?>,
+      currentUserId: <?php echo wp_json_encode(get_current_user_id()); ?>,
+      endpoints: {
+        importXmlUrl: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/import-url')); ?>,
+        uploadXmlFile: <?php echo wp_json_encode(rest_url('captacion/v1/xml/user/import')); ?>,
+        listXmlFeeds: <?php echo wp_json_encode(rest_url('captacion/v1/import-batches')); ?>,
+        xmlFeed: <?php echo wp_json_encode(rest_url('captacion/v1/import-batches/')); ?>,
+        syncXmlFeed: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/')); ?>,
+        exportUserXml: <?php echo wp_json_encode(rest_url('captacion/v1/xml/user/export')); ?>,
+        deleteMyData: <?php echo wp_json_encode(rest_url('captacion/v1/my-data')); ?>
+      }
+    };
 
     let currentNeedsLayout = 'bloque';
     let currentHash = '#/inicio';
@@ -7918,25 +7932,20 @@ $captacion_current_user = wp_get_current_user();
       }
 
       try {
-        const { xmlText, fetchMode } = await fetchXmlTextWithFallback(xmlUrl);
-        const importedProperties = parseXmlProperties(xmlText, xmlUrl);
-        const feedId = createXmlFeedId(xmlUrl);
-
-        const savedPropertyCount = saveImportedXmlPropertiesToMarketplace(importedProperties, feedId);
-
-        const feeds = getPrivateXmlFeeds().filter(feed => feed.id !== feedId);
-        feeds.unshift({ id: feedId, url: xmlUrl, propertyCount: savedPropertyCount, fetchMode, updatedAt: Date.now() });
-        setPrivateXmlFeeds(feeds);
+        const response = await fetch(window.CAPTACION_API.endpoints.importXmlUrl, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': window.CAPTACION_API.nonce },
+          body: JSON.stringify({ url: xmlUrl })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) throw new Error(data.message || 'No se pudo importar el XML desde backend.');
         localStorage.setItem('captacion_private_xml_url_v1', xmlUrl);
-
-        renderPrivateXmlFeeds();
-        renderMarketplace();
-        renderDashboard();
-        renderHome();
-        const fallbackNotice = fetchMode.startsWith('demo-proxy') ? ' Se utilizó un proxy público de demostración. En producción usa xml-proxy.php en tu servidor.' : (fetchMode === 'server-proxy' ? ' La descarga se realizó mediante el proxy XML del servidor.' : '');
-        showToast(`XML creado correctamente: ${savedPropertyCount} propiedades guardadas en la base de datos y disponibles en Marketplace.${fallbackNotice}`, 'success');
+        await loadImportBatches();
+        await loadWordPressRealEstateRecords();
+        showToast(`XML importado correctamente: ${data.imported} propiedades guardadas.`, 'success');
       } catch (error) {
-        showToast(error.message || 'No se pudo importar el fichero XML. Comprueba que la URL sea pública y configura un proxy XML propio para producción.', 'info');
+        showToast(error.message || 'No se pudo importar el fichero XML desde el servidor.', 'info');
       } finally {
         if (button) {
           button.disabled = false;
@@ -9378,9 +9387,9 @@ $captacion_current_user = wp_get_current_user();
       if (resultDiv) resultDiv.innerHTML = '<span class="text-blue">Importando...</span>';
       try {
         const text = await file.text();
-        const res = await fetch(CAPTACION_API + '/captacion/v1/xml/user/import', {
+        const res = await fetch(window.CAPTACION_API.endpoints.uploadXmlFile, {
           method: 'POST',
-          headers: { 'X-WP-Nonce': CAPTACION_NONCE, 'Content-Type': 'application/xml', 'X-Filename': encodeURIComponent(file.name) },
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/xml', 'X-Filename': encodeURIComponent(file.name) },
           body: text
         });
         const data = await res.json();
@@ -9400,8 +9409,8 @@ $captacion_current_user = wp_get_current_user();
       const listTargets = [document.getElementById('private-import-batches-list'), document.getElementById('private-feed-import-batches-list')].filter(Boolean);
       if (!listTargets.length) return;
       try {
-        const res = await fetch(CAPTACION_API + '/captacion/v1/import-batches', {
-          headers: { 'X-WP-Nonce': CAPTACION_NONCE }
+        const res = await fetch(window.CAPTACION_API.endpoints.listXmlFeeds, {
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce }
         });
         const data = await res.json();
         if (!data.ok || !data.batches?.length) {
@@ -9431,7 +9440,8 @@ $captacion_current_user = wp_get_current_user();
                 <strong class="block text-lg font-black text-navy">${Number(b.needs_count || 0)}</strong>
                 <span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Demandas</span>
               </div>
-              <button onclick="updateImportBatchStatus('${b.import_batch_id}', '${isPaused ? 'active' : 'paused'}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-[10px] font-bold">${isPaused ? 'Activar' : 'Pausar'}</button>
+              ${b.data_origin === 'xml_url' ? `<button onclick="syncImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-blue/20 bg-blue-light/40 hover:bg-blue-light text-blue text-[10px] font-bold">Actualizar</button>` : ''}
+              <button onclick="updateImportBatchStatus('${b.import_batch_id}', '${isPaused ? 'active' : 'paused'}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-[10px] font-bold">${isPaused ? 'Reactivar' : 'Pausar'}</button>
               <button onclick="deleteImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold">Eliminar</button>
             </div>
           </div>`;
@@ -9444,9 +9454,9 @@ $captacion_current_user = wp_get_current_user();
 
     async function updateImportBatchStatus(batchId, status) {
       try {
-        const res = await fetch(CAPTACION_API + '/captacion/v1/import-batches/' + encodeURIComponent(batchId), {
+        const res = await fetch(window.CAPTACION_API.endpoints.xmlFeed + encodeURIComponent(batchId), {
           method: 'PATCH',
-          headers: { 'X-WP-Nonce': CAPTACION_NONCE, 'Content-Type': 'application/json' },
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/json' },
           body: JSON.stringify({ status })
         });
         const data = await res.json();
@@ -9462,12 +9472,31 @@ $captacion_current_user = wp_get_current_user();
       }
     }
 
+    async function syncImportBatch(batchId) {
+      try {
+        const res = await fetch(window.CAPTACION_API.endpoints.syncXmlFeed + encodeURIComponent(batchId) + '/sync', {
+          method: 'POST',
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast(`XML actualizado: ${data.imported} propiedades.`, 'success');
+          loadImportBatches();
+          loadWordPressRealEstateRecords();
+        } else {
+          showToast(data.message || 'No se pudo actualizar el XML.', 'error');
+        }
+      } catch (e) {
+        showToast('Error de red: ' + e.message, 'error');
+      }
+    }
+
     async function deleteImportBatch(batchId) {
       if (!confirm('¿Eliminar este lote? Los registros se marcarán como eliminados y no podrán recuperarse.')) return;
       try {
-        const res = await fetch(CAPTACION_API + '/captacion/v1/import-batches/' + encodeURIComponent(batchId), {
+        const res = await fetch(window.CAPTACION_API.endpoints.xmlFeed + encodeURIComponent(batchId), {
           method: 'DELETE',
-          headers: { 'X-WP-Nonce': CAPTACION_NONCE, 'Content-Type': 'application/json' },
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/json' },
           body: JSON.stringify({ confirm: 'CONFIRMAR' })
         });
         const data = await res.json();
@@ -9485,8 +9514,8 @@ $captacion_current_user = wp_get_current_user();
 
     async function exportMyPrivateData() {
       try {
-        const res = await fetch(CAPTACION_API + '/captacion/v1/xml/user/export', {
-          headers: { 'X-WP-Nonce': CAPTACION_NONCE }
+        const res = await fetch(window.CAPTACION_API.endpoints.exportUserXml, {
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce }
         });
         const data = await res.json();
         if (data.ok && data.xml) {
@@ -9519,9 +9548,9 @@ $captacion_current_user = wp_get_current_user();
       resultDiv.classList.remove('hidden');
       resultDiv.innerHTML = '<span class="text-red">Eliminando datos...</span>';
       try {
-        const res = await fetch(CAPTACION_API + '/captacion/v1/my-data', {
+        const res = await fetch(window.CAPTACION_API.endpoints.deleteMyData, {
           method: 'DELETE',
-          headers: { 'X-WP-Nonce': CAPTACION_NONCE, 'Content-Type': 'application/json' },
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/json' },
           body: JSON.stringify({ confirm: 'CONFIRMAR' })
         });
         const data = await res.json();
