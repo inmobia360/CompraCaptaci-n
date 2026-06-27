@@ -3179,7 +3179,7 @@ $captacion_current_user = wp_get_current_user();
       currentUserId: <?php echo wp_json_encode(get_current_user_id()); ?>,
       endpoints: {
         importXmlUrl: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/import-url')); ?>,
-        uploadXmlFile: <?php echo wp_json_encode(rest_url('captacion/v1/xml/user/import')); ?>,
+        uploadXmlFile: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/import-file')); ?>,
         listXmlFeeds: <?php echo wp_json_encode(rest_url('captacion/v1/import-batches')); ?>,
         xmlFeed: <?php echo wp_json_encode(rest_url('captacion/v1/import-batches/')); ?>,
         syncXmlFeed: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/')); ?>,
@@ -4356,6 +4356,8 @@ $captacion_current_user = wp_get_current_user();
       const sortValue = document.getElementById('market-sort')?.value || 'newest';
       const [minPrice, maxPrice] = priceFilter === 'all' ? [0, Number.POSITIVE_INFINITY] : priceFilter.split('-').map(Number);
       const filtered = properties.filter((prop, index) => {
+        const publicationStatus = String(prop.status || prop.publication_status || 'active').toLowerCase();
+        if (publicationStatus !== 'active') return false;
         const price = Number(prop.price) || 0;
         const haystack = [prop.title, prop.reference, prop.type, prop.ccaa, prop.province, prop.municipality, prop.location, prop.postalCode, prop.description]
           .map(value => String(value || '').toLowerCase()).join(' ');
@@ -5051,6 +5053,7 @@ $captacion_current_user = wp_get_current_user();
       return {
         ...payload,
         id: payload.id || record.record_key || `record-${record.id}`,
+        recordKey: record.record_key || payload.recordKey || payload.record_key || '',
         userEmail: payload.userEmail || record.user_email || '',
         wpRecordId: record.id || '',
         importBatchId: record.import_batch_id || '',
@@ -7943,7 +7946,8 @@ $captacion_current_user = wp_get_current_user();
         localStorage.setItem('captacion_private_xml_url_v1', xmlUrl);
         await loadImportBatches();
         await loadWordPressRealEstateRecords();
-        showToast(`XML importado correctamente: ${data.imported} propiedades guardadas.`, 'success');
+        const pending = Number(data.pending_review || 0);
+        showToast(pending ? `XML importado. ${pending} propiedades necesitan revisión.` : `XML importado correctamente: ${data.imported} propiedades guardadas.`, pending ? 'info' : 'success');
       } catch (error) {
         showToast(error.message || 'No se pudo importar el fichero XML desde el servidor.', 'info');
       } finally {
@@ -9073,9 +9077,66 @@ $captacion_current_user = wp_get_current_user();
     function renderPrivateOffers() {
       const tbody = document.getElementById('private-offers-table'); if (!tbody) return;
       const search = normalizeMatchText(document.getElementById('private-offers-search')?.value || '');
-      const list = privateProperties().filter(property => !search || normalizeMatchText(`${property.reference} ${property.title} ${property.province} ${property.municipality} ${property.postalCode}`).includes(search));
+      const list = privateProperties().filter(property => !search || normalizeMatchText(`${property.reference} ${property.title} ${property.province} ${property.municipality} ${property.postalCode} ${property.status} ${(property.missing_fields||[]).join(' ')}`).includes(search));
       const summary = document.getElementById('private-offers-summary'); if (summary) summary.innerHTML = [ ['Publicadas',list.length,'text-blue'], ['Con solicitudes',(getPrivateDashboardState().requestsReceived||[]).length,'text-amber'], ['Coincidencias',list.reduce((sum,item)=>sum+getCompatibleNeedsForProperty(item,10).length,0),'text-green'], ['Cerradas',closedOperations.length,'text-navy'] ].map(([label,value,color])=>privateKpiCard(label,value,color,'offers')).join('');
-      tbody.innerHTML = list.slice(0, 80).map(property => { const matches=getCompatibleNeedsForProperty(property,10); return `<tr class="border-b border-slate-100"><td class="px-4 py-3"><strong class="text-blue">${escapeHTML(property.reference || property.id)}</strong></td><td class="px-4 py-3"><strong class="block text-xs text-navy">${escapeHTML(property.title)}</strong><span class="text-[10px] text-slate-500">${escapeHTML(property.province || property.location)} · C.P. ${escapeHTML(property.postalCode || 'N/D')}</span></td><td class="px-4 py-3 font-bold text-navy">${formatCurrency(property.price)}</td><td class="px-4 py-3"><span class="private-status-pill ${Number(property.score)>=85?'bg-green-light text-green':'bg-blue-light text-blue'}">★ ${escapeHTML(property.score || 80)}/100</span></td><td class="px-4 py-3"><span class="private-status-pill bg-blue-light text-blue">${matches.length}</span></td><td class="px-4 py-3"><span class="private-status-pill bg-green-light text-green">Publicada</span></td><td class="px-4 py-3"><button onclick="openMapPropertyCard('${property.id}')" class="text-[11px] font-bold text-blue">Abrir →</button></td></tr>`; }).join('') || `<tr><td colspan="7" class="p-5 text-xs text-slate-500">No hay captaciones con esos criterios.</td></tr>`;
+      tbody.innerHTML = list.slice(0, 80).map(property => {
+        const matches=getCompatibleNeedsForProperty(property,10);
+        const status = property.status || 'active';
+        const missing = Array.isArray(property.missing_fields) ? property.missing_fields : [];
+        const statusClass = status === 'pending_review' ? 'bg-amber-light text-amber' : status === 'paused' ? 'bg-slate-100 text-slate-500' : status === 'deleted' ? 'bg-red-50 text-red-600' : 'bg-green-light text-green';
+        return `<tr class="border-b border-slate-100"><td class="px-4 py-3"><strong class="text-blue">${escapeHTML(property.reference || property.id)}</strong></td><td class="px-4 py-3"><strong class="block text-xs text-navy">${escapeHTML(property.title || property.reference || 'Propiedad importada')}</strong><span class="text-[10px] text-slate-500">${escapeHTML(property.province || property.location || 'Sin provincia')} · ${escapeHTML(property.municipality || property.city || 'Sin municipio')}</span>${missing.length ? `<span class="block mt-1 text-[10px] text-amber">Faltan: ${escapeHTML(missing.join(', '))}</span>` : ''}</td><td class="px-4 py-3 font-bold text-navy">${formatCurrency(property.price)}</td><td class="px-4 py-3"><span class="private-status-pill ${Number(property.score)>=85?'bg-green-light text-green':'bg-blue-light text-blue'}">★ ${escapeHTML(property.score || 80)}/100</span></td><td class="px-4 py-3"><span class="private-status-pill bg-blue-light text-blue">${matches.length}</span></td><td class="px-4 py-3"><span class="private-status-pill ${statusClass}">${status === 'pending_review' ? 'Pendiente revisión' : status === 'paused' ? 'Pausada' : status === 'deleted' ? 'Eliminada' : 'Activa'}</span></td><td class="px-4 py-3"><div class="flex flex-wrap gap-2"><button onclick="editImportedProperty('${property.id}')" class="text-[11px] font-bold text-blue">Editar</button><button onclick="updateImportedPropertyStatus('${property.id}','${status === 'paused' ? 'active' : 'paused'}')" class="text-[11px] font-bold text-navy">${status === 'paused' ? 'Reactivar' : 'Pausar'}</button>${status === 'pending_review' ? `<button onclick="publishImportedProperty('${property.id}')" class="text-[11px] font-bold text-green">Publicar</button>` : ''}<button onclick="updateImportedPropertyStatus('${property.id}','deleted')" class="text-[11px] font-bold text-red-600">Borrar</button></div></td></tr>`;
+      }).join('') || `<tr><td colspan="7" class="p-5 text-xs text-slate-500">No hay captaciones con esos criterios.</td></tr>`;
+    }
+
+    function findImportedProperty(propertyId) { return properties.find(item => String(item.id) === String(propertyId)); }
+    async function saveImportedProperty(property) {
+      if (!property) return false;
+      property.manual_override = true;
+      property.updated_at = new Date().toISOString();
+      return persistWpRecord('property', property, { recordKey: property.recordKey || property.id, title: property.title || property.id, status: property.status || 'active' });
+    }
+    async function updateImportedPropertyStatus(propertyId, status) {
+      const property = findImportedProperty(propertyId);
+      if (!property) return;
+      if (status === 'deleted' && !confirm('¿Borrar esta propiedad importada?')) return;
+      property.status = status;
+      property.publication_status = status;
+      await saveImportedProperty(property);
+      persistDemoState();
+      loadWordPressRealEstateRecords();
+      renderDashboard();
+      showToast(status === 'deleted' ? 'Propiedad eliminada.' : 'Estado actualizado.', 'success');
+    }
+    async function publishImportedProperty(propertyId) {
+      const property = findImportedProperty(propertyId);
+      if (!property) return;
+      const missing = Array.isArray(property.missing_fields) ? property.missing_fields : [];
+      if (missing.length) { showToast('Completa primero los campos faltantes: ' + missing.join(', '), 'info'); return; }
+      property.status = 'active';
+      property.publication_status = 'active';
+      await saveImportedProperty(property);
+      loadWordPressRealEstateRecords();
+      renderDashboard();
+      showToast('Propiedad publicada.', 'success');
+    }
+    async function editImportedProperty(propertyId) {
+      const property = findImportedProperty(propertyId);
+      if (!property) return;
+      const title = prompt('Título', property.title || '') ?? property.title;
+      const price = prompt('Precio', property.price || '') ?? property.price;
+      const province = prompt('Provincia / región', property.province || '') ?? property.province;
+      const municipality = prompt('Ciudad / municipio', property.municipality || property.city || '') ?? (property.municipality || property.city);
+      const description = prompt('Descripción', property.description || '') ?? property.description;
+      Object.assign(property, { title, price:Number(price)||0, province, municipality, city:municipality, description, manual_override:true });
+      const missing = ['title','type','operation','price','currency','description'].filter(key => !String(property[key] || property[key === 'type' ? 'property_type' : key] || '').trim());
+      if (!province || !municipality) missing.push('location');
+      property.missing_fields = Array.from(new Set(missing));
+      property.status = property.missing_fields.length ? 'pending_review' : 'active';
+      property.publication_status = property.status;
+      await saveImportedProperty(property);
+      loadWordPressRealEstateRecords();
+      renderDashboard();
+      showToast(property.status === 'active' ? 'Propiedad completada y activa.' : 'Propiedad guardada pendiente de revisión.', 'success');
     }
 
     function renderPrivateDemands() {
@@ -9384,19 +9445,26 @@ $captacion_current_user = wp_get_current_user();
       if (!file) { showToast('Selecciona un archivo XML.', 'error'); return; }
       if (!file.name.endsWith('.xml')) { showToast('El archivo debe tener extensión .xml.', 'error'); return; }
       resultDiv?.classList.remove('hidden');
-      if (resultDiv) resultDiv.innerHTML = '<span class="text-blue">Importando...</span>';
+      if (resultDiv) resultDiv.innerHTML = '<span class="text-blue">Importando archivo XML...</span>';
       try {
-        const text = await file.text();
+        const formData = new FormData();
+        formData.append('file', file);
         const res = await fetch(window.CAPTACION_API.endpoints.uploadXmlFile, {
           method: 'POST',
-          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/xml', 'X-Filename': encodeURIComponent(file.name) },
-          body: text
+          credentials: 'same-origin',
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce },
+          body: formData
         });
         const data = await res.json();
         if (data.ok) {
-          if (resultDiv) resultDiv.innerHTML = `<span class="text-green">Importación completada: ${data.imported} registros importados, ${data.rejected} rechazados.</span>`;
-          showToast(`XML importado: ${data.imported} registros.`, 'success');
+          const imported = Number(data.properties_imported || data.imported || 0);
+          const updated = Number(data.properties_updated || 0);
+          const pending = Number(data.properties_pending_review || 0);
+          const failed = Number(data.properties_failed || data.rejected || 0);
+          if (resultDiv) resultDiv.innerHTML = `<div class="p-3 rounded-xl border border-green/20 bg-green-light text-xs text-slate-700"><strong class="text-green">Importación finalizada.</strong> ${imported} importadas, ${updated} actualizadas, ${pending} pendientes de revisión, ${failed} con error. ${pending ? '<button type="button" onclick="showPendingReviewProperties()" class="ml-2 text-blue font-black underline">Revisar propiedades pendientes</button>' : ''}</div>`;
+          showToast(pending ? `XML importado. ${pending} propiedades necesitan revisión.` : `XML importado: ${imported} propiedades.`, pending ? 'info' : 'success');
           loadImportBatches();
+          loadWordPressRealEstateRecords();
         } else {
           if (resultDiv) resultDiv.innerHTML = `<span class="text-red">Error: ${data.message || 'Error desconocido'}</span>`;
         }
@@ -9414,9 +9482,11 @@ $captacion_current_user = wp_get_current_user();
         });
         const data = await res.json();
         if (!data.ok || !data.batches?.length) {
+          window.CAPTACION_XML_BATCHES = [];
           listTargets.forEach(listDiv => { listDiv.innerHTML = '<p class="text-xs text-slate-400">No tienes XML importados.</p>'; });
           return;
         }
+        window.CAPTACION_XML_BATCHES = data.batches;
         const html = data.batches.map(b => {
           const date = new Date(b.created_at).toLocaleDateString('es-ES');
           const isPaused = b.status === 'paused';
@@ -9436,10 +9506,19 @@ $captacion_current_user = wp_get_current_user();
                 <strong class="block text-lg font-black text-blue">${Number(b.properties_count || 0)}</strong>
                 <span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Propiedades</span>
               </div>
+              <div class="px-3 py-2 rounded-xl bg-green-light border border-green/20 text-center">
+                <strong class="block text-lg font-black text-green">${Number(b.active_properties_count || 0)}</strong>
+                <span class="block text-[9px] uppercase tracking-wider font-black text-green">Activas</span>
+              </div>
+              <div class="px-3 py-2 rounded-xl bg-amber-light border border-amber/20 text-center">
+                <strong class="block text-lg font-black text-amber">${Number(b.pending_review_properties_count || 0)}</strong>
+                <span class="block text-[9px] uppercase tracking-wider font-black text-amber">Revisión</span>
+              </div>
               <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
                 <strong class="block text-lg font-black text-navy">${Number(b.needs_count || 0)}</strong>
                 <span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Demandas</span>
               </div>
+              <button onclick="showImportBatchReport('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-blue text-[10px] font-bold">Ver informe</button>
               ${b.data_origin === 'xml_url' ? `<button onclick="syncImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-blue/20 bg-blue-light/40 hover:bg-blue-light text-blue text-[10px] font-bold">Actualizar</button>` : ''}
               <button onclick="updateImportBatchStatus('${b.import_batch_id}', '${isPaused ? 'active' : 'paused'}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-[10px] font-bold">${isPaused ? 'Reactivar' : 'Pausar'}</button>
               <button onclick="deleteImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold">Eliminar</button>
@@ -9450,6 +9529,33 @@ $captacion_current_user = wp_get_current_user();
       } catch (e) {
         listTargets.forEach(listDiv => { listDiv.innerHTML = '<p class="text-xs text-red">Error al cargar lotes.</p>'; });
       }
+    }
+
+    function showImportBatchReport(batchId) {
+      const batch = (window.CAPTACION_XML_BATCHES || []).find(item => item.import_batch_id === batchId);
+      if (!batch) { showToast('Informe no disponible.', 'info'); return; }
+      const report = batch.report || {};
+      const errors = Array.isArray(report.technical_errors) ? report.technical_errors : [];
+      const message = [
+        `XML: ${batch.source_file_name || batch.import_batch_id}`,
+        `Estado: ${batch.status}`,
+        `Propiedades importadas: ${batch.properties_count || 0}`,
+        `Propiedades activas: ${batch.active_properties_count || 0}`,
+        `Pendientes de revisión: ${batch.pending_review_properties_count || 0}`,
+        `Errores: ${batch.records_rejected || 0}`,
+        errors.length ? `Detalle: ${errors.map(e => e.error || e.key || 'Error').join(' | ')}` : ''
+      ].filter(Boolean).join('\n');
+      alert(message);
+    }
+
+    function showPendingReviewProperties() {
+      switchPrivateDashboardPanel('offers');
+      window.location.hash = '#/area-privada';
+      setTimeout(() => {
+        const search = document.getElementById('private-offers-search');
+        if (search) search.value = 'pending_review';
+        renderPrivateOffers();
+      }, 50);
     }
 
     async function updateImportBatchStatus(batchId, status) {
