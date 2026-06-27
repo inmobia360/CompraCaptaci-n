@@ -3277,19 +3277,30 @@ $captacion_current_user = wp_get_current_user();
 
     properties = properties.map((property, index) => normalizePropertyRecord(property, index));
     needs = needs.map((need, index) => normalizeNeedRecord(need, index));
-    if (!localStorage.getItem('captacion_demo_cleanup_v2')) {
-      const oldPropsCount = properties.filter(p => p.demoBatch || String(p.id).startsWith('demo-')).length;
-      const oldNeedsCount = needs.filter(n => n.demoBatch || String(n.id).startsWith('demo-')).length;
+    if (!localStorage.getItem('captacion_production_cleanup_v3')) {
+      const legacyPropertyIds = new Set(['prop-1', 'prop-2', 'prop-3']);
+      const legacyNeedIds = new Set(['need-1', 'need-2', 'need-3']);
+      const isLegacyProperty = p => p.demoBatch || String(p.id).startsWith('demo-') || legacyPropertyIds.has(String(p.id));
+      const isLegacyNeed = n => n.demoBatch || String(n.id).startsWith('demo-') || legacyNeedIds.has(String(n.id));
+      const oldPropsCount = properties.filter(isLegacyProperty).length;
+      const oldNeedsCount = needs.filter(isLegacyNeed).length;
       if (oldPropsCount || oldNeedsCount) {
-        properties = properties.filter(p => !p.demoBatch && !String(p.id).startsWith('demo-'));
-        needs = needs.filter(n => !n.demoBatch && !String(n.id).startsWith('demo-'));
+        properties = properties.filter(p => !isLegacyProperty(p));
+        needs = needs.filter(n => !isLegacyNeed(n));
         closedOperations = [];
+        try { localStorage.removeItem('captacion_properties_v3'); } catch (e) {}
+        try { localStorage.removeItem('captacion_needs_v3'); } catch (e) {}
+        try { localStorage.removeItem('captacion_closed_operations_v4'); } catch (e) {}
+        try { localStorage.removeItem('captacion_agent_private_dashboard_v2'); } catch (e) {}
+        try { localStorage.removeItem('captacion_internal_communications_v1'); } catch (e) {}
         try { localStorage.removeItem('captacion_spain_scale_demo_v1'); } catch (e) {}
         try { localStorage.removeItem('captacion_requested_demo_v1'); } catch (e) {}
         try { localStorage.removeItem('captacion_demo_owners_v1'); } catch (e) {}
         try { localStorage.removeItem('captacion_demo_demanders_v1'); } catch (e) {}
       }
-      try { localStorage.setItem('captacion_demo_cleanup_v2', '1'); } catch (e) {}
+      try { localStorage.removeItem('captacion_agent_private_dashboard_v2'); } catch (e) {}
+      try { localStorage.removeItem('captacion_internal_communications_v1'); } catch (e) {}
+      try { localStorage.setItem('captacion_production_cleanup_v3', '1'); } catch (e) {}
     }
     persistDemoState();
 
@@ -8548,7 +8559,7 @@ $captacion_current_user = wp_get_current_user();
 
 
     // ==========================================
-    // 14. DASHBOARD PRIVADO INTEGRADO DEL AGENTE · DEMO HTML
+    // 14. DASHBOARD PRIVADO INTEGRADO DEL AGENTE
     // ==========================================
     const PRIVATE_DASHBOARD_STORAGE_KEY = 'captacion_agent_private_dashboard_v2';
     let privateDashboardPanel = 'overview';
@@ -8557,56 +8568,16 @@ $captacion_current_user = wp_get_current_user();
     let privateMatchesMode = 'offers';
 
     function createPrivateDashboardSeed() {
-      const now = Date.now();
-      const propIds = properties.slice(0, 6).map(item => item.id);
-      const needIds = needs.slice(0, 6).map(item => item.id);
-      const firstProp = propIds[0] || 'prop-1';
-      const secondProp = propIds[1] || firstProp;
-      const thirdProp = propIds[2] || firstProp;
-      const firstNeed = needIds[0] || 'need-1';
-      const secondNeed = needIds[1] || firstNeed;
       return {
-        operations: [
-          { id:'OP-0048', propertyId:firstProp, needId:firstNeed, collaborator:'Agencia Norte', client:'Cliente inversor', status:'Acuerdo de Confidencialidad (NDA) pendiente', createdAt:now-86400000*2, updatedAt:now-1800000, nextAction:'Firmar Acuerdo de Confidencialidad (NDA)' },
-          { id:'OP-0042', propertyId:secondProp, needId:secondNeed, collaborator:'Grupo Centro', client:'Familia compradora', status:'En negociación', createdAt:now-86400000*8, updatedAt:now-86400000, nextAction:'Registrar oferta recibida' },
-          { id:'OP-0039', propertyId:thirdProp, needId:firstNeed, collaborator:'Inmo Galicia', client:'Comprador cualificado', status:'Pago pendiente', createdAt:now-86400000*12, updatedAt:now-86400000*3, nextAction:'Confirmar pago de desbloqueo' },
-          { id:'OP-0033', propertyId:firstProp, needId:secondNeed, collaborator:'Red Profesional', client:'Sociedad patrimonial', status:'Documentación pendiente', createdAt:now-86400000*18, updatedAt:now-86400000*5, nextAction:'Adjuntar autorización de comercialización' }
-        ],
-        favorites: propIds.slice(0, 3).map((propertyId, index) => ({ propertyId, savedAt:now-86400000*(index+1) })),
-        tasks: [
-          { id:'TASK-1', title:'Confirmar disponibilidad de una captación', detail:'Revisar solicitud recibida para la captación destacada.', priority:'high', due:'Hoy', status:'pending', target:'requests' },
-          { id:'TASK-2', title:'Firmar Acuerdo de Confidencialidad (NDA) de OP-0048', detail:'Documento listo para iniciar la colaboración protegida.', priority:'high', due:'Hoy', status:'pending', target:'operations' },
-          { id:'TASK-3', title:'Completar documentación de captación', detail:'Adjunta certificado energético y autorización.', priority:'medium', due:'Mañana', status:'pending', target:'offers' },
-          { id:'TASK-4', title:'Revisar coincidencias nuevas', detail:'Dos demandas nuevas encajan con tu inventario.', priority:'low', due:'Esta semana', status:'pending', target:'overview' }
-        ],
-        notifications: [
-          { id:'NOT-1', category:'Oportunidades', title:'Nueva demanda compatible', detail:'Una demanda nueva coincide con una captación publicada.', createdAt:now-900000, read:false, target:'overview' },
-          { id:'NOT-2', category:'Operaciones', title:'Acuerdo de Confidencialidad (NDA) pendiente de firma', detail:'La operación OP-0048 requiere tu firma.', createdAt:now-3600000, read:false, target:'operations' },
-          { id:'NOT-3', category:'Administrativas', title:'Perfil profesional incompleto', detail:'Verifica tu identidad para mejorar tu reputación.', createdAt:now-86400000, read:false, target:'profile' },
-          { id:'NOT-4', category:'Sistema', title:'Importación XML disponible', detail:'Puedes vincular un feed XML desde tu área privada.', createdAt:now-86400000*2, read:true, target:'feeds' }
-        ],
-        activities: [
-          { id:'ACT-1', icon:'✦', title:'Coincidencia detectada', detail:'Cruce automático entre captación y demanda.', createdAt:now-1200000 },
-          { id:'ACT-2', icon:'♥', title:'Propiedad añadida a favoritos', detail:'Oportunidad guardada para seguimiento.', createdAt:now-7200000 },
-          { id:'ACT-3', icon:'✉', title:'Solicitud de información recibida', detail:'Un agente desea conocer condiciones de colaboración.', createdAt:now-86400000 },
-          { id:'ACT-4', icon:'↻', title:'Captación actualizada', detail:'Se han revisado datos públicos de una propiedad.', createdAt:now-86400000*2 }
-        ],
-        requestsReceived: [
-          { id:'REQ-R1', propertyId:firstProp, agency:'Agencia Norte', createdAt:now-900000, status:'Pendiente de respuesta', note:'Dispone de comprador cualificado y solicita condiciones.' },
-          { id:'REQ-R2', propertyId:secondProp, agency:'Consultora Inmo Centro', createdAt:now-86400000, status:'Disponible · Acuerdo de Confidencialidad (NDA) pendiente', note:'Interés profesional validado.' }
-        ],
-        requestsSent: [
-          { id:'REQ-S1', propertyId:thirdProp, agency:'Agencia colaboradora', createdAt:now-7200000, status:'Pago pendiente', note:'Disponibilidad confirmada. Completa el flujo protegido.' },
-          { id:'REQ-S2', propertyId:firstProp, agency:'Red inmobiliaria', createdAt:now-86400000*3, status:'Pendiente de respuesta', note:'Solicitud enviada al anunciante.' }
-        ],
-        clients: [
-          { id:'CLI-1', name:'Cliente inversor', status:'Activo', openOperations:2 },
-          { id:'CLI-2', name:'Familia compradora', status:'Activo', openOperations:1 },
-          { id:'CLI-3', name:'Sociedad patrimonial', status:'Seguimiento', openOperations:1 }
-        ],
-        leads: [
-          { id:'LEAD-1', status:'Nuevo' }, { id:'LEAD-2', status:'Nuevo' }, { id:'LEAD-3', status:'Pendiente' }, { id:'LEAD-4', status:'Convertido' }
-        ]
+        operations: [],
+        favorites: [],
+        tasks: [],
+        notifications: [],
+        activities: [],
+        requestsReceived: [],
+        requestsSent: [],
+        clients: [],
+        leads: []
       };
     }
 
@@ -9507,28 +9478,12 @@ $captacion_current_user = wp_get_current_user();
   function firstProp(){return (window.properties||[])[0]||null}
   function secondProp(){return (window.properties||[])[1]||firstProp()}
   function seedComm(){
-    const n1=firstNeed(), n2=secondNeed(), p1=firstProp(), p2=secondProp(), t=now();
     return {
       preferences:{inApp:true,email:true,whatsapp:true,frequency:'instant'},
-      subscriptions:[
-        {id:'SUB-001',needId:n1?.id||'need-1',channels:['platform','email','whatsapp'],frequency:'instant',threshold:75,status:'active',createdAt:t-86400000*3},
-        {id:'SUB-002',needId:n2?.id||n1?.id||'need-2',channels:['platform','email'],frequency:'daily',threshold:65,status:'active',createdAt:t-86400000*7}
-      ],
-      events:[
-        {id:'EVT-001',type:'Nueva coincidencia',entityRef:getNeedRef(n1),detail:'Se detectó una captación compatible con una demanda suscrita.',priority:'high',createdAt:t-1200000,deliveries:[{channel:'Plataforma',status:'Entregada'},{channel:'Email',status:'Entregada'},{channel:'WhatsApp',status:'Entregada'}]},
-        {id:'EVT-002',type:'Confirmación requerida',entityRef:p1?.reference||'CAP-001',detail:'Un profesional solicita confirmar disponibilidad y condiciones.',priority:'medium',createdAt:t-7200000,deliveries:[{channel:'Plataforma',status:'Entregada'},{channel:'WhatsApp',status:'Entregada'}]},
-        {id:'EVT-003',type:'Acuerdo de Confidencialidad (NDA) disponible',entityRef:'OP-0048',detail:'El acuerdo de confidencialidad está listo para revisión.',priority:'medium',createdAt:t-86400000,deliveries:[{channel:'Plataforma',status:'Entregada'},{channel:'Email',status:'Entregada'}]}
-      ],
-      threads:[
-        {id:'THREAD-001',title:'Colaboración protegida · '+(p1?.reference||'CAP-001'),entityRef:p1?.reference||'CAP-001',propertyId:p1?.id||'',needId:n1?.id||'',participant:'Profesional verificado',stage:'availability_confirmed',updatedAt:t-900000,messages:[{id:'M-1',kind:'system',body:'Coincidencia detectada y solicitud protegida creada.',createdAt:t-86400000},{id:'M-2',kind:'other',body:'Confirmamos que existe interés profesional. Solicitamos condiciones generales de colaboración.',createdAt:t-7200000},{id:'M-3',kind:'system',body:'Disponibilidad confirmada. La identidad de las partes continúa protegida.',createdAt:t-3600000}]},
-        {id:'THREAD-002',title:'Sala protegida · OP-0048',entityRef:'OP-0048',propertyId:p2?.id||'',needId:n2?.id||'',participant:'Agencia colaboradora protegida',stage:'nda_pending',updatedAt:t-86400000,messages:[{id:'M-4',kind:'system',body:'La contraparte ha aceptado continuar dentro de Captacion.app.',createdAt:t-86400000*2},{id:'M-5',kind:'system',body:'Acuerdo de Confidencialidad (NDA) preparado para revisión y firma electrónica.',createdAt:t-86400000}]}
-      ],
-      trace:[
-        {id:'TR-001',category:'MATCH',action:'MATCH_DETECTED',entity:'MATCH-001',detail:'Cruce automático registrado entre oferta y demanda.',createdAt:t-1200000,result:'success'},
-        {id:'TR-002',category:'NOTIFICATION',action:'MULTICHANNEL_NOTIFICATION_SENT',entity:'EVT-001',detail:'Aviso operativo enviado por plataforma, email y WhatsApp.',createdAt:t-1100000,result:'success'},
-        {id:'TR-003',category:'FLOW',action:'AVAILABILITY_CONFIRMED',entity:'THREAD-001',detail:'Se confirmó disponibilidad sin revelar contacto directo.',createdAt:t-3600000,result:'success'},
-        {id:'TR-004',category:'FLOW',action:'NDA_PREPARED',entity:'THREAD-002',detail:'Documento preparado y asociado a la sala protegida.',createdAt:t-86400000,result:'success'}
-      ]
+      subscriptions:[],
+      events:[],
+      threads:[],
+      trace:[]
     }
   }
   function getComm(){

@@ -499,6 +499,32 @@ function captacion_app_migrate_existing_records_ownership() {
 }
 add_action('admin_init', 'captacion_app_migrate_existing_records_ownership');
 
+function captacion_app_soft_delete_legacy_seed_records() {
+    if (get_option('captacion_app_legacy_seed_cleanup') === '20260627-production') return;
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $now = current_time('mysql');
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$table} SET deleted_at = %s WHERE deleted_at IS NULL AND record_type = 'property' AND record_key IN ('prop-1','prop-2','prop-3')",
+        $now
+    ));
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$table} SET deleted_at = %s WHERE deleted_at IS NULL AND record_type = 'need' AND record_key IN ('need-1','need-2','need-3')",
+        $now
+    ));
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$table} SET deleted_at = %s WHERE deleted_at IS NULL AND record_type = 'property' AND (title = 'Piso para reforma en Galicia' OR title = 'Edificio de Oficinas con parking subterráneo' OR title = 'Local comercial prime en rentabilidad')",
+        $now
+    ));
+    $wpdb->query($wpdb->prepare(
+        "UPDATE {$table} SET deleted_at = %s WHERE deleted_at IS NULL AND record_type = 'need' AND (title = 'Inversor busca piso para reformar en O Couto' OR title = 'Particular busca Chalet de lujo en Pozuelo' OR title = 'Profesional busca Nave Industrial para logística')",
+        $now
+    ));
+    update_option('captacion_app_legacy_seed_cleanup', '20260627-production');
+}
+add_action('admin_init', 'captacion_app_soft_delete_legacy_seed_records');
+add_action('init', 'captacion_app_soft_delete_legacy_seed_records');
+
 function captacion_app_import_batches_table_name() {
     global $wpdb;
     return $wpdb->prefix . 'captacion_import_batches';
