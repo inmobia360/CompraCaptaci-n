@@ -12,6 +12,28 @@
 # Old root copy. The active theme source is stable-1.5.1/captacion-app.
 /captacion-app/
 
+# Legacy local exports and working folders kept outside the active source
+/Up_date*/
+/_tmp*/
+/captacion_a_wordpress_theme/
+/captacion_app_a_base/
+/captacion_app_web_hostinger/
+/captacion_app_wordpress_theme_1.6/
+/captacion_app_wp_clean/
+
+# Legacy root assets from previous static/exported versions
+/PDF Descargables/
+/README_SUBIDA_HOSTINGER.txt
+/tmp_*.ps1
+/*.csv
+/*.docx
+/*.html
+/*.jpeg
+/*.jpg
+/*.mp4
+/*.png
+/*.svg
+
 # Dependency/cache folders
 node_modules/
 vendor/
