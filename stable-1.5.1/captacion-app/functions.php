@@ -1621,6 +1621,8 @@ function captacion_app_rest_list_records(WP_REST_Request $request) {
     $include_demo = rest_sanitize_boolean($request->get_param('include_demo') ?? false);
     $where = array('deleted_at IS NULL');
     $params = array();
+    $batches_table = captacion_app_import_batches_table_name();
+    $where[] = "NOT EXISTS (SELECT 1 FROM {$batches_table} b WHERE b.import_batch_id = {$table}.import_batch_id AND b.status = 'paused' AND b.deleted_at IS NULL)";
     $user_id = get_current_user_id();
     if (current_user_can('manage_options')) {
         if ($email) { $where[] = 'user_email = %s'; $params[] = $email; }
@@ -1838,7 +1840,7 @@ function captacion_app_rest_xml_demo_import(WP_REST_Request $request) {
         'source_file_name' => 'demo-import.xml',
         'source_hash' => $hash,
     ));
-    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'completed_with_errors' : 'completed', array(
+    captacion_app_update_import_batch_status($batch_id, 'active', array(
         'records_imported' => $result['imported'],
         'records_rejected' => $result['rejected'],
         'summary_json' => $result['summary'],
@@ -1888,7 +1890,7 @@ function captacion_app_rest_xml_user_import(WP_REST_Request $request) {
         'source_file_name' => sanitize_text_field($request->get_header('X-Filename') ?: 'user-import.xml'),
         'source_hash' => $hash,
     ));
-    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'completed_with_errors' : 'completed', array(
+    captacion_app_update_import_batch_status($batch_id, 'active', array(
         'records_imported' => $result['imported'],
         'records_rejected' => $result['rejected'],
         'summary_json' => $result['summary'],
@@ -2003,9 +2005,29 @@ function captacion_app_rest_delete_import_batch(WP_REST_Request $request) {
     return rest_ensure_response(array('ok' => true, 'message' => 'Lote eliminado correctamente.'));
 }
 
+function captacion_app_rest_update_import_batch(WP_REST_Request $request) {
+    $batch_id = sanitize_text_field($request->get_param('import_batch_id'));
+    $status = sanitize_key($request->get_param('status') ?? '');
+    if (!in_array($status, array('active', 'paused'), true)) {
+        return new WP_Error('captacion_batch_status', 'Estado de lote no permitido.', array('status' => 400));
+    }
+    $batch = captacion_app_get_import_batch($batch_id);
+    if (!$batch || !empty($batch['deleted_at'])) {
+        return new WP_Error('captacion_batch_not_found', 'Lote no encontrado.', array('status' => 404));
+    }
+    if (!captacion_app_user_can_manage_import_batch($batch)) {
+        return new WP_Error('captacion_forbidden', 'No tienes permiso para modificar este lote.', array('status' => 403));
+    }
+    global $wpdb;
+    $batches_table = captacion_app_import_batches_table_name();
+    $wpdb->update($batches_table, array('status' => $status, 'updated_at' => current_time('mysql')), array('import_batch_id' => $batch_id));
+    return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'status' => $status));
+}
+
 function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
     global $wpdb;
     $batches_table = captacion_app_import_batches_table_name();
+    $records_table = captacion_app_records_table_name();
     $user_id = get_current_user_id();
     if (current_user_can('manage_options')) {
         $rows = $wpdb->get_results("SELECT * FROM {$batches_table} WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 100", ARRAY_A);
@@ -2014,6 +2036,18 @@ function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
             "SELECT * FROM {$batches_table} WHERE owner_user_id = %d AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 100",
             $user_id
         ), ARRAY_A);
+    }
+    foreach ($rows as &$row) {
+        $counts = $wpdb->get_results($wpdb->prepare(
+            "SELECT record_type, COUNT(*) total FROM {$records_table} WHERE import_batch_id = %s AND deleted_at IS NULL GROUP BY record_type",
+            $row['import_batch_id']
+        ), ARRAY_A);
+        $row['properties_count'] = 0;
+        $row['needs_count'] = 0;
+        foreach ($counts as $count_row) {
+            if ($count_row['record_type'] === 'property') $row['properties_count'] = absint($count_row['total']);
+            if ($count_row['record_type'] === 'need') $row['needs_count'] = absint($count_row['total']);
+        }
     }
     return rest_ensure_response(array('ok' => true, 'batches' => $rows));
 }
@@ -2147,9 +2181,16 @@ function captacion_app_register_records_routes() {
         'permission_callback' => 'captacion_app_rest_private_permission',
     ));
     register_rest_route('captacion/v1', '/import-batches/(?P<import_batch_id>[a-zA-Z0-9_-]+)', array(
-        'methods' => WP_REST_Server::DELETABLE,
-        'callback' => 'captacion_app_rest_delete_import_batch',
-        'permission_callback' => 'captacion_app_rest_private_permission',
+        array(
+            'methods' => WP_REST_Server::DELETABLE,
+            'callback' => 'captacion_app_rest_delete_import_batch',
+            'permission_callback' => 'captacion_app_rest_private_permission',
+        ),
+        array(
+            'methods' => WP_REST_Server::EDITABLE,
+            'callback' => 'captacion_app_rest_update_import_batch',
+            'permission_callback' => 'captacion_app_rest_private_permission',
+        ),
     ));
     register_rest_route('captacion/v1', '/my-data', array(
         'methods' => WP_REST_Server::DELETABLE,

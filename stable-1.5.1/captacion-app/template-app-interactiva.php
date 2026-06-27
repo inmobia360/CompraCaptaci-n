@@ -2539,7 +2539,32 @@ $captacion_current_user = wp_get_current_user();
 
             <div id="private-panel-feeds" class="private-dashboard-panel">
               <div class="mb-5"><h3 class="text-xl font-black text-navy">Feeds XML</h3><p class="text-xs text-slate-500 mt-1">Importa, actualiza y elimina inventario externo.</p></div>
-              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 mb-6"><div class="flex flex-col lg:flex-row lg:items-end gap-4"><div class="flex-grow"><label for="private-xml-url" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">URL del fichero XML</label><input id="private-xml-url" type="url" placeholder="https://dominio.es/feed-inmuebles.xml" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue/20" /></div><button id="private-xml-save-btn" type="button" onclick="savePrivateXmlUrl()" class="px-5 py-3 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md transition-all">Guardar e importar XML</button></div><div id="private-xml-feeds-list" class="mt-5 space-y-3"></div></div>
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 mb-6">
+                <div class="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-4 items-end">
+                  <div>
+                    <label for="private-xml-url" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">URL del fichero XML</label>
+                    <input id="private-xml-url" type="url" placeholder="https://dominio.es/feed-inmuebles.xml" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue/20" />
+                  </div>
+                  <button id="private-xml-save-btn" type="button" onclick="savePrivateXmlUrl()" class="px-5 py-3 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md transition-all">Guardar e importar URL</button>
+                </div>
+                <div class="mt-5 grid grid-cols-1 xl:grid-cols-[1fr_auto_auto] gap-4 items-end">
+                  <div>
+                    <label for="private-feed-xml-file-name" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Archivo XML local</label>
+                    <input id="private-feed-xml-file-name" type="text" readonly placeholder="Selecciona un archivo XML desde tu equipo" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
+                    <input id="private-feed-xml-file" type="file" accept=".xml,application/xml,text/xml" class="hidden" onchange="handleFeedXmlFileSelected()" />
+                  </div>
+                  <button type="button" onclick="chooseFeedXmlFile()" class="px-5 py-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-xs font-black shadow-sm">Explorar</button>
+                  <button id="private-feed-xml-import-btn" type="button" onclick="importFeedXmlFile()" class="px-5 py-3 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md">Importar XML</button>
+                </div>
+                <div id="private-feed-xml-import-result" class="mt-3 text-xs hidden"></div>
+                <div class="mt-6 border-t border-slate-200 pt-5">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <h4 class="text-sm font-black text-navy">XML subidos</h4>
+                    <button type="button" onclick="loadImportBatches()" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-blue text-[10px] font-black">Actualizar lista</button>
+                  </div>
+                  <div id="private-feed-import-batches-list" class="space-y-2"><p class="text-xs text-slate-400">Cargando XML subidos...</p></div>
+                </div>
+              </div>
             </div>
             <!-- DATOS Y PRIVACIDAD -->
             <div id="private-panel-data" class="private-dashboard-panel">
@@ -5014,6 +5039,8 @@ $captacion_current_user = wp_get_current_user();
         id: payload.id || record.record_key || `record-${record.id}`,
         userEmail: payload.userEmail || record.user_email || '',
         wpRecordId: record.id || '',
+        importBatchId: record.import_batch_id || '',
+        dataOrigin: record.data_origin || '',
         wpStatus: record.status || '',
         wpUpdatedAt: record.updated_at || ''
       };
@@ -5027,7 +5054,7 @@ $captacion_current_user = wp_get_current_user();
         seen.add(row.id);
         merged.push(row);
       });
-      currentRows.forEach(row => {
+      currentRows.filter(row => !row.wpRecordId && !row.importBatchId).forEach(row => {
         if (!row?.id || seen.has(row.id)) return;
         seen.add(row.id);
         merged.push(row);
@@ -5042,7 +5069,6 @@ $captacion_current_user = wp_get_current_user();
           fetchWpRecords('property'),
           fetchWpRecords('need')
         ]);
-        if (!propertyRecords.length && !needRecords.length) return true;
         properties = mergeRecordsById(properties, propertyRecords, normalizePropertyRecord);
         needs = mergeRecordsById(needs, needRecords, normalizeNeedRecord);
         persistDemoState();
@@ -8851,7 +8877,7 @@ $captacion_current_user = wp_get_current_user();
       document.querySelectorAll('[data-private-panel]').forEach(button => button.classList.toggle('active', button.dataset.privatePanel === panel));
       const mobile = document.getElementById('private-dashboard-mobile-select');
       if (mobile) mobile.value = panel;
-      if (panel === 'feeds') { loadPrivateXmlUrl(); renderPrivateXmlFeeds(); }
+      if (panel === 'feeds') { loadPrivateXmlUrl(); renderPrivateXmlFeeds(); loadImportBatches(); }
       if (panel === 'data') loadImportBatches();
       if (panel === 'ai') renderAIConnections();
       renderDashboard();
@@ -9324,14 +9350,32 @@ $captacion_current_user = wp_get_current_user();
        DATA & PRIVACY MANAGEMENT (XML import/export, batches, deletion)
        ============================================= */
 
+    function chooseFeedXmlFile() {
+      document.getElementById('private-feed-xml-file')?.click();
+    }
+
+    function handleFeedXmlFileSelected() {
+      const fileInput = document.getElementById('private-feed-xml-file');
+      const nameInput = document.getElementById('private-feed-xml-file-name');
+      if (nameInput) nameInput.value = fileInput?.files?.[0]?.name || '';
+    }
+
+    async function importFeedXmlFile() {
+      await importXmlFileFromInput('private-feed-xml-file', 'private-feed-xml-import-result');
+    }
+
     async function importPrivateUserXml() {
-      const fileInput = document.getElementById('private-data-xml-file');
-      const resultDiv = document.getElementById('private-xml-import-result');
+      await importXmlFileFromInput('private-data-xml-file', 'private-xml-import-result');
+    }
+
+    async function importXmlFileFromInput(inputId, resultId) {
+      const fileInput = document.getElementById(inputId);
+      const resultDiv = document.getElementById(resultId);
       const file = fileInput?.files?.[0];
       if (!file) { showToast('Selecciona un archivo XML.', 'error'); return; }
       if (!file.name.endsWith('.xml')) { showToast('El archivo debe tener extensión .xml.', 'error'); return; }
-      resultDiv.classList.remove('hidden');
-      resultDiv.innerHTML = '<span class="text-blue">Importando...</span>';
+      resultDiv?.classList.remove('hidden');
+      if (resultDiv) resultDiv.innerHTML = '<span class="text-blue">Importando...</span>';
       try {
         const text = await file.text();
         const res = await fetch(CAPTACION_API + '/captacion/v1/xml/user/import', {
@@ -9341,42 +9385,80 @@ $captacion_current_user = wp_get_current_user();
         });
         const data = await res.json();
         if (data.ok) {
-          resultDiv.innerHTML = `<span class="text-green">Importación completada: ${data.imported} registros importados, ${data.rejected} rechazados.</span>`;
+          if (resultDiv) resultDiv.innerHTML = `<span class="text-green">Importación completada: ${data.imported} registros importados, ${data.rejected} rechazados.</span>`;
+          showToast(`XML importado: ${data.imported} registros.`, 'success');
           loadImportBatches();
         } else {
-          resultDiv.innerHTML = `<span class="text-red">Error: ${data.message || 'Error desconocido'}</span>`;
+          if (resultDiv) resultDiv.innerHTML = `<span class="text-red">Error: ${data.message || 'Error desconocido'}</span>`;
         }
       } catch (e) {
-        resultDiv.innerHTML = `<span class="text-red">Error de red: ${e.message}</span>`;
+        if (resultDiv) resultDiv.innerHTML = `<span class="text-red">Error de red: ${e.message}</span>`;
       }
     }
 
     async function loadImportBatches() {
-      const listDiv = document.getElementById('private-import-batches-list');
-      if (!listDiv) return;
+      const listTargets = [document.getElementById('private-import-batches-list'), document.getElementById('private-feed-import-batches-list')].filter(Boolean);
+      if (!listTargets.length) return;
       try {
         const res = await fetch(CAPTACION_API + '/captacion/v1/import-batches', {
           headers: { 'X-WP-Nonce': CAPTACION_NONCE }
         });
         const data = await res.json();
         if (!data.ok || !data.batches?.length) {
-          listDiv.innerHTML = '<p class="text-xs text-slate-400">No tienes lotes importados.</p>';
+          listTargets.forEach(listDiv => { listDiv.innerHTML = '<p class="text-xs text-slate-400">No tienes XML importados.</p>'; });
           return;
         }
-        listDiv.innerHTML = data.batches.map(b => {
+        const html = data.batches.map(b => {
           const date = new Date(b.created_at).toLocaleDateString('es-ES');
-          const statusBadge = b.status === 'completed' ? 'bg-green-light text-green' : b.status === 'completed_with_errors' ? 'bg-amber-light text-amber' : 'bg-slate-100 text-slate-500';
-          return `<div class="flex items-center justify-between p-3 rounded-xl border border-slate-200">
-            <div>
-              <span class="text-xs font-bold text-navy block">${b.import_batch_id}</span>
-              <span class="text-[10px] text-slate-500">${date} · ${b.data_origin} · ${b.records_imported}/${b.records_total} registros</span>
-              <span class="inline-block ml-2 px-2 py-0.5 rounded-full text-[9px] font-bold ${statusBadge}">${b.status}</span>
+          const isPaused = b.status === 'paused';
+          const statusBadge = isPaused ? 'bg-slate-100 text-slate-500' : 'bg-green-light text-green';
+          const sourceName = b.source_file_name || b.import_batch_id;
+          return `<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 p-4 rounded-xl border border-slate-200 bg-white">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${statusBadge}">${isPaused ? 'Pausado' : 'Activo'}</span>
+                <span class="text-[10px] text-slate-400">${date}</span>
+              </div>
+              <span class="text-xs font-bold text-navy block mt-2 truncate" title="${escapeHTML(sourceName)}">${escapeHTML(sourceName)}</span>
+              <span class="text-[10px] text-slate-500">${escapeHTML(b.import_batch_id)} · ${escapeHTML(b.data_origin)} · ${Number(b.records_imported || 0)}/${Number(b.records_total || 0)} registros</span>
             </div>
-            <button onclick="deleteImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold">Eliminar</button>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                <strong class="block text-lg font-black text-blue">${Number(b.properties_count || 0)}</strong>
+                <span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Propiedades</span>
+              </div>
+              <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                <strong class="block text-lg font-black text-navy">${Number(b.needs_count || 0)}</strong>
+                <span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Demandas</span>
+              </div>
+              <button onclick="updateImportBatchStatus('${b.import_batch_id}', '${isPaused ? 'active' : 'paused'}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-[10px] font-bold">${isPaused ? 'Activar' : 'Pausar'}</button>
+              <button onclick="deleteImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold">Eliminar</button>
+            </div>
           </div>`;
         }).join('');
+        listTargets.forEach(listDiv => { listDiv.innerHTML = html; });
       } catch (e) {
-        listDiv.innerHTML = '<p class="text-xs text-red">Error al cargar lotes.</p>';
+        listTargets.forEach(listDiv => { listDiv.innerHTML = '<p class="text-xs text-red">Error al cargar lotes.</p>'; });
+      }
+    }
+
+    async function updateImportBatchStatus(batchId, status) {
+      try {
+        const res = await fetch(CAPTACION_API + '/captacion/v1/import-batches/' + encodeURIComponent(batchId), {
+          method: 'PATCH',
+          headers: { 'X-WP-Nonce': CAPTACION_NONCE, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast(status === 'paused' ? 'XML pausado.' : 'XML activado.', 'success');
+          loadImportBatches();
+          loadWordPressRealEstateRecords();
+        } else {
+          showToast(data.message || 'No se pudo actualizar el XML.', 'error');
+        }
+      } catch (e) {
+        showToast('Error de red: ' + e.message, 'error');
       }
     }
 
@@ -9392,6 +9474,7 @@ $captacion_current_user = wp_get_current_user();
         if (data.ok) {
           showToast('Lote eliminado correctamente.', 'success');
           loadImportBatches();
+          loadWordPressRealEstateRecords();
         } else {
           showToast(data.message || 'Error al eliminar.', 'error');
         }
