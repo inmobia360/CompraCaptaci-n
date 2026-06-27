@@ -5039,6 +5039,79 @@ $captacion_current_user = wp_get_current_user();
         .catch(() => false);
     }
 
+    function canUseWordPressRecords() {
+      return Boolean(CAPTACION_MAILCHIMP?.loggedIn && CAPTACION_MAILCHIMP?.recordsEndpoint && CAPTACION_MAILCHIMP?.nonce);
+    }
+
+    async function fetchWpRecords(recordType, limit = 200) {
+      if (!canUseWordPressRecords()) return [];
+      const url = new URL(CAPTACION_MAILCHIMP.recordsEndpoint, window.location.origin);
+      url.searchParams.set('record_type', recordType);
+      url.searchParams.set('limit', String(limit));
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json',
+          'X-WP-Nonce': CAPTACION_MAILCHIMP.nonce
+        }
+      });
+      if (!response.ok) throw new Error(`No se pudieron cargar registros ${recordType}.`);
+      const data = await response.json();
+      return Array.isArray(data?.records) ? data.records : [];
+    }
+
+    function payloadFromWpRecord(record = {}) {
+      const payload = record.payload && typeof record.payload === 'object' ? record.payload : {};
+      return {
+        ...payload,
+        id: payload.id || record.record_key || `record-${record.id}`,
+        wpRecordId: record.id || '',
+        wpStatus: record.status || '',
+        wpUpdatedAt: record.updated_at || ''
+      };
+    }
+
+    function mergeRecordsById(currentRows, serverRows, normalizeFn) {
+      const merged = [];
+      const seen = new Set();
+      serverRows.map(payloadFromWpRecord).map(normalizeFn).forEach(row => {
+        if (!row?.id || seen.has(row.id)) return;
+        seen.add(row.id);
+        merged.push(row);
+      });
+      currentRows.forEach(row => {
+        if (!row?.id || seen.has(row.id)) return;
+        seen.add(row.id);
+        merged.push(row);
+      });
+      return merged;
+    }
+
+    async function loadWordPressRealEstateRecords() {
+      if (!canUseWordPressRecords()) return false;
+      try {
+        const [propertyRecords, needRecords] = await Promise.all([
+          fetchWpRecords('property'),
+          fetchWpRecords('need')
+        ]);
+        if (!propertyRecords.length && !needRecords.length) return true;
+        properties = mergeRecordsById(properties, propertyRecords, normalizePropertyRecord);
+        needs = mergeRecordsById(needs, needRecords, normalizeNeedRecord);
+        persistDemoState();
+        renderMarketplace();
+        renderDashboard();
+        filterNeeds();
+        renderHome();
+        renderSpainScaleDemoStatus();
+        return true;
+      } catch (error) {
+        console.warn('[Captacion.app] Persistencia WordPress no disponible; se mantiene fallback local.', error);
+        showToast('No se pudieron cargar tus registros guardados en WordPress. Se mantiene la vista local de preproducción.', 'info');
+        return false;
+      }
+    }
+
     function syncMailchimpSession(tag, source, extra = {}) {
       if (CAPTACION_MAILCHIMP?.commercialConsent !== true) return Promise.resolve(false);
       const session = getDemoSession?.();
@@ -5158,7 +5231,7 @@ $captacion_current_user = wp_get_current_user();
         if (!response.ok || !data?.ok) throw new Error(data?.message || 'No se pudo iniciar sesión.');
         CAPTACION_MAILCHIMP.loggedIn = true; CAPTACION_MAILCHIMP.emailVerified = true; CAPTACION_MAILCHIMP.accessState = data.accessState; CAPTACION_MAILCHIMP.nonce = data.nonce || CAPTACION_MAILCHIMP.nonce;
         localStorage.setItem('captacion_demo_session_v4', JSON.stringify({name:data.displayName,email:data.email,whatsapp:data.phone || '',agency:'Perfil profesional',profileComplete:data.profileComplete,planType:data.accessState?.plan_type || 'basic',emailVerified:true,startedAt:Date.now(),source:'wordpress'}));
-        sessionStorage.setItem('captacion_professional_registered','1'); event.target.reset(); closeProfessionalAccessModal(); updateAuthModule(); applyDashboardPlanAccess(); window.location.hash='#/area-privada'; showToast('Sesión iniciada correctamente.', 'success');
+        sessionStorage.setItem('captacion_professional_registered','1'); event.target.reset(); closeProfessionalAccessModal(); updateAuthModule(); applyDashboardPlanAccess(); loadWordPressRealEstateRecords(); window.location.hash='#/area-privada'; showToast('Sesión iniciada correctamente.', 'success');
       } catch (error) {
         fail(error.message === 'backend_unavailable' ? 'El acceso no esta disponible temporalmente. Intentalo de nuevo.' : (error.message || 'No se pudo iniciar sesión.'));
         if (/confirmar tu correo|correo electronico antes/i.test(error.message || '')) {
@@ -5319,7 +5392,8 @@ $captacion_current_user = wp_get_current_user();
       });
       needs.unshift(need);
       persistDemoState();
-      persistWpRecord('need', need, { recordKey: need.id, title: need.title, status: 'activa' });
+      persistWpRecord('need', need, { recordKey: need.id, title: need.title, status: 'activa' })
+        .then(ok => { if (!ok && canUseWordPressRecords()) showToast('La demanda queda visible localmente, pero no se pudo sincronizar con WordPress.', 'info'); });
       syncMailchimpSession('busco-captacion', 'busco-captacion');
       syncAlertsForNeed(need);
       event.target.reset();
@@ -7063,12 +7137,13 @@ $captacion_current_user = wp_get_current_user();
 
       // 2. Simular un retardo breve para asentar la operación y dar feedback visual premium
       setTimeout(() => {
-        // Se guarda de forma asentada en la base de datos de captaciones (localStorage)
+        // Se actualiza la UI al instante y se sincroniza con WordPress cuando hay sesion real.
         const publishedProperty = tempPropertyToPublish;
         properties.unshift(publishedProperty);
         syncMailchimpSession('ofrecer-captacion', 'ofrecer-captacion');
         localStorage.setItem('captacion_properties_v3', JSON.stringify(properties));
-        persistWpRecord('property', publishedProperty, { recordKey: publishedProperty.id, title: publishedProperty.title, status: 'publicada' });
+        persistWpRecord('property', publishedProperty, { recordKey: publishedProperty.id, title: publishedProperty.title, status: 'publicada' })
+          .then(ok => { if (!ok && canUseWordPressRecords()) showToast('La captación queda visible localmente, pero no se pudo sincronizar con WordPress.', 'info'); });
         syncAlertsForProperty(publishedProperty);
 
         // Actualizar listados
@@ -9645,6 +9720,7 @@ $captacion_current_user = wp_get_current_user();
       renderSpainScaleDemoStatus();
       renderAIConnections();
       fetchMarketplaceAccessState().then(() => { applyDashboardPlanAccess(); loadWordPressTasks(); }).catch(() => applyDashboardPlanAccess());
+      loadWordPressRealEstateRecords();
       document.getElementById('menu-btn')?.addEventListener('click', toggleMenu);
       removeLegacyCookiePreferences();
       window.addEventListener('storage', () => {
@@ -9762,5 +9838,3 @@ $captacion_current_user = wp_get_current_user();
 <?php wp_footer(); ?>
 </body>
 </html>
-
-
