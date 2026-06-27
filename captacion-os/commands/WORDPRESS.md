@@ -22,3 +22,17 @@ git diff --check
 ```
 
 No crear paquetes desde carpetas que contengan `.git`, uploads, caches, logs o backups.
+
+## Generar ZIP instalable
+
+```powershell
+.\scripts\build-theme-zip.ps1
+```
+
+Salida esperada:
+
+```text
+dist/captacion-app.zip
+```
+
+El ZIP debe contener `captacion-app/style.css` en la raiz interna. No versionar el ZIP generado.
