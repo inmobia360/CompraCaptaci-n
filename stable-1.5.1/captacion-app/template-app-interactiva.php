@@ -3366,7 +3366,7 @@ $captacion_current_user = wp_get_current_user();
           <text x="166" y="94" text-anchor="middle" fill="#10233c" font-family="Arial, sans-serif" font-size="27" font-weight="700">Imagen virtual</text>
           <g opacity="0.97">${preset.icon}</g>
           <text x="450" y="790" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-size="46" font-weight="700">${preset.label}</text>
-          <text x="450" y="842" text-anchor="middle" fill="#ffffff" opacity="0.85" font-family="Arial, sans-serif" font-size="28" font-weight="600">Captacion.app · Demo</text>
+          <text x="450" y="842" text-anchor="middle" fill="#ffffff" opacity="0.85" font-family="Arial, sans-serif" font-size="28" font-weight="600">Captacion.app</text>
         </svg>`)};`;
     }
 
@@ -5231,7 +5231,7 @@ $captacion_current_user = wp_get_current_user();
       const password = document.getElementById('auth-login-password').value;
       const user = getDemoUsers()[email];
       if (!user || user.passwordHash !== await hashText(password)) {
-        showToast('Credenciales no válidas en esta demo local.', 'info');
+        showToast('Credenciales no válidas.', 'info');
         return;
       }
       localStorage.setItem('captacion_demo_session_v4', JSON.stringify({ name: user.name, agency: user.agency, email, whatsapp: user.whatsapp || '', startedAt: Date.now() }));
@@ -7449,7 +7449,7 @@ $captacion_current_user = wp_get_current_user();
       const demoLink = `${window.location.origin}${window.location.pathname}#/firma/${encodeURIComponent(token)}`;
       const result = document.getElementById('legal-signature-result');
       if (result) {
-        result.innerHTML = `<strong class="text-green">Enlace preparado</strong><br><span class="break-all">${escapeHTML(demoLink)}</span><br><span class="block mt-2 text-[10px]">Documento: ${type === 'nda' ? 'Acuerdo de Confidencialidad (NDA)' : 'Acuerdo de colaboración'} · Ref. ${escapeHTML(reference)}${postalCode ? ` · C.P. ${escapeHTML(postalCode)}` : ''}. En producción este enlace deberá generarse en servidor, registrar auditoría y conectarse con un prestador de firma electrónica.</span>`;
+        result.innerHTML = `<strong class="text-green">Enlace preparado</strong><br><span class="break-all">${escapeHTML(demoLink)}</span><br><span class="block mt-2 text-[10px]">Documento: ${type === 'nda' ? 'Acuerdo de Confidencialidad (NDA)' : 'Acuerdo de colaboración'} · Ref. ${escapeHTML(reference)}${postalCode ? ` · C.P. ${escapeHTML(postalCode)}` : ''}. El enlace se genera en local. Cuando la firma electrónica esté activada, el documento se generará en servidor con registro de auditoría.</span>`;
         result.classList.remove('hidden');
       }
       showToast('Enlace seguro preparado.', 'success');
@@ -7464,7 +7464,7 @@ $captacion_current_user = wp_get_current_user();
       const demoLink = `${window.location.origin}${window.location.pathname}#/firma/${encodeURIComponent(token)}`;
       const result = document.getElementById('legal-signature-result');
       if (result) {
-        result.innerHTML = `<strong class="text-green">Enlace preparado</strong><br><span class="break-all">${escapeHTML(demoLink)}</span><br><span class="block mt-2 text-[10px]">Documento: ${type === 'nda' ? 'Acuerdo de Confidencialidad (NDA)' : 'Acuerdo de colaboración'} · Ref. ${escapeHTML(reference)}${postalCode ? ` · C.P. ${escapeHTML(postalCode)}` : ''}. En producción este enlace deberá generarse en servidor, registrar auditoría y conectarse con un prestador de firma electrónica.</span><div class="mt-3 flex flex-wrap gap-2"><button type="button" onclick="scheduleAgreementCalendarPlan('${type}','${escapeHTML(reference)}','${escapeHTML(postalCode)}')" class="px-3 py-2 rounded-lg bg-navy text-white text-[10px] font-bold">Agendar tareas pendientes</button><button type="button" onclick="switchPrivateDashboardPanel('tasks')" class="px-3 py-2 rounded-lg border border-slate-200 text-[10px] font-bold text-blue">Ver agenda</button></div>`;
+        result.innerHTML = `<strong class="text-green">Enlace preparado</strong><br><span class="break-all">${escapeHTML(demoLink)}</span><br><span class="block mt-2 text-[10px]">Documento: ${type === 'nda' ? 'Acuerdo de Confidencialidad (NDA)' : 'Acuerdo de colaboración'} · Ref. ${escapeHTML(reference)}${postalCode ? ` · C.P. ${escapeHTML(postalCode)}` : ''}. El enlace se genera en local. Cuando la firma electrónica esté activada, el documento se generará en servidor con registro de auditoría.</span><div class="mt-3 flex flex-wrap gap-2"><button type="button" onclick="scheduleAgreementCalendarPlan('${type}','${escapeHTML(reference)}','${escapeHTML(postalCode)}')" class="px-3 py-2 rounded-lg bg-navy text-white text-[10px] font-bold">Agendar tareas pendientes</button><button type="button" onclick="switchPrivateDashboardPanel('tasks')" class="px-3 py-2 rounded-lg border border-slate-200 text-[10px] font-bold text-blue">Ver agenda</button></div>`;
         result.classList.remove('hidden');
       }
       addPrivateNotification({ category:'Operaciones', title:'Documento preparado para firma', detail:`Se ha generado un enlace seguro para ${type === 'nda' ? 'Acuerdo de Confidencialidad (NDA)' : 'acuerdo de colaboración'}${reference ? ` · ${reference}` : ''}.`, target:'operations', dueAt:Date.now()+3600000*4, dedupeKey:`legal-link-${type}-${reference || token}` });
@@ -7492,7 +7492,7 @@ $captacion_current_user = wp_get_current_user();
       const demoLink = `${window.location.origin}${window.location.pathname}#/firma/${encodeURIComponent(token)}`;
       const result = document.getElementById('legal-signature-result');
       if (result) {
-        result.innerHTML = `<strong class="text-green">Enlace preparado</strong><br><span class="break-all">${escapeHTML(demoLink)}</span><br><span class="block mt-2 text-[10px]">Documento: ${type === 'nda' ? 'Acuerdo de Confidencialidad (NDA)' : 'Acuerdo de colaboración'} · Ref. ${escapeHTML(reference)}${postalCode ? ` · C.P. ${escapeHTML(postalCode)}` : ''}. En producción este enlace deberá generarse en servidor, registrar auditoría y conectarse con un prestador de firma electrónica.</span><div class="mt-3 flex flex-wrap gap-2"><button type="button" onclick="scheduleAgreementCalendarPlan('${type}','${escapeHTML(reference)}','${escapeHTML(postalCode)}')" class="px-3 py-2 rounded-lg bg-navy text-white text-[10px] font-bold">Agendar tareas pendientes</button><button type="button" onclick="switchPrivateDashboardPanel('tasks')" class="px-3 py-2 rounded-lg border border-slate-200 text-[10px] font-bold text-blue">Ver agenda</button></div>`;
+        result.innerHTML = `<strong class="text-green">Enlace preparado</strong><br><span class="break-all">${escapeHTML(demoLink)}</span><br><span class="block mt-2 text-[10px]">Documento: ${type === 'nda' ? 'Acuerdo de Confidencialidad (NDA)' : 'Acuerdo de colaboración'} · Ref. ${escapeHTML(reference)}${postalCode ? ` · C.P. ${escapeHTML(postalCode)}` : ''}. El enlace se genera en local. Cuando la firma electrónica esté activada, el documento se generará en servidor con registro de auditoría.</span><div class="mt-3 flex flex-wrap gap-2"><button type="button" onclick="scheduleAgreementCalendarPlan('${type}','${escapeHTML(reference)}','${escapeHTML(postalCode)}')" class="px-3 py-2 rounded-lg bg-navy text-white text-[10px] font-bold">Agendar tareas pendientes</button><button type="button" onclick="switchPrivateDashboardPanel('tasks')" class="px-3 py-2 rounded-lg border border-slate-200 text-[10px] font-bold text-blue">Ver agenda</button></div>`;
         result.classList.remove('hidden');
       }
       addPrivateNotification({ category:'Operaciones', title:'Documento preparado para firma', detail:`Se ha generado un enlace seguro para ${type === 'nda' ? 'Acuerdo de Confidencialidad (NDA)' : 'acuerdo de colaboración'}${reference ? ` · ${reference}` : ''}.`, target:'operations', dueAt:Date.now() + 3600000 * 4, dedupeKey:`legal-link-${type}-${reference || token}` });
@@ -7997,8 +7997,8 @@ $captacion_current_user = wp_get_current_user();
         { mode: 'server-proxy', label: 'proxy XML del servidor', url: buildXmlProxyUrl(sameOriginProxy, xmlUrl) },
         { mode: 'direct', label: 'descarga directa', url: xmlUrl },
         // Respaldos solo para pruebas estáticas. En producción debe funcionar el proxy propio anterior.
-        { mode: 'demo-proxy-corsproxy', label: 'proxy público de demostración 1', url: `https://corsproxy.io/?url=${encodeURIComponent(xmlUrl)}` },
-        { mode: 'demo-proxy-allorigins', label: 'proxy público de demostración 2', url: `https://api.allorigins.win/raw?url=${encodeURIComponent(xmlUrl)}` }
+        { mode: 'demo-proxy-corsproxy', label: 'proxy público alternativo 1', url: `https://corsproxy.io/?url=${encodeURIComponent(xmlUrl)}` },
+        { mode: 'demo-proxy-allorigins', label: 'proxy público alternativo 2', url: `https://api.allorigins.win/raw?url=${encodeURIComponent(xmlUrl)}` }
       ];
 
       let lastError = null;
@@ -10454,3 +10454,5 @@ $captacion_current_user = wp_get_current_user();
 </body>
 </html>
 <!-- captacion-app eof padding xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+>
+<!-- captacion-app eof padding  -->
