@@ -50,6 +50,7 @@ $captacion_mailchimp_config = array(
   'tasksEndpoint' => esc_url_raw(rest_url('captacion/v1/tasks')),
   'contactEndpoint' => esc_url_raw(rest_url('captacion/v1/contact')),
   'reportEndpoint' => esc_url_raw(rest_url('captacion/v1/reports')),
+  'supportEmail' => $captacion_contact_email,
   'lostPasswordUrl' => esc_url_raw(wp_lostpassword_url(home_url('/'))),
   'territoriesEndpoint' => esc_url_raw(rest_url('captacion/v1/territories')),
   'territoryValidationEndpoint' => esc_url_raw(rest_url('captacion/v1/address/validate')),
@@ -85,7 +86,7 @@ $captacion_current_user = wp_get_current_user();
   <meta name="description" content="<?php echo esc_attr(captacion_app_setting('meta_description')); ?>" />
   <title><?php echo esc_html(captacion_app_setting('site_title')); ?></title>
   <?php endif; ?>
-  
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -119,7 +120,7 @@ $captacion_current_user = wp_get_current_user();
       }
     }
   </script>
-  
+
   <!-- Preferencia visual persistente: claro / oscuro -->
   <script>
     (function () {
@@ -138,7 +139,7 @@ $captacion_current_user = wp_get_current_user();
   <!-- Leaflet: mapa georreferenciado de España -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
-  
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -730,7 +731,7 @@ $captacion_current_user = wp_get_current_user();
       .exec-summary-item:nth-child(n+5) { border-bottom:0; }
     }
 
-  
+
     .home-kpi-card { position:relative; display:flex; min-height:140px; flex-direction:column; padding-bottom:4.35rem !important; }
     .home-kpi-row { display:block; margin-top:.65rem; }
     .home-kpi-copy { min-width:0; max-width:calc(100% - 8.75rem); }
@@ -846,7 +847,7 @@ $captacion_current_user = wp_get_current_user();
   <!-- CABECERA / MENÚ DE NAVEGACIÓN PRINCIPAL -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      
+
       <!-- Logotipo -->
       <a href="#/inicio" class="flex items-center gap-3 group min-w-0">
       <img src="<?php echo esc_url($captacion_theme_uri . '/media/logo-compra-captacion.png'); ?>" alt="<?php echo esc_attr($captacion_brand_name); ?>" class="brand-logo-full group-hover:scale-[1.01] transition-transform">
@@ -925,7 +926,7 @@ $captacion_current_user = wp_get_current_user();
 
   <!-- CONTENEDOR MULTIPÁGINA PRINCIPAL -->
   <main class="flex-grow">
-    
+
     <!-- PÁGINA 1: INICIO -->
     <div id="page-inicio" class="page-section hidden">
       <!-- Hero principal -->
@@ -1218,11 +1219,11 @@ $captacion_current_user = wp_get_current_user();
     <div id="page-buscar-captaciones" class="page-section hidden">
       <section class="py-12 bg-slate-100/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           <div class="mb-8">
             <h2 class="text-3xl font-black text-navy">Demandas y Necesidades de Búsqueda Activas</h2>
             <p class="text-sm text-slate-500 mt-2 max-w-4xl">
-              ¿Tienes un comprador solvente en tu cartera pero careces del inmueble idóneo en tu zona o está fuera de tu radio de acción? 
+              ¿Tienes un comprador solvente en tu cartera pero careces del inmueble idóneo en tu zona o está fuera de tu radio de acción?
               Publica aquí tu necesidad específica de búsqueda para que otros profesionales de nuestra de red que posean el activo puedan contactar contigo y cerrar una operación inmobiliaria compartida.
             </p>
           </div>
@@ -1417,7 +1418,7 @@ $captacion_current_user = wp_get_current_user();
           <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-sm mb-6 space-y-4">
             <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
               <span class="text-sm font-extrabold text-navy">Filtros de demandas activas</span>
-              
+
               <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl" role="group" aria-label="Modo de visualización de demandas">
                 <button onclick="setNeedsLayout('mapa')" id="layout-mapa-btn" class="px-3 py-1.5 text-xs font-bold rounded-lg text-slate-500 hover:text-navy transition-all">Mapa</button>
                 <button onclick="setNeedsLayout('bloque')" id="layout-bloque-btn" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-white text-navy shadow-sm transition-all">▦ Bloque</button>
@@ -1490,7 +1491,7 @@ $captacion_current_user = wp_get_current_user();
                 </select>
               </div>
             </div>
-            
+
             <div class="flex justify-end">
               <button onclick="clearAdvancedFilters()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-navy hover:bg-slate-100 transition-all">
                 Restablecer filtros
@@ -1536,7 +1537,7 @@ $captacion_current_user = wp_get_current_user();
                 <span>✨</span> Redactar con IA
               </button>
             </div>
-            
+
             <div class="space-y-3">
               <div>
                 <span class="block text-sm font-black text-navy">Ubicación del inmueble</span>
@@ -2031,7 +2032,7 @@ $captacion_current_user = wp_get_current_user();
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <article class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm"><span class="text-[10px] uppercase tracking-wider text-slate-400 font-black">Catálogo de recursos</span><strong id="resource-stat-total" class="block text-3xl font-black text-navy mt-2">9</strong><p class="text-[11px] text-slate-500 mt-1">Recursos de captación y valoración.</p></article>
-            <article class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm"><span class="text-[10px] uppercase tracking-wider text-slate-400 font-black">Demos interactivas</span><strong id="resource-stat-demo" class="block text-3xl font-black text-green mt-2">3</strong><p class="text-[11px] text-slate-500 mt-1">Listas para probar en esta versión.</p></article>
+            <article class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm"><span class="text-[10px] uppercase tracking-wider text-slate-400 font-black">Herramientas disponibles</span><strong id="resource-stat-demo" class="block text-3xl font-black text-green mt-2">3</strong><p class="text-[11px] text-slate-500 mt-1">Listas para uso profesional guiado.</p></article>
             <article class="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm"><span class="text-[10px] uppercase tracking-wider text-slate-400 font-black">Área activa</span><strong class="block text-lg font-black text-blue mt-2">Captación</strong><p class="text-[11px] text-slate-500 mt-1">Valoración, documentación y seguimiento.</p></article>
             <article class="p-5 rounded-2xl bg-navy text-white shadow-sm"><span class="text-[10px] uppercase tracking-wider text-blue-light font-black">Desarrollo progresivo</span><strong class="block text-lg font-black mt-2">Validar antes de ampliar</strong><p class="text-[11px] text-slate-300 mt-1">Las demás categorías se incorporarán en siguientes fases.</p></article>
           </div>
@@ -2086,7 +2087,7 @@ $captacion_current_user = wp_get_current_user();
           </section>
 
           <section class="hidden rounded-3xl bg-navy text-white p-6 sm:p-8">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"><div class="lg:col-span-8"><span class="text-xs font-black uppercase tracking-widest text-blue-light">Evolución de producto</span><h3 class="text-2xl font-black mt-2">De biblioteca estática a entorno de trabajo recurrente</h3><p class="text-sm text-slate-300 mt-3 leading-relaxed">La siguiente fase puede conectar cada recurso con expedientes, perfiles verificados, documentos guardados, alertas, reputación profesional y salas privadas de operación.</p></div><div class="lg:col-span-4 grid grid-cols-2 gap-3 text-center"><div class="p-4 rounded-2xl bg-white/5 border border-white/10"><strong class="block text-2xl font-black">6</strong><span class="text-[10px] text-slate-300 uppercase">Áreas de trabajo</span></div><div class="p-4 rounded-2xl bg-white/5 border border-white/10"><strong class="block text-2xl font-black">10</strong><span class="text-[10px] text-slate-300 uppercase">Prioridades MVP</span></div></div></div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"><div class="lg:col-span-8"><span class="text-xs font-black uppercase tracking-widest text-blue-light">Evolución de producto</span><h3 class="text-2xl font-black mt-2">De biblioteca estática a entorno de trabajo recurrente</h3><p class="text-sm text-slate-300 mt-3 leading-relaxed">La siguiente fase puede conectar cada recurso con expedientes, perfiles verificados, documentos guardados, alertas, reputación profesional y salas privadas de operación.</p></div><div class="lg:col-span-4 grid grid-cols-2 gap-3 text-center"><div class="p-4 rounded-2xl bg-white/5 border border-white/10"><strong class="block text-2xl font-black">6</strong><span class="text-[10px] text-slate-300 uppercase">Áreas de trabajo</span></div><div class="p-4 rounded-2xl bg-white/5 border border-white/10"><strong class="block text-2xl font-black">10</strong><span class="text-[10px] text-slate-300 uppercase">Prioridades operativas</span></div></div></div>
           </section>
         </div>
       </section>
@@ -2105,7 +2106,7 @@ $captacion_current_user = wp_get_current_user();
           <div class="md:col-span-5 bg-navy text-white p-8 rounded-3xl space-y-6">
             <h3 class="text-xl font-bold">Oficina de Soporte</h3>
             <p class="text-xs text-slate-300 leading-relaxed">Operamos de forma distribuida en toda España, ofreciendo asistencia rápida a agencias asociadas.</p>
-            
+
             <div class="space-y-4 text-xs">
               <div>
                 <span class="text-slate-400 block font-bold">Dirección Fiscal</span>
@@ -2173,14 +2174,14 @@ $captacion_current_user = wp_get_current_user();
         <div class="space-y-3 mb-8">
           <span class="text-xs font-black uppercase tracking-widest text-blue">Centro legal</span>
           <h2 class="text-3xl font-black text-navy">Aviso legal</h2>
-          <p class="text-sm text-slate-500 leading-relaxed">Base legal de preproducción pendiente de completar con datos societarios verificados, política de privacidad definitiva e inventario final de tecnologías.</p>
+          <p class="text-sm text-slate-500 leading-relaxed">Información legal de Captacion.app como plataforma B2B para profesionales inmobiliarios, colaboración protegida y publicación responsable de oportunidades.</p>
         </div>
         <div class="grid gap-5">
           <article class="legal-card">
             <h3 class="text-lg">1. Titular del sitio web</h3>
             <div class="mt-3 grid gap-2 text-sm">
-              <p><span class="legal-placeholder">TODO LEGAL — sustituir antes de producción</span> EMPRESA PENDIENTE DE DEFINIR, S.L. · B00000000 · Domicilio social pendiente de completar · contacto@captacion.app.</p>
-              <p><span class="legal-placeholder">PREPRODUCCIÓN</span> El acceso a flujos con datos reales quedará restringido hasta cerrar cumplimiento, seguridad y contratos aplicables.</p>
+              <p>El titular y responsable operativo de Captacion.app gestiona este sitio como plataforma profesional B2B. Para cualquier consulta legal o administrativa, contacta en <a class="legal-link" href="mailto:<?php echo esc_attr($captacion_contact_email); ?>"><?php echo esc_html($captacion_contact_email); ?></a>.</p>
+              <p>El acceso a información sensible de captaciones, demandas o colaboradores se limita mediante registro, permisos, trazabilidad y flujos de autorización.</p>
             </div>
           </article>
           <article class="legal-card">
@@ -2203,8 +2204,8 @@ $captacion_current_user = wp_get_current_user();
             <button type="button" onclick="openReportModal()" class="mt-4 px-4 py-2.5 rounded-xl bg-navy text-white text-xs font-bold">Reportar contenido o incidencia</button>
           </article>
           <article class="legal-card">
-            <h3 class="text-lg">5. Condiciones de preproducción</h3>
-            <p class="mt-2 text-sm leading-relaxed">Esta versión se utiliza para validación interna y parte de su operativa sigue apoyándose en almacenamiento local del navegador. Antes del despliegue productivo se activarán autenticación segura, persistencia en servidor, copias de seguridad, control de permisos y revisión jurídica final.</p>
+            <h3 class="text-lg">5. Condiciones de uso de la plataforma</h3>
+            <p class="mt-2 text-sm leading-relaxed">El uso de Captacion.app requiere actuar como profesional identificado, respetar la confidencialidad de los datos sensibles y mantener actualizada la información publicada. La plataforma puede limitar, revisar o retirar contenidos cuando sea necesario para proteger a usuarios, propietarios, colaboradores o terceros.</p>
           </article>
         </div>
       </section>
@@ -2216,12 +2217,12 @@ $captacion_current_user = wp_get_current_user();
         <div class="space-y-3 mb-8">
           <span class="text-xs font-black uppercase tracking-widest text-green">RGPD y LOPDGDD</span>
           <h2 class="text-3xl font-black text-navy">Política de privacidad</h2>
-          <p class="text-sm text-slate-500 leading-relaxed">Este texto resume el enfoque de privacidad previsto para la versión pública final. En esta URL provisional se mantiene como borrador interno de trabajo para alinear producto, captación y cumplimiento.</p>
+          <p class="text-sm text-slate-500 leading-relaxed">Captacion.app aplica un enfoque de privacidad por diseño: minimización de datos públicos, control de accesos, trazabilidad y protección de información profesional sensible.</p>
         </div>
         <div class="grid gap-5">
           <article class="legal-card">
             <h3 class="text-lg">1. Responsable del tratamiento</h3>
-            <p class="mt-2 text-sm"><span class="legal-placeholder">TODO LEGAL — sustituir antes de producción</span> EMPRESA PENDIENTE DE DEFINIR, S.L. · B00000000 · Domicilio social pendiente de completar · privacidad@captacion.app. DPO no designado salvo confirmación.</p>
+            <p class="mt-2 text-sm">El responsable operativo de Captacion.app atiende consultas de privacidad en <a class="legal-link" href="mailto:<?php echo esc_attr($captacion_contact_email); ?>"><?php echo esc_html($captacion_contact_email); ?></a>.</p>
           </article>
           <article class="legal-card">
             <h3 class="text-lg">2. Datos tratados</h3>
@@ -2253,7 +2254,7 @@ $captacion_current_user = wp_get_current_user();
           <article class="legal-card">
             <h3 class="text-lg">6. Derechos de las personas</h3>
             <p class="mt-2 text-sm leading-relaxed">Las personas pueden solicitar acceso, rectificación, supresión, oposición, limitación, portabilidad y no ser objeto de decisiones individuales automatizadas cuando corresponda.</p>
-            <p class="mt-2 text-sm">Canal provisional para ejercicio de derechos: <a class="legal-link" href="mailto:privacidad@captacion.app">privacidad@captacion.app</a>. <span class="legal-placeholder">TODO LEGAL — confirmar antes de producción</span>.</p>
+            <p class="mt-2 text-sm">Canal para ejercer derechos o solicitar información sobre privacidad: <a class="legal-link" href="mailto:<?php echo esc_attr($captacion_contact_email); ?>"><?php echo esc_html($captacion_contact_email); ?></a>.</p>
           </article>
           <article class="legal-card">
             <h3 class="text-lg">7. Seguridad y confidencialidad</h3>
@@ -2275,9 +2276,9 @@ $captacion_current_user = wp_get_current_user();
           <article class="legal-card">
             <h3 class="text-lg">1. Tecnologías utilizadas</h3>
             <ul class="mt-2 space-y-1.5 text-sm leading-relaxed">
-              <li><strong>Necesarias:</strong> sesión, seguridad, preferencia de tema y almacenamiento técnico/operativo de preproducción.</li>
-              <li><strong>Analítica:</strong> desactivada en esta versión.</li>
-              <li><strong>Marketing:</strong> desactivado en esta versión.</li>
+              <li><strong>Necesarias:</strong> sesión, seguridad, preferencia de tema y almacenamiento técnico imprescindible para prestar el servicio.</li>
+              <li><strong>Analítica:</strong> solo se utilizará si está configurada y aceptada conforme al banner de consentimiento.</li>
+              <li><strong>Marketing:</strong> solo se utilizará con consentimiento específico cuando corresponda.</li>
             </ul>
           </article>
           <article class="legal-card">
@@ -2287,11 +2288,11 @@ $captacion_current_user = wp_get_current_user();
           </article>
           <article class="legal-card">
             <h3 class="text-lg">3. Proveedores externos</h3>
-            <p class="mt-2 text-sm leading-relaxed">El mapa usa Leaflet y teselas de OpenStreetMap como servicio técnico solicitado para mostrar cobertura territorial. También se cargan Tailwind, Leaflet Draw y Google Fonts desde CDN. Estos servicios deben figurar en el inventario de Complianz; antes de producción se revisará su base jurídica y se priorizará el autoalojamiento cuando resulte viable.</p>
+            <p class="mt-2 text-sm leading-relaxed">El mapa usa Leaflet y teselas de OpenStreetMap como servicio técnico para mostrar cobertura territorial. También pueden cargarse recursos técnicos necesarios para interfaz, mapas, estilos o tipografías. El inventario actualizado se gestiona mediante Complianz cuando proceda.</p>
           </article>
           <article class="legal-card">
             <h3 class="text-lg">4. Actualización del inventario</h3>
-            <p class="mt-2 text-sm leading-relaxed">La declaración principal es la generada por Complianz y se actualiza con su escáner. Los datos del titular permanecen como <span class="legal-placeholder">TODO LEGAL — sustituir antes de producción</span>.</p>
+            <p class="mt-2 text-sm leading-relaxed">La declaración principal de cookies y tecnologías similares se gestiona mediante Complianz y puede actualizarse periódicamente para reflejar cambios técnicos o legales.</p>
           </article>
           <article class="legal-card">
             <h3 class="text-lg">5. Declaración de cookies de Complianz</h3>
@@ -2540,6 +2541,10 @@ $captacion_current_user = wp_get_current_user();
             <div id="private-panel-feeds" class="private-dashboard-panel">
               <div class="mb-5"><h3 class="text-xl font-black text-navy">Feeds XML</h3><p class="text-xs text-slate-500 mt-1">Importa, actualiza y elimina inventario externo.</p></div>
               <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sm:p-6 mb-6">
+                <div class="mb-5 p-4 rounded-2xl border border-blue/20 bg-blue-light/30 text-xs text-slate-600 leading-relaxed">
+                  <strong class="block text-navy mb-1">Antes de subir un XML</strong>
+                  El archivo debe tener propiedades importables y no contener elementos bloqueados por seguridad como DOCTYPE o ENTITY. Si el sistema no puede importarlo, verás el motivo y cuándo abrir un ticket para revisar el formato del proveedor.
+                </div>
                 <div class="grid grid-cols-1 xl:grid-cols-[1fr_auto] gap-4 items-end">
                   <div>
                     <label for="private-xml-url" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">URL del fichero XML</label>
@@ -2547,6 +2552,7 @@ $captacion_current_user = wp_get_current_user();
                   </div>
                   <button id="private-xml-save-btn" type="button" onclick="savePrivateXmlUrl()" class="px-5 py-3 rounded-xl bg-blue hover:bg-blue-dark text-white text-xs font-black shadow-md transition-all">Guardar e importar URL</button>
                 </div>
+                <div id="private-feed-xml-url-result" class="mt-3 text-xs hidden"></div>
                 <div class="mt-5 grid grid-cols-1 xl:grid-cols-[1fr_auto_auto] gap-4 items-end">
                   <div>
                     <label for="private-feed-xml-file-name" class="block text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Archivo XML local</label>
@@ -2560,7 +2566,7 @@ $captacion_current_user = wp_get_current_user();
                 <div class="mt-6 border-t border-slate-200 pt-5">
                   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
                     <h4 class="text-sm font-black text-navy">XML subidos</h4>
-                    <button type="button" onclick="loadImportBatches()" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-blue text-[10px] font-black">Actualizar lista</button>
+                    <button type="button" onclick="loadXmlFeeds()" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-blue text-[10px] font-black">Actualizar lista</button>
                   </div>
                   <div id="private-feed-import-batches-list" class="space-y-2"><p class="text-xs text-slate-400">Cargando XML subidos...</p></div>
                 </div>
@@ -2666,7 +2672,7 @@ $captacion_current_user = wp_get_current_user();
         <div>
           <p class="text-sm font-black text-navy">Captacion.app · Plataforma inmobiliaria B2B</p>
           <p class="mt-2 max-w-3xl text-xs leading-relaxed">Genera oportunidades con mayor control: fichas públicas con datos limitados, protección de información sensible y seguimiento completo de cada relación comercial.</p>
-          <p class="mt-2 text-[11px]"><span class="legal-placeholder">TODO LEGAL — sustituir antes de producción</span> Titular, NIF/CIF, domicilio y dominio final pendientes de confirmación.</p>
+          <p class="mt-2 text-[11px]">Contacto legal y privacidad: <a href="mailto:<?php echo esc_attr($captacion_contact_email); ?>"><?php echo esc_html($captacion_contact_email); ?></a>. La información societaria completa se facilitará en los documentos contractuales o canales oficiales aplicables.</p>
         </div>
         <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs lg:justify-end">
           <a href="#/aviso-legal">Aviso legal</a>
@@ -2687,7 +2693,7 @@ $captacion_current_user = wp_get_current_user();
   <div id="preview-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-navy-dark/60 backdrop-blur-sm">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 border border-slate-100 shadow-2xl relative overflow-y-auto max-h-[90vh]">
       <button onclick="closePreviewModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
-      
+
       <div class="border-b border-slate-100 pb-3 mb-4">
         <h3 class="text-xl font-extrabold text-navy">Revisión de Captación</h3>
         <p class="text-xs text-slate-400 mt-1">Comprueba la visualización de la ficha tal y como aparecerá en el Marketplace público B2B.</p>
@@ -2709,6 +2715,97 @@ $captacion_current_user = wp_get_current_user();
     </div>
   </div>
 
+  <div id="xml-feed-report-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center p-4 bg-navy-dark/70 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 border border-slate-100 shadow-2xl relative overflow-y-auto max-h-[90vh]">
+      <button type="button" onclick="closeXmlFeedReportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+      <span class="inline-flex px-3 py-1 rounded-full bg-blue-light text-blue text-[10px] font-black uppercase">Informe XML</span>
+      <h3 id="xml-feed-report-title" class="text-xl font-extrabold text-navy mt-3">Resumen del XML</h3>
+      <div id="xml-feed-report-body" class="mt-5 text-sm text-slate-600"></div>
+      <div class="flex justify-end mt-6 pt-4 border-t border-slate-100">
+        <button type="button" onclick="closeXmlFeedReportModal()" class="px-5 py-2.5 rounded-xl bg-blue text-white text-xs font-black hover:bg-blue-dark shadow-md">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="xml-feed-pending-modal" class="fixed inset-0 z-[90] hidden flex items-center justify-center p-4 bg-navy-dark/70 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 border border-slate-100 shadow-2xl relative overflow-y-auto max-h-[90vh]">
+      <button type="button" onclick="closeFeedPendingModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">×</button>
+      <span class="inline-flex px-3 py-1 rounded-full bg-amber-light text-amber text-[10px] font-black uppercase">Revisión</span>
+      <h3 id="xml-feed-pending-title" class="text-xl font-extrabold text-navy mt-3">Propiedades pendientes de revisión</h3>
+
+      <!-- Filtros y Selección masiva -->
+      <div id="xml-feed-pending-controls" class="mt-4 hidden flex flex-col gap-3 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-2 border-b border-slate-200">
+          <label class="flex items-center gap-2 cursor-pointer text-xs font-black text-navy select-none">
+            <input type="checkbox" id="xml-pending-select-all" onchange="toggleSelectAllPending(this)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-4 h-4 cursor-pointer" />
+            Seleccionar todas visibles
+          </label>
+          <button type="button" onclick="deselectAllPendingProperties()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 text-[10px] font-black">Deseleccionar todas</button>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-navy font-bold">Filtrar vista:</span>
+            <select id="xml-pending-category-filter" onchange="filterPendingByCategory(this.value)" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-navy font-bold focus:ring-2 focus:ring-blue/20 cursor-pointer">
+              <option value="all">Todas las categorías</option>
+              <option value="Piso">Pisos</option>
+              <option value="Casa/Chalet">Casas / Chalets</option>
+              <option value="Local Comercial">Locales Comerciales</option>
+              <option value="Nave">Naves Industriales</option>
+              <option value="Oficina">Oficinas</option>
+              <option value="Edificio">Edificios</option>
+              <option value="Suelo/Terreno">Suelos / Terrenos</option>
+              <option value="Otros">Otros</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span class="text-xs text-navy font-bold">Seleccionar por categoría:</span>
+          <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            <input type="checkbox" data-pending-cat-select="Piso" onchange="toggleSelectPendingCategory('Piso', this.checked)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-3.5 h-3.5 cursor-pointer" />
+            Pisos
+          </label>
+          <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            <input type="checkbox" data-pending-cat-select="Casa/Chalet" onchange="toggleSelectPendingCategory('Casa/Chalet', this.checked)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-3.5 h-3.5 cursor-pointer" />
+            Casas/Chalets
+          </label>
+          <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            <input type="checkbox" data-pending-cat-select="Local Comercial" onchange="toggleSelectPendingCategory('Local Comercial', this.checked)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-3.5 h-3.5 cursor-pointer" />
+            Locales Comerciales
+          </label>
+          <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            <input type="checkbox" data-pending-cat-select="Nave" onchange="toggleSelectPendingCategory('Nave', this.checked)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-3.5 h-3.5 cursor-pointer" />
+            Naves
+          </label>
+          <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            <input type="checkbox" data-pending-cat-select="Oficina" onchange="toggleSelectPendingCategory('Oficina', this.checked)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-3.5 h-3.5 cursor-pointer" />
+            Oficinas
+          </label>
+          <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            <input type="checkbox" data-pending-cat-select="Edificio" onchange="toggleSelectPendingCategory('Edificio', this.checked)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-3.5 h-3.5 cursor-pointer" />
+            Edificios
+          </label>
+          <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            <input type="checkbox" data-pending-cat-select="Suelo/Terreno" onchange="toggleSelectPendingCategory('Suelo/Terreno', this.checked)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-3.5 h-3.5 cursor-pointer" />
+            Suelos/Terrenos
+          </label>
+          <label class="flex items-center gap-1.5 text-xs font-semibold text-slate-700 cursor-pointer select-none">
+            <input type="checkbox" data-pending-cat-select="Otros" onchange="toggleSelectPendingCategory('Otros', this.checked)" class="rounded text-blue border-slate-300 focus:ring-blue/20 w-3.5 h-3.5 cursor-pointer" />
+            Otros
+          </label>
+        </div>
+
+        <div id="xml-feed-pending-actions" class="flex justify-end gap-2 border-t border-slate-200 pt-2 mt-1">
+          <button type="button" id="xml-publish-selected-btn" onclick="publishSelectedPendingProperties(this)" class="px-4 py-2 rounded-xl bg-green hover:bg-green-dark text-white text-xs font-black shadow-md transition-all">Publicar seleccionadas tal cual</button>
+          <button type="button" id="xml-publish-all-btn" onclick="publishAllPendingProperties()" class="px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-xs font-black transition-all">Publicar todas</button>
+        </div>
+      </div>
+
+      <div id="xml-feed-pending-body" class="mt-5 space-y-3 text-sm text-slate-600"></div>
+      <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100">
+        <span id="xml-feed-pending-counter" class="text-xs text-slate-400"></span>
+        <button type="button" onclick="closeFeedPendingModal()" class="px-5 py-2.5 rounded-xl bg-blue text-white text-xs font-black hover:bg-blue-dark shadow-md">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL DE COMPRA DE CAPTACION CON STRIPE -->
   <div id="access-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-navy-dark/60 backdrop-blur-sm">
@@ -3180,11 +3277,13 @@ $captacion_current_user = wp_get_current_user();
       endpoints: {
         importXmlUrl: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/import-url')); ?>,
         uploadXmlFile: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/import-file')); ?>,
-        listXmlFeeds: <?php echo wp_json_encode(rest_url('captacion/v1/import-batches')); ?>,
-        xmlFeed: <?php echo wp_json_encode(rest_url('captacion/v1/import-batches/')); ?>,
+        listXmlFeeds: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds')); ?>,
+        xmlFeed: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/')); ?>,
         syncXmlFeed: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/')); ?>,
         exportUserXml: <?php echo wp_json_encode(rest_url('captacion/v1/xml/user/export')); ?>,
-        deleteMyData: <?php echo wp_json_encode(rest_url('captacion/v1/my-data')); ?>
+        deleteMyData: <?php echo wp_json_encode(rest_url('captacion/v1/my-data')); ?>,
+        feedPending: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/')); ?>,
+        feedPublishAll: <?php echo wp_json_encode(rest_url('captacion/v1/xml-feeds/')); ?>
       }
     };
 
@@ -3292,31 +3391,32 @@ $captacion_current_user = wp_get_current_user();
     window.getVirtualMarketplaceImage = getVirtualMarketplaceImage;
     const MAX_MARKETPLACE_IMAGE_SIZE = 900;
     const MARKETPLACE_IMAGE_QUALITY = 0.78;
+    const CAPTACION_PRODUCTION_MODE = true;
 
     // ==========================================
     // 4. CARGA DE LA BASE DE DATOS LOCAL
     // ==========================================
     let properties = [];
-    try {
-      properties = JSON.parse(localStorage.getItem('captacion_properties_v3'));
-    } catch (e) {}
+    if (!CAPTACION_PRODUCTION_MODE) {
+      try { properties = JSON.parse(localStorage.getItem('captacion_properties_v3')); } catch (e) {}
+    }
     if (!Array.isArray(properties)) properties = [];
 
     let needs = [];
-    try {
-      needs = JSON.parse(localStorage.getItem('captacion_needs_v3'));
-    } catch (e) {}
+    if (!CAPTACION_PRODUCTION_MODE) {
+      try { needs = JSON.parse(localStorage.getItem('captacion_needs_v3')); } catch (e) {}
+    }
     if (!Array.isArray(needs)) needs = [];
 
     let closedOperations = [];
-    try {
-      closedOperations = JSON.parse(localStorage.getItem('captacion_closed_operations_v4'));
-    } catch (e) {}
+    if (!CAPTACION_PRODUCTION_MODE) {
+      try { closedOperations = JSON.parse(localStorage.getItem('captacion_closed_operations_v4')); } catch (e) {}
+    }
     if (!Array.isArray(closedOperations)) closedOperations = [];
 
     properties = properties.map((property, index) => normalizePropertyRecord(property, index));
     needs = needs.map((need, index) => normalizeNeedRecord(need, index));
-    if (!localStorage.getItem('captacion_production_cleanup_v3')) {
+    if (!CAPTACION_PRODUCTION_MODE && !localStorage.getItem('captacion_production_cleanup_v3')) {
       const legacyPropertyIds = new Set(['prop-1', 'prop-2', 'prop-3']);
       const legacyNeedIds = new Set(['need-1', 'need-2', 'need-3']);
       const isLegacyProperty = p => p.demoBatch || String(p.id).startsWith('demo-') || legacyPropertyIds.has(String(p.id));
@@ -3341,7 +3441,7 @@ $captacion_current_user = wp_get_current_user();
       try { localStorage.removeItem('captacion_internal_communications_v1'); } catch (e) {}
       try { localStorage.setItem('captacion_production_cleanup_v3', '1'); } catch (e) {}
     }
-    persistDemoState();
+    if (!CAPTACION_PRODUCTION_MODE) persistDemoState();
 
 
     // ==========================================
@@ -3354,7 +3454,7 @@ $captacion_current_user = wp_get_current_user();
       } catch (e) {
         hash = currentHash;
       }
-      
+
       if (!hash.startsWith('#/')) {
         hash = '#/inicio';
       }
@@ -3713,7 +3813,7 @@ $captacion_current_user = wp_get_current_user();
       const raw = cleanText(value);
       if (!raw) return 'Otros';
       const normalized = normalizeMatchText(raw);
-      if (normalized.includes('piso')) return 'Piso';
+      if (normalized.includes('piso') || normalized.includes('apartamento') || normalized.includes('atico') || normalized.includes('duplex') || normalized.includes('estudio')) return 'Piso';
       if (normalized.includes('casa') || normalized.includes('chalet')) return 'Casa/Chalet';
       if (normalized.includes('local')) return 'Local Comercial';
       if (normalized.includes('nave')) return 'Nave';
@@ -3937,6 +4037,7 @@ $captacion_current_user = wp_get_current_user();
     }
 
     function persistDemoState() {
+      if (CAPTACION_PRODUCTION_MODE) return;
       try {
         localStorage.setItem('captacion_properties_v3', JSON.stringify(properties));
         localStorage.setItem('captacion_needs_v3', JSON.stringify(needs));
@@ -4356,6 +4457,7 @@ $captacion_current_user = wp_get_current_user();
       const sortValue = document.getElementById('market-sort')?.value || 'newest';
       const [minPrice, maxPrice] = priceFilter === 'all' ? [0, Number.POSITIVE_INFINITY] : priceFilter.split('-').map(Number);
       const filtered = properties.filter((prop, index) => {
+        if (!isMarketplaceVisibleProperty(prop)) return false;
         const publicationStatus = String(prop.status || prop.publication_status || 'active').toLowerCase();
         if (publicationStatus !== 'active') return false;
         const price = Number(prop.price) || 0;
@@ -4715,11 +4817,16 @@ $captacion_current_user = wp_get_current_user();
     }
 
     function getDemoUsers() {
+      if (CAPTACION_PRODUCTION_MODE) return {};
       try { return JSON.parse(localStorage.getItem('captacion_demo_users_v4')) || {}; }
       catch (error) { return {}; }
     }
 
     function getDemoSession() {
+      if (CAPTACION_PRODUCTION_MODE) {
+        try { return JSON.parse(sessionStorage.getItem('captacion_app_session_v1')) || null; }
+        catch (error) { return null; }
+      }
       try { return JSON.parse(localStorage.getItem('captacion_demo_session_v4')) || null; }
       catch (error) { return null; }
     }
@@ -4733,6 +4840,7 @@ $captacion_current_user = wp_get_current_user();
     let registrationMobileIntentTimer = null;
 
     function hasActiveProfessionalSession() {
+      if (CAPTACION_PRODUCTION_MODE) return Boolean(getDemoSession?.()?.emailVerified);
       return Boolean((CAPTACION_MAILCHIMP?.loggedIn && CAPTACION_MAILCHIMP?.emailVerified) || getDemoSession?.()?.emailVerified);
     }
 
@@ -5027,10 +5135,10 @@ $captacion_current_user = wp_get_current_user();
     }
 
     function canUseWordPressRecords() {
-      return Boolean(CAPTACION_MAILCHIMP?.loggedIn && CAPTACION_MAILCHIMP?.recordsEndpoint && CAPTACION_MAILCHIMP?.nonce);
+      return Boolean((!CAPTACION_PRODUCTION_MODE || sessionStorage.getItem('captacion_professional_registered') === '1') && CAPTACION_MAILCHIMP?.loggedIn && CAPTACION_MAILCHIMP?.recordsEndpoint && CAPTACION_MAILCHIMP?.nonce);
     }
 
-    async function fetchWpRecords(recordType, limit = 200) {
+    async function fetchWpRecords(recordType, limit = 5000) {
       if (!canUseWordPressRecords()) return [];
       const url = new URL(CAPTACION_MAILCHIMP.recordsEndpoint, window.location.origin);
       url.searchParams.set('record_type', recordType);
@@ -5093,10 +5201,12 @@ $captacion_current_user = wp_get_current_user();
         renderDashboard();
         filterNeeds();
         renderHome();
+        renderPrivateOffers();
+        renderPrivateDemands();
         return true;
       } catch (error) {
         console.warn('[Captacion.app] Persistencia WordPress no disponible; se mantiene fallback local.', error);
-        showToast('No se pudieron cargar tus registros guardados en WordPress. Se mantiene la vista local de preproducción.', 'info');
+        showToast('No se pudieron cargar tus registros guardados en WordPress. Se mantiene una vista local temporal hasta recuperar la conexión con WordPress.', 'info');
         return false;
       }
     }
@@ -5136,6 +5246,7 @@ $captacion_current_user = wp_get_current_user();
       }
       CAPTACION_MAILCHIMP.loggedIn = false;
       localStorage.removeItem('captacion_demo_session_v4');
+      sessionStorage.removeItem('captacion_app_session_v1');
       sessionStorage.removeItem('captacion_professional_registered');
       updateAuthModule();
       showToast('Sesión cerrada correctamente.', 'info');
@@ -5157,6 +5268,7 @@ $captacion_current_user = wp_get_current_user();
     }
 
     function ensureWordPressSession() {
+      if (CAPTACION_PRODUCTION_MODE) return;
       if (!CAPTACION_MAILCHIMP?.loggedIn || !CAPTACION_MAILCHIMP?.emailVerified || !CAPTACION_MAILCHIMP?.currentUser || getDemoSession()) return;
       const user = CAPTACION_MAILCHIMP.currentUser;
       localStorage.setItem('captacion_demo_session_v4', JSON.stringify({ name:user.name || 'Profesional', email:user.email || '', whatsapp:user.phone || '', agency:'Perfil profesional', planType:CAPTACION_MAILCHIMP.accessState?.plan_type || 'basic', emailVerified:true, startedAt:Date.now(), source:'wordpress' }));
@@ -5219,7 +5331,10 @@ $captacion_current_user = wp_get_current_user();
         const data = await response.json();
         if (!response.ok || !data?.ok) throw new Error(data?.message || 'No se pudo iniciar sesión.');
         CAPTACION_MAILCHIMP.loggedIn = true; CAPTACION_MAILCHIMP.emailVerified = true; CAPTACION_MAILCHIMP.accessState = data.accessState; CAPTACION_MAILCHIMP.nonce = data.nonce || CAPTACION_MAILCHIMP.nonce;
-        localStorage.setItem('captacion_demo_session_v4', JSON.stringify({name:data.displayName,email:data.email,whatsapp:data.phone || '',agency:'Perfil profesional',profileComplete:data.profileComplete,planType:data.accessState?.plan_type || 'basic',emailVerified:true,startedAt:Date.now(),source:'wordpress'}));
+        if (window.CAPTACION_API) window.CAPTACION_API.nonce = data.nonce || window.CAPTACION_API.nonce;
+        const appSession = {name:data.displayName,email:data.email,whatsapp:data.phone || '',agency:'Perfil profesional',profileComplete:data.profileComplete,planType:data.accessState?.plan_type || 'basic',emailVerified:true,startedAt:Date.now(),source:'wordpress'};
+        if (CAPTACION_PRODUCTION_MODE) sessionStorage.setItem('captacion_app_session_v1', JSON.stringify(appSession));
+        else localStorage.setItem('captacion_demo_session_v4', JSON.stringify(appSession));
         sessionStorage.setItem('captacion_professional_registered','1'); event.target.reset(); closeProfessionalAccessModal(); updateAuthModule(); applyDashboardPlanAccess(); loadWordPressRealEstateRecords(); window.location.hash='#/area-privada'; showToast('Sesión iniciada correctamente.', 'success');
       } catch (error) {
         fail(error.message === 'backend_unavailable' ? 'El acceso no esta disponible temporalmente. Intentalo de nuevo.' : (error.message || 'No se pudo iniciar sesión.'));
@@ -5276,7 +5391,7 @@ $captacion_current_user = wp_get_current_user();
       const closedIds = new Set((closedOperations || []).map(item => item.propertyId).filter(Boolean));
       return properties.filter(property => {
         const status = normalizeMatchText(property.status || 'activa');
-        return !closedIds.has(property.id) && !['cerrada','cerrado','caducada','caducado','bloqueada','bloqueado','vendida','vendido'].some(value => status.includes(value));
+        return isMarketplaceVisibleProperty(property) && !closedIds.has(property.id) && !['cerrada','cerrado','caducada','caducado','bloqueada','bloqueado','vendida','vendido'].some(value => status.includes(value));
       });
     }
 
@@ -5601,7 +5716,7 @@ $captacion_current_user = wp_get_current_user();
         Plan: <strong class="text-navy">${escapeHTML(marketplacePlanLabel())}</strong><br>
         Accesos disponibles: <strong class="text-blue">${Number(marketplaceAccessState?.remaining_marketplace_accesses || 0)}</strong>${statusError ? `<br><span class="text-amber">${escapeHTML(statusError)}</span>` : ''}`;
       const planMessage = document.getElementById('access-modal-plan-message');
-      if (planMessage) planMessage.textContent = activeOpportunityUnlocked ? 'Esta oportunidad ya está desbloqueada para tu usuario y no volverá a consumir crédito.' : Number(marketplaceAccessState?.remaining_marketplace_accesses) > 0 ? 'Se consumirá una unidad de acceso del marketplace al confirmar.' : 'No hay accesos disponibles. El checkout permanece en preproducción hasta configurar Payment Link y webhook.';
+      if (planMessage) planMessage.textContent = activeOpportunityUnlocked ? 'Esta oportunidad ya está desbloqueada para tu usuario y no volverá a consumir crédito.' : Number(marketplaceAccessState?.remaining_marketplace_accesses) > 0 ? 'Se consumirá una unidad de acceso del marketplace al confirmar.' : 'No hay accesos disponibles. Contacta con soporte para activar accesos del marketplace o revisar la configuración de pago.';
       const stripeButton = document.getElementById('stripe-payment-button');
       if (stripeButton) stripeButton.textContent = marketplaceAccessCta(marketplaceAccessState, activeOpportunityUnlocked);
       modal?.classList.remove('hidden');
@@ -5629,7 +5744,7 @@ $captacion_current_user = wp_get_current_user();
         } else if (data.checkoutConfigured && data.checkoutUrl) {
           window.open(data.checkoutUrl, '_blank', 'noopener,noreferrer');
           showToast('Checkout abierto. Los créditos se concederán solo tras confirmación del webhook.', 'info');
-        } else showToast(data.message || 'Checkout en preproducción.', 'info');
+        } else showToast(data.message || 'Checkout no disponible temporalmente. Contacta con soporte para finalizar la activación.', 'info');
       } catch (error) { showToast(error.message || 'No se pudo procesar el acceso.', 'info'); }
     }
 
@@ -5981,7 +6096,7 @@ $captacion_current_user = wp_get_current_user();
     }
 
     function getCompatiblePropertiesForNeed(need, limit = 3) {
-      return properties
+      return getActiveMarketplaceProperties()
         .map(property => ({ property, score: calculatePropertyNeedCompatibility(property, need) }))
         .filter(match => match.score > 0)
         .sort((a, b) => b.score - a.score || Number(a.property.price || 0) - Number(b.property.price || 0))
@@ -7150,7 +7265,7 @@ $captacion_current_user = wp_get_current_user();
         const previewZone = document.getElementById('file-preview-zone');
         if (statusText) statusText.classList.remove('hidden');
         if (previewZone) previewZone.classList.add('hidden');
-        
+
         uploadedFileBase64 = null; // Reiniciar variable de imagen
         const uploadRadio = document.getElementById('offer-image-mode-upload');
         if (uploadRadio) uploadRadio.checked = true;
@@ -7171,7 +7286,7 @@ $captacion_current_user = wp_get_current_user();
         }
 
         showToast("¡La captación se ha publicado con éxito en el Marketplace! 🚀", "success");
-        
+
         // Redirigir al Marketplace automáticamente
         openPostPublishCompatibilityReport('property', publishedProperty);
         window.location.hash = '#/marketplace';
@@ -7389,7 +7504,7 @@ $captacion_current_user = wp_get_current_user();
       const container = document.getElementById('toast-container');
       if (!container) return;
       const toast = document.createElement('div');
-      
+
       let bg = "bg-white border-slate-200 text-slate-800";
       let icon = "•";
 
@@ -7581,7 +7696,7 @@ $captacion_current_user = wp_get_current_user();
       tbody.innerHTML = '';
       if (activeCount) activeCount.innerText = properties.length;
       if (closedCount) closedCount.innerText = closedOperations.length;
-      
+
       let calculatedVolume = 0;
       properties.forEach(p => {
         const percentageValue = parseFloat(p.fee) || 3.5;
@@ -7807,14 +7922,9 @@ $captacion_current_user = wp_get_current_user();
       const remainingFeeds = feeds.filter(item => item.id !== feedId);
       setPrivateXmlFeeds(remainingFeeds);
 
-      const savedUrl = localStorage.getItem('captacion_private_xml_url_v1') || '';
-      if (savedUrl === feed.url) {
-        const nextUrl = remainingFeeds[0]?.url || '';
-        if (nextUrl) localStorage.setItem('captacion_private_xml_url_v1', nextUrl);
-        else localStorage.removeItem('captacion_private_xml_url_v1');
-        const input = document.getElementById('private-xml-url');
-        if (input) input.value = nextUrl;
-      }
+      localStorage.removeItem('captacion_private_xml_url_v1');
+      const input = document.getElementById('private-xml-url');
+      if (input) input.value = '';
 
       renderPrivateXmlFeeds();
       renderMarketplace();
@@ -7914,6 +8024,7 @@ $captacion_current_user = wp_get_current_user();
     async function savePrivateXmlUrl() {
       const input = document.getElementById('private-xml-url');
       const button = document.getElementById('private-xml-save-btn');
+      const resultDiv = document.getElementById('private-feed-xml-url-result');
       if (!input) return;
       const xmlUrl = input.value.trim();
       if (!xmlUrl) {
@@ -7933,6 +8044,8 @@ $captacion_current_user = wp_get_current_user();
         button.disabled = true;
         button.textContent = 'Importando XML...';
       }
+      resultDiv?.classList.remove('hidden');
+      if (resultDiv) resultDiv.innerHTML = '<span class="text-blue">Validando e importando XML...</span>';
 
       try {
         const response = await fetch(window.CAPTACION_API.endpoints.importXmlUrl, {
@@ -7942,13 +8055,17 @@ $captacion_current_user = wp_get_current_user();
           body: JSON.stringify({ url: xmlUrl })
         });
         const data = await response.json();
-        if (!response.ok || !data.ok) throw new Error(data.message || 'No se pudo importar el XML desde backend.');
-        localStorage.setItem('captacion_private_xml_url_v1', xmlUrl);
-        await loadImportBatches();
+        if (!response.ok || !data.ok) throw Object.assign(new Error(data.message || 'No se pudo importar el XML desde backend.'), { code: data.code, data });
+        localStorage.removeItem('captacion_private_xml_url_v1');
+        input.value = '';
+        await loadXmlFeeds();
         await loadWordPressRealEstateRecords();
         const pending = Number(data.pending_review || 0);
+        const feedId = data.import_batch_id || '';
+        if (resultDiv) resultDiv.innerHTML = `<div class="p-3 rounded-xl border border-green/20 bg-green-light text-xs text-slate-700"><strong class="text-green">XML importado correctamente.</strong> ${Number(data.imported || 0)} importadas, ${Number(data.updated || 0)} actualizadas, ${pending} pendientes de revisión.${pending && feedId ? ` <button type="button" onclick="showFeedPendingReviewPanel('${escapeHTML(feedId)}')" class="ml-2 text-blue font-black underline">Revisar propiedades pendientes</button>` : ''}</div>`;
         showToast(pending ? `XML importado. ${pending} propiedades necesitan revisión.` : `XML importado correctamente: ${data.imported} propiedades guardadas.`, pending ? 'info' : 'success');
       } catch (error) {
+        renderXmlImportError(resultDiv, error);
         showToast(error.message || 'No se pudo importar el fichero XML desde el servidor.', 'info');
       } finally {
         if (button) {
@@ -7961,7 +8078,8 @@ $captacion_current_user = wp_get_current_user();
     function loadPrivateXmlUrl() {
       const input = document.getElementById('private-xml-url');
       if (!input) return;
-      input.value = localStorage.getItem('captacion_private_xml_url_v1') || '';
+      localStorage.removeItem('captacion_private_xml_url_v1');
+      input.value = '';
       renderPrivateXmlFeeds();
     }
 
@@ -7976,7 +8094,7 @@ $captacion_current_user = wp_get_current_user();
       { id:'owner-feedback', category:'captacion', icon:'', title:'Informe de feedback para propietarios', description:'Convierte comentarios de visitas en objeciones repetidas y acciones recomendadas.', time:'5 min', result:'Genera informe', access:'registro', revision:'Diseño funcional', status:'roadmap' },
 
       { id:'max-budget', category:'compraventa', icon:'', title:'Presupuesto máximo de compra', description:'Calcula capacidad económica a partir de ahorros, ingresos, financiación y gastos estimados.', time:'3 min', result:'Calcula presupuesto', access:'publico', revision:'Diseño funcional', status:'roadmap' },
-      { id:'mortgage-scenarios', category:'compraventa', icon:'⌂', title:'Calculadora hipotecaria con escenarios', description:'Compara cuota ordinaria y escenario prudente si cambian las condiciones financieras.', time:'3 min', result:'Compara cuotas', access:'publico', revision:'Demo jun. 2026', status:'demo' },
+      { id:'mortgage-scenarios', category:'compraventa', icon:'⌂', title:'Calculadora hipotecaria con escenarios', description:'Compara cuota ordinaria y escenario prudente si cambian las condiciones financieras.', time:'3 min', result:'Compara cuotas', access:'publico', revision:'Disponible', status:'demo' },
       { id:'purchase-costs', category:'compraventa', icon:'🧾', title:'Gastos de compra por comunidad autónoma', description:'Diferencia vivienda nueva, usada, residencia habitual e inversión con parámetros actualizables.', time:'4 min', result:'Calcula gastos', access:'publico', revision:'Revisión normativa necesaria', status:'roadmap' },
       { id:'buyer-qualification', category:'compraventa', icon:'🎯', title:'Cualificación del comprador', description:'Recoge financiación, zona, plazo y criterios esenciales para asignar prioridad comercial.', time:'4 min', result:'Calcula prioridad', access:'registro', revision:'Diseño funcional', status:'roadmap' },
       { id:'visit-sheet', category:'compraventa', icon:'📋', title:'Hoja de visita transparente', description:'Prepara una hoja con identificación, fecha, agente interviniente, protección de datos y honorarios.', time:'4 min', result:'Genera PDF', access:'registro', revision:'Pendiente revisión jurídica', status:'roadmap' },
@@ -7984,10 +8102,10 @@ $captacion_current_user = wp_get_current_user();
       { id:'purchase-offer', category:'compraventa', icon:'📨', title:'Propuesta de compra ordenada', description:'Genera una oferta con importe, vigencia, financiación, condiciones y observaciones.', time:'5 min', result:'Genera propuesta', access:'profesional', revision:'Pendiente revisión jurídica', status:'roadmap' },
 
       { id:'rental-type', category:'alquileres', icon:'🔑', title:'Identificador del tipo de alquiler', description:'Diferencia vivienda habitual, temporal, turístico, habitación y uso distinto de vivienda.', time:'3 min', result:'Crea orientación', access:'publico', revision:'Revisión normativa necesaria', status:'roadmap' },
-      { id:'rental-ad-check', category:'alquileres', icon:'', title:'Verificador básico de anuncio inmobiliario', description:'Comprueba si el texto de venta o alquiler incorpora datos esenciales como precio, ubicación aproximada, superficie y certificado energético.', time:'3 min', result:'Crea revisión', access:'publico', revision:'Demo jun. 2026', status:'demo', priority:7 },
+      { id:'rental-ad-check', category:'alquileres', icon:'', title:'Verificador básico de anuncio inmobiliario', description:'Comprueba si el texto de venta o alquiler incorpora datos esenciales como precio, ubicación aproximada, superficie y certificado energético.', time:'3 min', result:'Crea revisión', access:'publico', revision:'Disponible', status:'demo', priority:7 },
       { id:'rent-update', category:'alquileres', icon:'📆', title:'Actualización de renta', description:'Calcula una revisión orientativa y prepara una carta de comunicación al inquilino.', time:'3 min', result:'Calcula y redacta', access:'publico', revision:'Revisión normativa necesaria', status:'roadmap' },
       { id:'deposit-calculator', category:'alquileres', icon:'🛡', title:'Fianza y garantías adicionales', description:'Distingue supuestos y organiza la documentación para gestionar garantías.', time:'3 min', result:'Calcula garantía', access:'publico', revision:'Revisión normativa necesaria', status:'roadmap' },
-      { id:'rental-profitability', category:'alquileres', icon:'📈', title:'Rentabilidad neta del alquiler', description:'Incluye IBI, comunidad, seguro, mantenimiento, vacíos, gestión y reformas estimadas.', time:'3 min', result:'Calcula rentabilidad', access:'publico', revision:'Demo jun. 2026', status:'demo', priority:9 },
+      { id:'rental-profitability', category:'alquileres', icon:'📈', title:'Rentabilidad neta del alquiler', description:'Incluye IBI, comunidad, seguro, mantenimiento, vacíos, gestión y reformas estimadas.', time:'3 min', result:'Calcula rentabilidad', access:'publico', revision:'Disponible', status:'demo', priority:9 },
       { id:'sell-or-rent', category:'alquileres', icon:'🔄', title:'Comparador vender o alquilar', description:'Muestra liquidez inmediata frente a ingresos periódicos, gastos y horizonte temporal.', time:'5 min', result:'Compara escenarios', access:'registro', revision:'Diseño funcional', status:'roadmap', priority:9 },
       { id:'rental-calendar', category:'alquileres', icon:'', title:'Calendario de vencimientos y avisos', description:'Organiza fin de contrato, renta, seguros, depósitos, certificados y comunicaciones.', time:'5 min', result:'Crea calendario', access:'registro', revision:'Diseño funcional', status:'roadmap' },
       { id:'short-stay-checklist', category:'alquileres', icon:'🧳', title:'Checklist de corta duración', description:'Organiza advertencias y documentación antes de anunciar un alquiler de corta duración.', time:'4 min', result:'Crea checklist', access:'registro', revision:'Revisión normativa necesaria', status:'roadmap' },
@@ -8003,15 +8121,15 @@ $captacion_current_user = wp_get_current_user();
       { id:'keys-delivery', category:'legal', icon:'', title:'Acta de entrega de llaves', description:'Incluye estado, suministros, lecturas, llaves y observaciones.', time:'4 min', result:'Genera acta', access:'registro', revision:'Pendiente revisión jurídica', status:'roadmap' },
       { id:'photo-inventory', category:'legal', icon:'📷', title:'Inventario fotográfico para alquiler', description:'Organiza estancias, mobiliario y desperfectos con aceptación de las partes.', time:'8 min', result:'Crea inventario', access:'registro', revision:'Diseño funcional', status:'roadmap' },
 
-      { id:'fee-split', category:'colaboración', icon:'🧮', title:'Reparto avanzado de honorarios', description:'Calcula comisión, IVA configurable y reparto entre intervinientes.', time:'2 min', result:'Calcula importes', access:'publico', revision:'Demo jun. 2026', status:'demo', priority:5 },
+      { id:'fee-split', category:'colaboración', icon:'🧮', title:'Reparto avanzado de honorarios', description:'Calcula comisión, IVA configurable y reparto entre intervinientes.', time:'2 min', result:'Calcula importes', access:'publico', revision:'Disponible', status:'demo', priority:5 },
       { id:'collaboration-generator', category:'colaboración', icon:'', title:'Generador de acuerdo de colaboración', description:'Recoge inmueble, captador, agente comprador, porcentajes, hitos y condiciones de cobro.', time:'6 min', result:'Genera acuerdo', access:'profesional', revision:'Pendiente revisión jurídica', status:'legal', priority:6 },
       { id:'lead-referral', category:'colaboración', icon:'🔗', title:'Acta de derivación de contacto', description:'Registra cuándo se entrega un propietario y bajo qué condiciones se remunera.', time:'4 min', result:'Genera acta', access:'profesional', revision:'Pendiente revisión jurídica', status:'roadmap' },
       { id:'owner-sharing', category:'colaboración', icon:'📤', title:'Autorización para compartir oportunidad', description:'Documenta el consentimiento para publicar información mínima no sensible.', time:'4 min', result:'Genera autorización', access:'profesional', revision:'Pendiente revisión jurídica', status:'roadmap' },
-      { id:'private-operation-room', category:'colaboración', icon:'🚪', title:'Sala privada de operación', description:'Reúne participantes, Acuerdo de Confidencialidad (NDA), documentos, tareas, ofertas y actividad reciente.', time:'Continuo', result:'Gestiona operación', access:'profesional', revision:'Roadmap', status:'roadmap', priority:10 },
-      { id:'interaction-log', category:'colaboración', icon:'🕒', title:'Registro cronológico de interacciones', description:'Deja trazabilidad de presentación, visitas y transmisión de ofertas.', time:'Continuo', result:'Registra actividad', access:'profesional', revision:'Roadmap', status:'roadmap' },
+      { id:'private-operation-room', category:'colaboración', icon:'🚪', title:'Sala privada de operación', description:'Reúne participantes, Acuerdo de Confidencialidad (NDA), documentos, tareas, ofertas y actividad reciente.', time:'Continuo', result:'Gestiona operación', access:'profesional', revision:'Planificado', status:'roadmap', priority:10 },
+      { id:'interaction-log', category:'colaboración', icon:'🕒', title:'Registro cronológico de interacciones', description:'Deja trazabilidad de presentación, visitas y transmisión de ofertas.', time:'Continuo', result:'Registra actividad', access:'profesional', revision:'Planificado', status:'roadmap' },
       { id:'internal-liquidation', category:'colaboración', icon:'🧾', title:'Factura o liquidación interna', description:'Prepara la liquidación del reparto pactado con conceptos configurables.', time:'4 min', result:'Genera liquidación', access:'profesional', revision:'Pendiente revisión fiscal', status:'roadmap' },
-      { id:'reputation', category:'colaboración', icon:'', title:'Reputación del colaborador', description:'Muestra identidad verificada, operaciones, respuesta, documentación y valoraciones.', time:'Continuo', result:'Consulta perfil', access:'profesional', revision:'Roadmap', status:'roadmap' },
-      { id:'incidents', category:'colaboración', icon:'⚠', title:'Incidencias y mediación', description:'Registra discrepancias sobre honorarios, duplicidad de contactos o incumplimientos.', time:'5 min', result:'Abre incidencia', access:'profesional', revision:'Roadmap', status:'roadmap' },
+      { id:'reputation', category:'colaboración', icon:'', title:'Reputación del colaborador', description:'Muestra identidad verificada, operaciones, respuesta, documentación y valoraciones.', time:'Continuo', result:'Consulta perfil', access:'profesional', revision:'Planificado', status:'roadmap' },
+      { id:'incidents', category:'colaboración', icon:'⚠', title:'Incidencias y mediación', description:'Registra discrepancias sobre honorarios, duplicidad de contactos o incumplimientos.', time:'5 min', result:'Abre incidencia', access:'profesional', revision:'Planificado', status:'roadmap' },
       { id:'what-if', category:'colaboración', icon:'', title:'Asistente “¿qué ocurre si…?', description:'Organiza situaciones frecuentes: retirada, venta directa, expiración o financiación fallida.', time:'3 min', result:'Consulta escenarios', access:'profesional', revision:'Pendiente revisión jurídica', status:'roadmap' },
 
       { id:'portal-ads', category:'marketing', icon:'📣', title:'Generador de anuncios por portal', description:'Crea versiones para web, portales, redes sociales y WhatsApp con revisión previa.', time:'4 min', result:'Genera textos', access:'registro', revision:'Diseño funcional', status:'roadmap' },
@@ -8019,7 +8137,7 @@ $captacion_current_user = wp_get_current_user();
       { id:'home-staging', category:'marketing', icon:'🛋', title:'Plan básico de home staging', description:'Propone mejoras de bajo coste antes de fotografiar o enseñar el inmueble.', time:'4 min', result:'Crea plan', access:'registro', revision:'Diseño funcional', status:'roadmap' },
       { id:'follow-up-pack', category:'marketing', icon:'💬', title:'Mensajes de seguimiento', description:'Prepara textos para propietarios, compradores y colaboradores con tareas pendientes.', time:'3 min', result:'Genera mensajes', access:'registro', revision:'Diseño funcional', status:'roadmap' },
       { id:'weekly-owner-report', category:'marketing', icon:'📬', title:'Informe semanal para propietarios', description:'Resume visitas, consultas, origen de leads, comentarios y recomendaciones.', time:'5 min', result:'Genera informe', access:'registro', revision:'Diseño funcional', status:'roadmap' },
-      { id:'daily-agenda', category:'marketing', icon:'📅', title:'Agenda diaria de oportunidades', description:'Ordena leads, documentación incompleta, visitas y operaciones próximas al cierre.', time:'Continuo', result:'Prioriza tareas', access:'registro', revision:'Roadmap', status:'roadmap' },
+      { id:'daily-agenda', category:'marketing', icon:'📅', title:'Agenda diaria de oportunidades', description:'Ordena leads, documentación incompleta, visitas y operaciones próximas al cierre.', time:'Continuo', result:'Prioriza tareas', access:'registro', revision:'Planificado', status:'roadmap' },
       { id:'reviews-request', category:'marketing', icon:'🌟', title:'Solicitador de reseñas', description:'Prepara mensajes posteriores a la operación y registra solicitudes enviadas.', time:'2 min', result:'Genera mensaje', access:'registro', revision:'Diseño funcional', status:'roadmap' },
       { id:'objections-library', category:'marketing', icon:'🧠', title:'Biblioteca de objeciones comerciales', description:'Ayuda a responder a objeciones sobre exclusiva, precio y honorarios.', time:'2 min', result:'Consulta respuestas', access:'publico', revision:'Diseño funcional', status:'roadmap' }
     ];
@@ -8094,16 +8212,16 @@ $captacion_current_user = wp_get_current_user();
 
     function resourceActionLabel(item) {
       if (item.access === 'profesional' && !hasProfessionalMembershipAccess()) return 'Activar Professional';
-      if (item.status === 'demo') return 'Abrir demo';
+      if (item.status === 'demo') return 'Abrir herramienta';
       if (item.status === 'legal') return 'Ver plantilla';
       return 'Ver alcance';
     }
 
     function resourceStatusBadge(item) {
       if (item.access === 'profesional' && !hasProfessionalMembershipAccess()) return '<span class="px-2 py-1 rounded-full bg-amber-light text-amber text-[9px] font-black uppercase">Professional</span>';
-      if (item.status === 'demo') return '<span class="px-2 py-1 rounded-full bg-green-light text-green text-[9px] font-black uppercase">Demo operativa</span>';
+      if (item.status === 'demo') return '<span class="px-2 py-1 rounded-full bg-green-light text-green text-[9px] font-black uppercase">Disponible</span>';
       if (item.status === 'legal') return '<span class="px-2 py-1 rounded-full bg-blue-light text-blue text-[9px] font-black uppercase">Plantilla disponible</span>';
-      return '<span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase">Roadmap</span>';
+      return '<span class="px-2 py-1 rounded-full bg-slate-100 text-slate-500 text-[9px] font-black uppercase">Planificado</span>';
     }
 
     function renderResourceFeatured() {
@@ -8173,14 +8291,14 @@ $captacion_current_user = wp_get_current_user();
     }
 
     function getResourceToolMarkup(item) {
-      if (item.id === 'seller-net') return `<div class="space-y-4"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><label class="text-xs font-bold text-slate-500">Precio de venta (€)<input id="seller-net-price" type="number" value="280000" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Honorarios agencia (%)<input id="seller-net-fee" type="number" value="4" step="0.1" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">IVA sobre honorarios (%)<input id="seller-net-vat" type="number" value="21" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Cancelación hipotecaria (€)<input id="seller-net-mortgage" type="number" value="0" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Otros gastos configurables (€)<input id="seller-net-other" type="number" value="0" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label></div><div id="seller-net-result" class="p-4 rounded-2xl bg-green-light border border-green/20"></div><button onclick="showToast('Informe PDF de neto vendedor preparado en modo demostración.', 'success')" class="w-full py-3 rounded-xl bg-navy text-white text-xs font-black">Preparar informe PDF demo</button><p class="text-[10px] text-slate-400">Cálculo orientativo. No incluye impuestos personales del vendedor salvo que se incorporen posteriormente como parámetros configurables.</p></div>`;
+      if (item.id === 'seller-net') return `<div class="space-y-4"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><label class="text-xs font-bold text-slate-500">Precio de venta (€)<input id="seller-net-price" type="number" value="280000" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Honorarios agencia (%)<input id="seller-net-fee" type="number" value="4" step="0.1" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">IVA sobre honorarios (%)<input id="seller-net-vat" type="number" value="21" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Cancelación hipotecaria (€)<input id="seller-net-mortgage" type="number" value="0" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Otros gastos configurables (€)<input id="seller-net-other" type="number" value="0" oninput="calculateSellerNet()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label></div><div id="seller-net-result" class="p-4 rounded-2xl bg-green-light border border-green/20"></div><button onclick="showToast('Informe PDF de neto vendedor preparado.', 'success')" class="w-full py-3 rounded-xl bg-navy text-white text-xs font-black">Preparar informe PDF</button><p class="text-[10px] text-slate-400">Cálculo orientativo. No incluye impuestos personales del vendedor salvo que se incorporen posteriormente como parámetros configurables.</p></div>`;
       if (item.id === 'fee-split') return `<div class="space-y-4"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><label class="text-xs font-bold text-slate-500">Precio de venta (€)<input id="adv-fee-price" type="number" value="300000" oninput="calculateAdvancedFeeSplit()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Comisión total (%)<input id="adv-fee-pct" type="number" value="5" step="0.1" oninput="calculateAdvancedFeeSplit()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">IVA (%)<input id="adv-fee-vat" type="number" value="21" oninput="calculateAdvancedFeeSplit()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Parte captador (%)<input id="adv-fee-share-a" type="number" value="50" oninput="calculateAdvancedFeeSplit()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label></div><div id="adv-fee-result" class="p-4 rounded-2xl bg-blue-light border border-blue/20"></div><button onclick="prepareLegalSignature('collaboration')" class="w-full py-3 rounded-xl bg-navy text-white text-xs font-black">Preparar acuerdo de colaboración</button></div>`;
       if (item.id === 'blocked-radar') return `<div class="space-y-3"><p class="text-xs text-slate-500">Marca las incidencias detectadas para obtener un semáforo preliminar.</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">${['Falta nota simple actualizada','Discrepancias catastrales','Herencia pendiente','Hipoteca sin revisar','Falta certificado energético','Arrendatario vigente','Copropietarios sin confirmar','Documentación PBC incompleta','Ocupación o posesión dudosa','Precio sin validar'].map((label,index)=>`<label class="flex items-start gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50"><input type="checkbox" class="radar-issue mt-0.5" onchange="calculateBlockedOperationRadar()"><span>${label}</span></label>`).join('')}</div><div id="blocked-radar-result" class="p-4 rounded-2xl bg-green-light border border-green/20 text-xs"><strong class="text-green">Verde · Preparado para comercializar</strong><p class="mt-1 text-slate-600">No se han marcado incidencias.</p></div></div>`;
       if (item.id === 'document-checklist') return `<div class="space-y-3"><p class="text-xs text-slate-500">Selecciona las circunstancias del expediente.</p><div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">${['Existe hipoteca','Procede de herencia','Separación o divorcio','Existe usufructo','Hay inquilino vigente','Vivienda protegida','Varios titulares','Venta por sociedad'].map(label=>`<label class="flex items-start gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50"><input type="checkbox" class="doc-checklist-case mt-0.5" value="${label}"><span>${label}</span></label>`).join('')}</div><button onclick="generateDocumentChecklist()" class="w-full py-3 rounded-xl bg-blue text-white text-xs font-black">Generar checklist personalizado</button><div id="document-checklist-result" class="hidden p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600"></div></div>`;
       if (item.id === 'mortgage-scenarios') return `<div class="space-y-4"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><label class="text-xs font-bold text-slate-500">Capital financiado (€)<input id="mortgage-capital" type="number" value="220000" oninput="calculateMortgageScenarios()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Plazo (años)<input id="mortgage-years" type="number" value="30" oninput="calculateMortgageScenarios()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Interés ordinario (%)<input id="mortgage-rate" type="number" value="2.8" step="0.1" oninput="calculateMortgageScenarios()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Escenario prudente (%)<input id="mortgage-rate-stress" type="number" value="4" step="0.1" oninput="calculateMortgageScenarios()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label></div><div id="mortgage-result" class="p-4 rounded-2xl bg-blue-light border border-blue/20"></div><p class="text-[10px] text-slate-400">Simulación informativa: no constituye una oferta bancaria ni una recomendación financiera personalizada.</p></div>`;
       if (item.id === 'rental-profitability') return `<div class="space-y-4"><div class="grid grid-cols-1 sm:grid-cols-2 gap-3"><label class="text-xs font-bold text-slate-500">Precio de compra (€)<input id="rent-price" type="number" value="180000" oninput="calculateRentalProfitability()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Renta mensual (€)<input id="rent-monthly" type="number" value="850" oninput="calculateRentalProfitability()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Gastos anuales (€)<input id="rent-costs" type="number" value="1800" oninput="calculateRentalProfitability()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label><label class="text-xs font-bold text-slate-500">Meses vacíos estimados<input id="rent-vacancy" type="number" min="0" max="12" value="1" oninput="calculateRentalProfitability()" class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></label></div><div id="rent-profitability-result" class="p-4 rounded-2xl bg-green-light border border-green/20"></div></div>`;
       if (item.id === 'rental-ad-check') return `<div class="space-y-4"><label class="block text-xs font-bold text-slate-500">Texto del anuncio<textarea id="ad-check-text" rows="7" placeholder="Pega aquí el texto del anuncio para comprobar si incluye la información esencial..." class="mt-1 w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm"></textarea></label><button onclick="generateRentalAdCheck()" class="w-full py-3 rounded-xl bg-blue text-white text-xs font-black">Revisar anuncio</button><div id="ad-check-result" class="hidden p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600"></div><p class="text-[10px] text-slate-400">Revisión preliminar. El control normativo definitivo debe adaptarse al tipo de operación, territorio y fecha de publicación.</p></div>`;
-      return `<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200"><span class="inline-flex px-2 py-1 rounded-full bg-slate-200 text-slate-600 text-[9px] font-black uppercase">Roadmap funcional</span><p class="text-sm text-slate-600 leading-relaxed mt-4">Esta utilidad está incluida en la arquitectura de producto, pero todavía no ejecuta un flujo completo. La tarjeta permite validar interés, nivel de acceso y encaje comercial antes de desarrollar el módulo definitivo.</p><div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 text-[10px]"><span class="p-2 rounded-lg bg-white border border-slate-200"><b class="text-navy">Tiempo:</b><br>${escapeHTML(item.time)}</span><span class="p-2 rounded-lg bg-white border border-slate-200"><b class="text-navy">Resultado:</b><br>${escapeHTML(item.result)}</span><span class="p-2 rounded-lg bg-white border border-slate-200"><b class="text-navy">Acceso:</b><br>${accessLabels[item.access]}</span></div><button onclick="showToast('Interés registrado para priorizar este recurso en el roadmap.', 'success'); closeResourceToolModal();" class="w-full py-3 mt-4 rounded-xl bg-navy text-white text-xs font-black">Registrar interés</button></div>`;
+      return `<div class="p-5 rounded-2xl bg-slate-50 border border-slate-200"><span class="inline-flex px-2 py-1 rounded-full bg-slate-200 text-slate-600 text-[9px] font-black uppercase">Planificado</span><p class="text-sm text-slate-600 leading-relaxed mt-4">Esta utilidad está incluida en la planificación de producto y se activará cuando el flujo esté completo, revisado y preparado para uso profesional.</p><div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-4 text-[10px]"><span class="p-2 rounded-lg bg-white border border-slate-200"><b class="text-navy">Tiempo:</b><br>${escapeHTML(item.time)}</span><span class="p-2 rounded-lg bg-white border border-slate-200"><b class="text-navy">Resultado:</b><br>${escapeHTML(item.result)}</span><span class="p-2 rounded-lg bg-white border border-slate-200"><b class="text-navy">Acceso:</b><br>${accessLabels[item.access]}</span></div><button onclick="showToast('Interés registrado para priorizar este recurso.', 'success'); closeResourceToolModal();" class="w-full py-3 mt-4 rounded-xl bg-navy text-white text-xs font-black">Registrar interés</button></div>`;
     }
 
     function calculateSellerNet() {
@@ -8664,7 +8782,18 @@ $captacion_current_user = wp_get_current_user();
       if (!email) return false;
       return String(item.userEmail || item.user_email || item.ownerEmail || '').toLowerCase() === email;
     }
+    function getHiddenXmlFeedIds() {
+      return new Set((window.CAPTACION_XML_BATCHES || []).filter(batch => ['paused','pending_deletion','deleted'].includes(batch.status)).map(batch => batch.import_batch_id));
+    }
+    function isFromHiddenXmlFeed(item = {}) {
+      const batchId = item.importBatchId || item.import_batch_id || item.feed_id || '';
+      return batchId && getHiddenXmlFeedIds().has(batchId);
+    }
+    function isMarketplaceVisibleProperty(property = {}) {
+      return !isFromHiddenXmlFeed(property);
+    }
     function privateProperties() { return properties.filter(isOwnedByCurrentUser); }
+    function visiblePrivateProperties() { return privateProperties().filter(isMarketplaceVisibleProperty); }
     function privateNeeds() { return needs.filter(isOwnedByCurrentUser); }
     function privatePropertyById(id) { return privateProperties().find(item => item.id === id) || properties.find(item => item.id === id) || null; }
     function privateNeedById(id) { return privateNeeds().find(item => item.id === id) || needs.find(item => item.id === id) || null; }
@@ -8890,8 +9019,8 @@ $captacion_current_user = wp_get_current_user();
       document.querySelectorAll('[data-private-panel]').forEach(button => button.classList.toggle('active', button.dataset.privatePanel === panel));
       const mobile = document.getElementById('private-dashboard-mobile-select');
       if (mobile) mobile.value = panel;
-      if (panel === 'feeds') { loadPrivateXmlUrl(); renderPrivateXmlFeeds(); loadImportBatches(); }
-      if (panel === 'data') loadImportBatches();
+      if (panel === 'feeds') { loadPrivateXmlUrl(); renderPrivateXmlFeeds(); loadXmlFeeds(); }
+      if (panel === 'data') loadXmlFeeds();
       if (panel === 'ai') renderAIConnections();
       renderDashboard();
     }
@@ -9111,7 +9240,9 @@ $captacion_current_user = wp_get_current_user();
       const property = findImportedProperty(propertyId);
       if (!property) return;
       const missing = Array.isArray(property.missing_fields) ? property.missing_fields : [];
-      if (missing.length) { showToast('Completa primero los campos faltantes: ' + missing.join(', '), 'info'); return; }
+      if (missing.length) {
+        if (!confirm('Esta propiedad tiene campos incompletos (' + missing.join(', ') + '). ¿Quieres publicarla tal cual en el Marketplace?')) return;
+      }
       property.status = 'active';
       property.publication_status = 'active';
       await saveImportedProperty(property);
@@ -9131,7 +9262,9 @@ $captacion_current_user = wp_get_current_user();
       const missing = ['title','type','operation','price','currency','description'].filter(key => !String(property[key] || property[key === 'type' ? 'property_type' : key] || '').trim());
       if (!province || !municipality) missing.push('location');
       property.missing_fields = Array.from(new Set(missing));
-      property.status = property.missing_fields.length ? 'pending_review' : 'active';
+      if (property.status !== 'active') {
+        property.status = property.missing_fields.length ? 'pending_review' : 'active';
+      }
       property.publication_status = property.status;
       await saveImportedProperty(property);
       loadWordPressRealEstateRecords();
@@ -9398,6 +9531,7 @@ $captacion_current_user = wp_get_current_user();
       document.getElementById('menu-btn')?.addEventListener('click', toggleMenu);
       removeLegacyCookiePreferences();
       window.addEventListener('storage', () => {
+        if (CAPTACION_PRODUCTION_MODE) return;
         try { properties = (JSON.parse(localStorage.getItem('captacion_properties_v3')) || []).map(normalizePropertyRecord); } catch (e) {}
         try { needs = (JSON.parse(localStorage.getItem('captacion_needs_v3')) || []).map(normalizeNeedRecord); } catch (e) {}
         try { closedOperations = JSON.parse(localStorage.getItem('captacion_closed_operations_v4')) || []; } catch (e) {}
@@ -9428,6 +9562,38 @@ $captacion_current_user = wp_get_current_user();
       const fileInput = document.getElementById('private-feed-xml-file');
       const nameInput = document.getElementById('private-feed-xml-file-name');
       if (nameInput) nameInput.value = fileInput?.files?.[0]?.name || '';
+    }
+
+    function getXmlImportFailureHelp(error = {}) {
+      const code = String(error.code || error.data?.code || '').toLowerCase();
+      const message = String(error.message || error.data?.message || 'No se pudo importar el XML.');
+      const supportEmail = CAPTACION_MAILCHIMP?.supportEmail || <?php echo wp_json_encode($captacion_contact_email); ?> || 'soporte@captacion.app';
+      const cases = [
+        { match: ['doctype', 'entity'], reason: 'El XML contiene DOCTYPE o ENTITY, bloqueado por seguridad para evitar ataques XXE.', action: 'Solicita al proveedor una versión del XML sin DOCTYPE/ENTITY o abre un ticket para crear un adaptador seguro.' },
+        { match: ['no_properties', 'no se detectaron propiedades', 'no se han detectado propiedades'], reason: 'El sistema no ha detectado propiedades compatibles en el XML.', action: 'Puede ser un formato no soportado todavía. Abre un ticket adjuntando la URL o una muestra del XML.' },
+        { match: ['parse', 'root', 'schema'], reason: 'El XML no se puede interpretar con la estructura esperada.', action: 'Revisa que sea XML válido. Si pertenece a un portal externo, abre un ticket para mapear su formato.' },
+        { match: ['fetch', 'http', 'url'], reason: 'No se pudo descargar la URL o el servidor del proveedor no respondió correctamente.', action: 'Comprueba que la URL sea pública y accesible. Si funciona en navegador pero falla aquí, abre un ticket.' },
+        { match: ['size'], reason: 'El XML supera el tamaño máximo permitido.', action: 'Divide el feed o solicita al proveedor una versión más ligera.' },
+        { match: ['mime', 'extension', 'file'], reason: 'El archivo no parece ser un XML permitido o no se pudo leer correctamente.', action: 'Sube un archivo con extensión .xml y contenido XML válido.' }
+      ];
+      const selected = cases.find(item => item.match.some(token => code.includes(token) || message.toLowerCase().includes(token))) || {
+        reason: 'El XML no se ha podido importar con el formato actual.',
+        action: 'Si el archivo procede de un CRM, portal o proveedor externo, abre un ticket para revisar compatibilidad.'
+      };
+      return { message, reason: selected.reason, action: selected.action, supportEmail };
+    }
+
+    function renderXmlImportError(container, error = {}) {
+      const help = getXmlImportFailureHelp(error);
+      if (!container) return;
+      container.classList.remove('hidden');
+      container.innerHTML = `<div class="p-4 rounded-2xl border border-red-100 bg-red-50 text-xs text-red-700 leading-relaxed">
+        <strong class="block text-red-700 mb-2">No se pudo importar el XML.</strong>
+        <p><strong>Motivo:</strong> ${escapeHTML(help.reason)}</p>
+        <p class="mt-1"><strong>Detalle técnico:</strong> ${escapeHTML(help.message)}</p>
+        <p class="mt-1"><strong>Qué hacer:</strong> ${escapeHTML(help.action)}</p>
+        <p class="mt-2 text-slate-600">Si necesitas soporte, abre un ticket con el administrador e incluye la URL o el archivo XML y este detalle técnico. Contacto: <strong>${escapeHTML(help.supportEmail)}</strong></p>
+      </div>`;
     }
 
     async function importFeedXmlFile() {
@@ -9461,74 +9627,562 @@ $captacion_current_user = wp_get_current_user();
           const updated = Number(data.properties_updated || 0);
           const pending = Number(data.properties_pending_review || 0);
           const failed = Number(data.properties_failed || data.rejected || 0);
-          if (resultDiv) resultDiv.innerHTML = `<div class="p-3 rounded-xl border border-green/20 bg-green-light text-xs text-slate-700"><strong class="text-green">Importación finalizada.</strong> ${imported} importadas, ${updated} actualizadas, ${pending} pendientes de revisión, ${failed} con error. ${pending ? '<button type="button" onclick="showPendingReviewProperties()" class="ml-2 text-blue font-black underline">Revisar propiedades pendientes</button>' : ''}</div>`;
+          const fileFeedId = data.feed_id || data.import_batch_id || '';
+          if (resultDiv) resultDiv.innerHTML = `<div class="p-3 rounded-xl border border-green/20 bg-green-light text-xs text-slate-700"><strong class="text-green">Importación finalizada.</strong> ${imported} importadas, ${updated} actualizadas, ${pending} pendientes de revisión, ${failed} con error.${pending && fileFeedId ? ` <button type="button" onclick="showFeedPendingReviewPanel('${escapeHTML(fileFeedId)}')" class="ml-2 text-blue font-black underline">Revisar propiedades pendientes</button>` : ''}</div>`;
           showToast(pending ? `XML importado. ${pending} propiedades necesitan revisión.` : `XML importado: ${imported} propiedades.`, pending ? 'info' : 'success');
-          loadImportBatches();
-          loadWordPressRealEstateRecords();
+          await loadXmlFeeds();
+          await loadWordPressRealEstateRecords();
         } else {
-          if (resultDiv) resultDiv.innerHTML = `<span class="text-red">Error: ${data.message || 'Error desconocido'}</span>`;
+          renderXmlImportError(resultDiv, { code: data.code, message: data.message || 'Error desconocido', data });
         }
       } catch (e) {
-        if (resultDiv) resultDiv.innerHTML = `<span class="text-red">Error de red: ${e.message}</span>`;
+        renderXmlImportError(resultDiv, e);
       }
     }
 
-    async function loadImportBatches() {
+    function renderXmlFeedsList(batches = []) {
       const listTargets = [document.getElementById('private-import-batches-list'), document.getElementById('private-feed-import-batches-list')].filter(Boolean);
       if (!listTargets.length) return;
+      const visibleBatches = (Array.isArray(batches) ? batches : []).filter(item => item.status !== 'deleted');
+      window.CAPTACION_XML_BATCHES = visibleBatches;
+      if (!visibleBatches.length) {
+        listTargets.forEach(listDiv => { listDiv.innerHTML = '<p class="text-xs text-slate-400">Todavía no has subido ningún XML.</p>'; });
+        return;
+      }
+      const html = visibleBatches.map(b => {
+        const date = new Date(b.created_at).toLocaleDateString('es-ES');
+        const isPaused = b.status === 'paused';
+        const isPendingDeletion = b.status === 'pending_deletion';
+        const isError = b.status === 'error';
+        const statusBadge = isPendingDeletion ? 'bg-amber-light text-amber' : isPaused ? 'bg-slate-100 text-slate-500' : isError ? 'bg-red-50 text-red-600' : 'bg-green-light text-green';
+        const statusLabel = isPendingDeletion ? 'Pendiente eliminación' : isPaused ? 'Pausado' : isError ? 'Error' : 'Activo';
+        const sourceName = b.source_file_name || b.import_batch_id;
+        return `<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 p-4 rounded-xl border border-slate-200 bg-white" data-xml-feed-id="${escapeHTML(b.import_batch_id)}">
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${statusBadge}">${statusLabel}</span>
+              <span class="text-[10px] text-slate-400">${date}</span>
+            </div>
+            <span class="text-xs font-bold text-navy block mt-2 truncate" title="${escapeHTML(sourceName)}">${escapeHTML(sourceName)}</span>
+            <span class="text-[10px] text-slate-500">${escapeHTML(b.import_batch_id)} · ${escapeHTML(b.data_origin)} · ${Number(b.records_imported || 0)}/${Number(b.records_total || 0)} registros${isPendingDeletion ? ` · ${Number(b.pending_blockers_count || 0)} procesos pendientes` : ''}</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center"><strong class="block text-lg font-black text-blue">${Number(b.properties_count || 0)}</strong><span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Propiedades</span></div>
+            <div class="px-3 py-2 rounded-xl bg-green-light border border-green/20 text-center"><strong class="block text-lg font-black text-green">${Number(b.active_properties_count || 0)}</strong><span class="block text-[9px] uppercase tracking-wider font-black text-green">Activas</span></div>
+            <div class="px-3 py-2 rounded-xl bg-amber-light border border-amber/20 text-center"><strong class="block text-lg font-black text-amber">${Number(b.pending_review_properties_count || 0)}</strong><span class="block text-[9px] uppercase tracking-wider font-black text-amber">Revisión</span></div>
+            <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center"><strong class="block text-lg font-black text-navy">${Number(b.needs_count || 0)}</strong><span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Demandas</span></div>
+            <button type="button" onclick="showImportBatchReport('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-blue/20 bg-white hover:bg-blue-light/40 text-blue text-[10px] font-bold transition-all">Ver informe</button>
+            ${Number(b.pending_review_properties_count || 0) > 0 ? `<button type="button" onclick="showFeedPendingReviewPanel('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-amber/20 bg-amber-light hover:bg-amber text-amber hover:text-white text-[10px] font-bold transition-all">Revisar</button>` : ''}
+            ${b.data_origin === 'xml_url' && !isPendingDeletion ? `<button type="button" onclick="syncImportBatch('${b.import_batch_id}', this)" class="px-3 py-2 rounded-xl border border-blue/20 bg-blue text-white hover:bg-blue-dark text-[10px] font-bold transition-all">Actualizar</button>` : ''}
+            ${!isPendingDeletion ? `<button type="button" onclick="updateImportBatchStatus('${b.import_batch_id}', '${isPaused ? 'active' : 'paused'}', this)" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-[10px] font-bold transition-all">${isPaused ? 'Reactivar' : 'Pausar'}</button>` : '<span class="px-3 py-2 rounded-xl border border-amber/20 bg-amber-light text-amber text-[10px] font-bold">Esperando cierre</span>'}
+            <button type="button" onclick="deleteImportBatch('${b.import_batch_id}', this)" class="px-3 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold transition-all">${isPendingDeletion ? 'Revisar eliminación' : 'Eliminar'}</button>
+          </div>
+        </div>`;
+      }).join('');
+      listTargets.forEach(listDiv => { listDiv.innerHTML = html; });
+    }
+
+    async function loadXmlFeeds() {
+      const listTargets = [document.getElementById('private-import-batches-list'), document.getElementById('private-feed-import-batches-list')].filter(Boolean);
+      if (!listTargets.length) return [];
       try {
         const res = await fetch(window.CAPTACION_API.endpoints.listXmlFeeds, {
           headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce }
         });
         const data = await res.json();
-        if (!data.ok || !data.batches?.length) {
-          window.CAPTACION_XML_BATCHES = [];
-          listTargets.forEach(listDiv => { listDiv.innerHTML = '<p class="text-xs text-slate-400">No tienes XML importados.</p>'; });
-          return;
-        }
-        window.CAPTACION_XML_BATCHES = data.batches;
-        const html = data.batches.map(b => {
-          const date = new Date(b.created_at).toLocaleDateString('es-ES');
-          const isPaused = b.status === 'paused';
-          const statusBadge = isPaused ? 'bg-slate-100 text-slate-500' : 'bg-green-light text-green';
-          const sourceName = b.source_file_name || b.import_batch_id;
-          return `<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 p-4 rounded-xl border border-slate-200 bg-white">
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${statusBadge}">${isPaused ? 'Pausado' : 'Activo'}</span>
-                <span class="text-[10px] text-slate-400">${date}</span>
-              </div>
-              <span class="text-xs font-bold text-navy block mt-2 truncate" title="${escapeHTML(sourceName)}">${escapeHTML(sourceName)}</span>
-              <span class="text-[10px] text-slate-500">${escapeHTML(b.import_batch_id)} · ${escapeHTML(b.data_origin)} · ${Number(b.records_imported || 0)}/${Number(b.records_total || 0)} registros</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-              <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                <strong class="block text-lg font-black text-blue">${Number(b.properties_count || 0)}</strong>
-                <span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Propiedades</span>
-              </div>
-              <div class="px-3 py-2 rounded-xl bg-green-light border border-green/20 text-center">
-                <strong class="block text-lg font-black text-green">${Number(b.active_properties_count || 0)}</strong>
-                <span class="block text-[9px] uppercase tracking-wider font-black text-green">Activas</span>
-              </div>
-              <div class="px-3 py-2 rounded-xl bg-amber-light border border-amber/20 text-center">
-                <strong class="block text-lg font-black text-amber">${Number(b.pending_review_properties_count || 0)}</strong>
-                <span class="block text-[9px] uppercase tracking-wider font-black text-amber">Revisión</span>
-              </div>
-              <div class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                <strong class="block text-lg font-black text-navy">${Number(b.needs_count || 0)}</strong>
-                <span class="block text-[9px] uppercase tracking-wider font-black text-slate-400">Demandas</span>
-              </div>
-              <button onclick="showImportBatchReport('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-blue text-[10px] font-bold">Ver informe</button>
-              ${b.data_origin === 'xml_url' ? `<button onclick="syncImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-blue/20 bg-blue-light/40 hover:bg-blue-light text-blue text-[10px] font-bold">Actualizar</button>` : ''}
-              <button onclick="updateImportBatchStatus('${b.import_batch_id}', '${isPaused ? 'active' : 'paused'}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-[10px] font-bold">${isPaused ? 'Reactivar' : 'Pausar'}</button>
-              <button onclick="deleteImportBatch('${b.import_batch_id}')" class="px-3 py-2 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold">Eliminar</button>
-            </div>
-          </div>`;
-        }).join('');
-        listTargets.forEach(listDiv => { listDiv.innerHTML = html; });
+        if (!res.ok || !data.ok) throw new Error(data.message || 'No se pudo cargar la lista de XML subidos.');
+        renderXmlFeedsList(data.batches || []);
+        return data.batches || [];
       } catch (e) {
         listTargets.forEach(listDiv => { listDiv.innerHTML = '<p class="text-xs text-red">Error al cargar lotes.</p>'; });
+        showToast('No se pudo cargar la lista de XML subidos.', 'error');
+        return [];
       }
+    }
+
+    async function loadImportBatches() { return loadXmlFeeds(); }
+
+    function setXmlFeedActionLoading(button, isLoading, loadingText) {
+      if (!button) return;
+      if (isLoading) {
+        button.dataset.originalText = button.textContent;
+        button.disabled = true;
+        button.classList.add('opacity-60', 'cursor-wait');
+        button.textContent = loadingText;
+        return;
+      }
+      button.disabled = false;
+      button.classList.remove('opacity-60', 'cursor-wait');
+      button.textContent = button.dataset.originalText || button.textContent;
+      delete button.dataset.originalText;
+    }
+
+    const PENDING_REVIEW_FIELD_LABELS = {
+      title: 'Título',
+      type: 'Tipo de propiedad',
+      operation: 'Operación (venta/alquiler)',
+      price: 'Precio',
+      currency: 'Moneda',
+      location: 'Ubicación (provincia, municipio)',
+      description: 'Descripción',
+      owner: 'Propietario / email',
+      source: 'Fuente',
+      rooms: 'Habitaciones',
+      bathrooms: 'Baños',
+      surface: 'Superficie (m²)',
+    };
+
+    window.CAPTACION_PENDING_PROPERTIES = [];
+    window.CAPTACION_PENDING_SELECTION = new Set();
+    window.CAPTACION_PENDING_SELECTED_CATEGORIES = new Set();
+    window.CAPTACION_PENDING_FILTER = 'all';
+
+    function closeFeedPendingModal() {
+      document.getElementById('xml-feed-pending-modal')?.classList.add('hidden');
+      delete document.getElementById('xml-feed-pending-modal')?.dataset?.feedId;
+    }
+
+    function getFeedPendingFeedId() {
+      return document.getElementById('xml-feed-pending-modal')?.dataset?.feedId || '';
+    }
+
+    async function showFeedPendingReviewPanel(feedId) {
+      const modal = document.getElementById('xml-feed-pending-modal');
+      const title = document.getElementById('xml-feed-pending-title');
+      const body = document.getElementById('xml-feed-pending-body');
+      const controls = document.getElementById('xml-feed-pending-controls');
+      const counter = document.getElementById('xml-feed-pending-counter');
+      if (!modal || !title || !body) return;
+      modal.dataset.feedId = feedId;
+      modal.classList.remove('hidden');
+      title.textContent = 'Cargando propiedades pendientes...';
+      body.innerHTML = '<p class="text-xs text-slate-400">Cargando...</p>';
+      if (controls) controls.classList.add('hidden');
+      if (counter) counter.textContent = '';
+      const batch = (window.CAPTACION_XML_BATCHES || []).find(item => item.import_batch_id === feedId);
+      const sourceName = batch?.source_file_name || feedId;
+      const properties = await loadFeedPendingProperties(feedId);
+      if (!properties || !properties.length) {
+        title.textContent = `Sin pendientes: ${sourceName}`;
+        body.innerHTML = '<div class="p-4 rounded-2xl bg-green-light border border-green/20 text-xs text-green font-bold">No hay propiedades pendientes de revisión en este feed.</div>';
+        if (counter) counter.textContent = '0 pendientes';
+        return;
+      }
+      window.CAPTACION_PENDING_PROPERTIES = properties;
+      window.CAPTACION_PENDING_SELECTION = new Set();
+      window.CAPTACION_PENDING_SELECTED_CATEGORIES = new Set();
+      window.CAPTACION_PENDING_FILTER = 'all';
+      title.textContent = `${properties.length} propiedades pendientes · ${sourceName}`;
+
+      // Reset controls values
+      const selectAllChk = document.getElementById('xml-pending-select-all');
+      if (selectAllChk) selectAllChk.checked = false;
+      const categoryFilter = document.getElementById('xml-pending-category-filter');
+      if (categoryFilter) categoryFilter.value = 'all';
+
+      body.innerHTML = properties.map(p => renderFeedPendingProperty(p, feedId)).join('');
+      if (controls) controls.classList.remove('hidden');
+      if (counter) counter.textContent = `${properties.length} propiedad(es) pendiente(s)`;
+      updatePendingCategoryControls();
+      syncPendingSelectionUi();
+    }
+
+    async function loadFeedPendingProperties(feedId) {
+      try {
+        const res = await fetch(window.CAPTACION_API.endpoints.feedPending + encodeURIComponent(feedId) + '/pending', {
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce }
+        });
+        const data = await res.json();
+        if (data.ok) return data.properties || [];
+        return [];
+      } catch (e) {
+        showToast('Error al cargar propiedades pendientes.', 'error');
+        return [];
+      }
+    }
+
+    function renderFeedPendingProperty(property, feedId) {
+      const fields = Array.isArray(property.missing_fields) ? property.missing_fields : [];
+      const fieldBadges = fields.map(f => `<span class="inline-flex px-2 py-0.5 rounded-full bg-amber-light text-amber text-[9px] font-black uppercase">${escapeHTML(PENDING_REVIEW_FIELD_LABELS[f] || f)}</span>`).join(' ');
+      const rk = property.record_key;
+      const cat = normalizeOpportunityCategory(property.property_type || property.type || 'Piso');
+      return `<div class="p-4 rounded-2xl border border-slate-200 bg-white" data-pending-key="${escapeHTML(rk)}" data-category="${escapeHTML(cat)}">
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <div class="min-w-0 flex items-start gap-3">
+            <input type="checkbox" data-pending-checkbox="${escapeHTML(rk)}" onchange="togglePendingPropertySelection('${escapeHTML(rk)}', this.checked)" class="xml-pending-item-chk rounded text-blue border-slate-300 focus:ring-blue/20 w-4 h-4 mt-1 cursor-pointer" />
+            <div class="min-w-0">
+              <strong class="text-sm text-navy block">${escapeHTML(property.title || 'Propiedad')}</strong>
+              <span class="text-[10px] text-slate-400">${escapeHTML(rk)}</span>
+              <div class="flex flex-wrap gap-1 mt-2">${fieldBadges}</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 shrink-0">
+            <button type="button" onclick="publishSinglePendingProperty('${escapeHTML(feedId)}','${escapeHTML(rk)}',this)" class="px-3 py-1.5 rounded-xl bg-green hover:bg-green-dark text-white text-[10px] font-black shadow-sm transition-all">Publicar</button>
+            <button type="button" onclick="togglePendingPropertyEdit('${escapeHTML(feedId)}','${escapeHTML(rk)}',this)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-navy text-[10px] font-bold transition-all">Editar</button>
+          </div>
+        </div>
+        <div class="pending-edit-fields hidden mt-3 pt-3 border-t border-slate-100 space-y-2"></div>
+      </div>`;
+    }
+
+    function togglePendingPropertyEdit(feedId, recordKey, button) {
+      const container = button?.closest('[data-pending-key]');
+      const editArea = container?.querySelector('.pending-edit-fields');
+      if (!editArea) return;
+      const isOpen = !editArea.classList.contains('hidden');
+      if (isOpen) {
+        editArea.classList.add('hidden');
+        editArea.innerHTML = '';
+        button.textContent = 'Editar';
+        return;
+      }
+      const property = /* rebuild from container */ null;
+      const recordDiv = container;
+      const fieldsSpan = recordDiv?.querySelector('.flex.flex-wrap.gap-1');
+      const fieldNames = fieldsSpan ? Array.from(fieldsSpan.querySelectorAll('span')).map(s => {
+        const txt = s.textContent?.trim();
+        const entry = Object.entries(PENDING_REVIEW_FIELD_LABELS).find(([,v]) => v === txt);
+        return entry ? entry[0] : txt;
+      }) : [];
+      const defaultField = fieldNames[0] || 'title';
+      editArea.classList.remove('hidden');
+      editArea.innerHTML = `<div class="flex flex-col gap-2">
+        <select class="pending-field-select w-full px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white" onchange="updatePendingEditInput(this)">${Object.entries(PENDING_REVIEW_FIELD_LABELS).map(([k,v]) => `<option value="${k}"${k===defaultField?' selected':''}>${escapeHTML(v)}</option>`).join('')}</select>
+        <input class="pending-field-value w-full px-3 py-2 rounded-xl border border-slate-200 text-xs" placeholder="Valor..." />
+        <div class="flex gap-2">
+          <button type="button" onclick="savePendingPropertyField('${escapeHTML(feedId)}','${escapeHTML(recordKey)}',this)" class="px-3 py-1.5 rounded-xl bg-blue hover:bg-blue-dark text-white text-[10px] font-black shadow-sm transition-all">Guardar</button>
+          <button type="button" onclick="cancelPendingEdit(this)" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-500 text-[10px] font-bold transition-all">Cancelar</button>
+        </div>
+      </div>`;
+      button.textContent = 'Cerrar';
+    }
+
+    function updatePendingEditInput(selectEl) {
+      const container = selectEl?.closest('.pending-edit-fields');
+      const input = container?.querySelector('.pending-field-value');
+      if (!input) return;
+      const field = selectEl.value;
+      const hints = { title: 'Ej: Local comercial en Piles', operation: 'venta o alquiler', price: 'Ej: 220000', location: 'provincia, municipio (ej: Valencia, Piles)', owner: 'email o nombre del contacto', rooms: 'Número de habitaciones (ej: 3)', bathrooms: 'Número de baños (ej: 2)', surface: 'Superficie construida en m² (ej: 120)' };
+      input.placeholder = hints[field] || 'Valor...';
+    }
+
+    async function savePendingPropertyField(feedId, recordKey, button) {
+      const container = button?.closest('.pending-edit-fields');
+      const select = container?.querySelector('.pending-field-select');
+      const input = container?.querySelector('.pending-field-value');
+      if (!select || !input || !input.value.trim()) { showToast('Escribe un valor.', 'info'); return; }
+      setXmlFeedActionLoading(button, true, 'Guardando...');
+      try {
+        const res = await fetch(window.CAPTACION_API.endpoints.xmlFeed + encodeURIComponent(feedId) + '/properties/' + encodeURIComponent(recordKey), {
+          method: 'PATCH',
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ field: select.value, value: input.value.trim() })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('Campo actualizado.', 'success');
+          if (data.status === 'active') {
+            const parent = container?.closest('[data-pending-key]');
+            parent?.remove();
+            window.CAPTACION_PENDING_SELECTION.delete(recordKey);
+            window.CAPTACION_PENDING_PROPERTIES = (window.CAPTACION_PENDING_PROPERTIES || []).filter(property => property.record_key !== recordKey);
+            const remaining = document.querySelectorAll('[data-pending-key]').length;
+            if (remaining === 0) {
+              closeFeedPendingModal();
+              await loadXmlFeeds();
+              showToast('Todas las propiedades pendientes han sido completadas.', 'success');
+            }
+            syncPendingSelectionUi();
+          } else {
+            updatePropertyMissingBadges(container, data.missing_fields);
+          }
+          await loadXmlFeeds();
+          await loadWordPressRealEstateRecords();
+        } else {
+          showToast(data.message || 'Error al guardar.', 'error');
+        }
+      } catch (e) {
+        showToast('Error de red: ' + e.message, 'error');
+      } finally {
+        setXmlFeedActionLoading(button, false);
+      }
+    }
+
+    function cancelPendingEdit(button) {
+      const editArea = button?.closest('.pending-edit-fields');
+      if (editArea) {
+        editArea.classList.add('hidden');
+        editArea.innerHTML = '';
+      }
+      const container = button?.closest('[data-pending-key]');
+      const editBtn = container?.querySelector('button:has(>.pending-edit-fields)') || container?.querySelector('button[onclick*="togglePendingPropertyEdit"]');
+      const allBtns = container?.querySelectorAll('button');
+      allBtns?.forEach(btn => { if (btn.textContent === 'Cerrar' || btn.textContent === 'Editar') btn.textContent = 'Editar'; });
+    }
+
+    function updatePropertyMissingBadges(container, missingFields) {
+      const badgeContainer = container?.querySelector('.flex.flex-wrap.gap-1');
+      if (!badgeContainer) return;
+      if (!Array.isArray(missingFields) || !missingFields.length) {
+        badgeContainer.innerHTML = '<span class="inline-flex px-2 py-0.5 rounded-full bg-green-light text-green text-[9px] font-black uppercase">Completa</span>';
+        return;
+      }
+      badgeContainer.innerHTML = missingFields.map(f => `<span class="inline-flex px-2 py-0.5 rounded-full bg-amber-light text-amber text-[9px] font-black uppercase">${escapeHTML(PENDING_REVIEW_FIELD_LABELS[f] || f)}</span>`).join(' ');
+    }
+
+    async function publishSinglePendingProperty(feedId, recordKey, button) {
+      if (!confirm('¿Quieres publicar esta propiedad tal cual, aunque le falten algunos campos?')) return;
+      setXmlFeedActionLoading(button, true, 'Publicando...');
+      try {
+        const res = await fetch(window.CAPTACION_API.endpoints.xmlFeed + encodeURIComponent(feedId) + '/properties/' + encodeURIComponent(recordKey), {
+          method: 'PATCH',
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ field: '_publish', value: '1' })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('Propiedad publicada.', 'success');
+          const parent = button?.closest('[data-pending-key]');
+          parent?.remove();
+          window.CAPTACION_PENDING_SELECTION.delete(recordKey);
+          window.CAPTACION_PENDING_PROPERTIES = (window.CAPTACION_PENDING_PROPERTIES || []).filter(property => property.record_key !== recordKey);
+          const remaining = document.querySelectorAll('[data-pending-key]').length;
+          syncPendingSelectionUi();
+          if (remaining === 0) {
+            closeFeedPendingModal();
+            showToast('Todas las propiedades pendientes han sido publicadas.', 'success');
+          }
+          await loadXmlFeeds();
+          await loadWordPressRealEstateRecords();
+        } else {
+          showToast(data.message || 'Error al publicar.', 'error');
+        }
+      } catch (e) {
+        showToast('Error de red: ' + e.message, 'error');
+      } finally {
+        setXmlFeedActionLoading(button, false);
+      }
+    }
+
+     async function publishAllPendingProperties() {
+      const feedId = getFeedPendingFeedId();
+      if (!feedId) { showToast('Error: feed no identificado.', 'error'); return; }
+
+      const allKeys = Array.from(document.querySelectorAll('.xml-pending-item-chk'))
+        .map(chk => chk.getAttribute('data-pending-checkbox'))
+        .filter(Boolean);
+
+      if (!allKeys.length) {
+        showToast('No hay propiedades para publicar.', 'info');
+        return;
+      }
+
+      if (!confirm(`¿Publicar las ${allKeys.length} propiedades pendientes tal cual? Los campos que faltan se dejarán vacíos.`)) return;
+
+      const button = document.getElementById('xml-publish-all-btn') || document.querySelector('#xml-feed-pending-actions button:last-child');
+      setXmlFeedActionLoading(button, true, 'Publicando todas...');
+      try {
+        const res = await fetch(window.CAPTACION_API.endpoints.feedPublishAll + encodeURIComponent(feedId) + '/publish-all', {
+          method: 'POST',
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keys: allKeys })
+        });
+        const data = await res.json();
+        if (data.ok || data.success) {
+          showToast(`${data.published_properties || 0} propiedades publicadas.`, 'success');
+          closeFeedPendingModal();
+          await loadXmlFeeds();
+          await loadWordPressRealEstateRecords();
+          renderMarketplace();
+          renderSalesMatches();
+          renderDashboard();
+        } else {
+          showToast(data.message || 'Error al publicar.', 'error');
+        }
+      } catch (e) {
+        showToast('Error de red: ' + e.message, 'error');
+      } finally {
+        setXmlFeedActionLoading(button, false);
+      }
+    }
+
+    function pendingPropertiesByCategory(category = 'all') {
+      return (window.CAPTACION_PENDING_PROPERTIES || []).filter(property => {
+        const cat = normalizeOpportunityCategory(property.property_type || property.type || property.payload?.property_type || property.payload?.type || 'Otros');
+        return category === 'all' || cat === category;
+      });
+    }
+
+    function visiblePendingCards() {
+      return Array.from(document.querySelectorAll('#xml-feed-pending-body [data-pending-key]')).filter(card => !card.classList.contains('hidden'));
+    }
+
+    function togglePendingPropertySelection(recordKey, checked) {
+      if (checked) window.CAPTACION_PENDING_SELECTION.add(recordKey);
+      else window.CAPTACION_PENDING_SELECTION.delete(recordKey);
+      syncPendingSelectionUi();
+    }
+
+    function toggleSelectAllPending(chk) {
+      visiblePendingCards().forEach(card => {
+        const key = card.getAttribute('data-pending-key');
+        if (!key) return;
+        if (chk.checked) window.CAPTACION_PENDING_SELECTION.add(key);
+        else window.CAPTACION_PENDING_SELECTION.delete(key);
+      });
+      syncPendingSelectionUi();
+    }
+
+    function deselectAllPendingProperties() {
+      window.CAPTACION_PENDING_SELECTION.clear();
+      window.CAPTACION_PENDING_SELECTED_CATEGORIES.clear();
+      syncPendingSelectionUi();
+    }
+
+    function toggleSelectPendingCategory(category, checked) {
+      if (checked) window.CAPTACION_PENDING_SELECTED_CATEGORIES.add(category);
+      else window.CAPTACION_PENDING_SELECTED_CATEGORIES.delete(category);
+      window.CAPTACION_PENDING_SELECTION.clear();
+      (window.CAPTACION_PENDING_PROPERTIES || []).forEach(property => {
+        const cat = normalizeOpportunityCategory(property.property_type || property.type || property.payload?.property_type || property.payload?.type || 'Otros');
+        const key = property.record_key;
+        if (key && window.CAPTACION_PENDING_SELECTED_CATEGORIES.has(cat)) window.CAPTACION_PENDING_SELECTION.add(key);
+      });
+      syncPendingSelectionUi();
+    }
+
+    function updatePendingCategoryControls() {
+      const counts = new Map();
+      (window.CAPTACION_PENDING_PROPERTIES || []).forEach(property => {
+        const cat = normalizeOpportunityCategory(property.property_type || property.type || property.payload?.property_type || property.payload?.type || 'Otros');
+        counts.set(cat, (counts.get(cat) || 0) + 1);
+      });
+      document.querySelectorAll('[data-pending-cat-select]').forEach(input => {
+        const cat = input.getAttribute('data-pending-cat-select');
+        const count = counts.get(cat) || 0;
+        const label = input.closest('label');
+        input.disabled = count === 0;
+        input.checked = window.CAPTACION_PENDING_SELECTED_CATEGORIES.has(cat);
+        label?.classList.toggle('opacity-40', count === 0 || !input.checked);
+        label?.classList.toggle('text-blue', input.checked);
+        label?.classList.toggle('font-black', input.checked);
+        const baseText = label?.dataset.baseText || label?.textContent?.trim().replace(/\s*\(\d+\)$/, '') || cat;
+        if (label && !label.dataset.baseText) label.dataset.baseText = baseText;
+        const textNode = Array.from(label?.childNodes || []).find(node => node.nodeType === Node.TEXT_NODE);
+        if (textNode) textNode.textContent = ` ${baseText} (${count})`;
+      });
+    }
+
+    function syncPendingSelectionUi() {
+      document.querySelectorAll('.xml-pending-item-chk').forEach(chk => {
+        const key = chk.getAttribute('data-pending-checkbox');
+        chk.checked = key ? window.CAPTACION_PENDING_SELECTION.has(key) : false;
+      });
+      updatePendingCategoryControls();
+      const visibleCards = visiblePendingCards();
+      const selectedVisible = visibleCards.filter(card => window.CAPTACION_PENDING_SELECTION.has(card.getAttribute('data-pending-key'))).length;
+      const selectAllChk = document.getElementById('xml-pending-select-all');
+      if (selectAllChk) selectAllChk.checked = visibleCards.length > 0 && selectedVisible === visibleCards.length;
+      const counter = document.getElementById('xml-feed-pending-counter');
+      if (counter) counter.textContent = `${window.CAPTACION_PENDING_SELECTION.size} seleccionada(s) · ${visibleCards.length} visible(s) · ${(window.CAPTACION_PENDING_PROPERTIES || []).length} pendiente(s)`;
+    }
+
+    function filterPendingByCategory(category) {
+      window.CAPTACION_PENDING_FILTER = category || 'all';
+      const cards = document.querySelectorAll('#xml-feed-pending-body [data-pending-key]');
+      cards.forEach(card => {
+        const cardCategory = card.getAttribute('data-category') || '';
+        card.classList.toggle('hidden', !(window.CAPTACION_PENDING_FILTER === 'all' || cardCategory === window.CAPTACION_PENDING_FILTER));
+      });
+      syncPendingSelectionUi();
+    }
+
+    async function publishSelectedPendingProperties(button) {
+      const feedId = document.getElementById('xml-feed-pending-modal')?.dataset.feedId;
+      if (!feedId) { showToast('Error: feed no identificado.', 'error'); return; }
+
+      const checkedKeys = Array.from(window.CAPTACION_PENDING_SELECTION || []);
+
+      if (checkedKeys.length === 0) {
+        showToast('Selecciona al menos una propiedad para publicar.', 'info');
+        return;
+      }
+
+      if (!confirm(`¿Publicar las ${checkedKeys.length} propiedades seleccionadas tal cual? Los campos que faltan se dejarán vacíos.`)) return;
+
+      setXmlFeedActionLoading(button, true, 'Publicando seleccionadas...');
+      try {
+        const res = await fetch(window.CAPTACION_API.endpoints.feedPublishAll + encodeURIComponent(feedId) + '/publish-all', {
+          method: 'POST',
+          headers: { 'X-WP-Nonce': window.CAPTACION_API.nonce, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keys: checkedKeys })
+        });
+        const data = await res.json();
+        if (data.ok || data.success) {
+          showToast(`${data.published_properties || 0} propiedades publicadas.`, 'success');
+
+          checkedKeys.forEach(rk => {
+            const card = document.querySelector(`[data-pending-key="${rk}"]`);
+            card?.remove();
+          });
+          window.CAPTACION_PENDING_SELECTION.clear();
+          window.CAPTACION_PENDING_SELECTED_CATEGORIES.clear();
+          window.CAPTACION_PENDING_PROPERTIES = (window.CAPTACION_PENDING_PROPERTIES || []).filter(property => !checkedKeys.includes(property.record_key));
+
+          const remaining = document.querySelectorAll('[data-pending-key]').length;
+          document.getElementById('xml-feed-pending-counter') && (document.getElementById('xml-feed-pending-counter').textContent = `${remaining} propiedad(es) pendiente(s)`);
+
+          syncPendingSelectionUi();
+
+          if (remaining === 0) {
+            closeFeedPendingModal();
+            showToast('Todas las propiedades pendientes han sido publicadas.', 'success');
+          }
+          await loadXmlFeeds();
+          await loadWordPressRealEstateRecords();
+          renderMarketplace();
+          renderSalesMatches();
+          renderDashboard();
+        } else {
+          showToast(data.message || 'Error al publicar.', 'error');
+        }
+      } catch (e) {
+        showToast('Error de red: ' + e.message, 'error');
+      } finally {
+        setXmlFeedActionLoading(button, false);
+      }
+    }
+
+    function closeXmlFeedReportModal() {
+      document.getElementById('xml-feed-report-modal')?.classList.add('hidden');
+    }
+
+    function isPendingWorkflowStatus(status = '') {
+      const normalized = normalizeMatchText(status || 'pending');
+      return !['completada','completado','cerrada','cerrado','cancelada','cancelado','done','finalizada','finalizado'].some(value => normalized.includes(value));
+    }
+
+    function getXmlFeedImpactSummary(batchId) {
+      const batchProperties = properties.filter(property => String(property.importBatchId || property.import_batch_id || '') === String(batchId));
+      const propertyIds = new Set(batchProperties.map(property => String(property.id)).filter(Boolean));
+      const state = getPrivateDashboardState();
+      const operations = (state.operations || []).filter(item => propertyIds.has(String(item.propertyId || item.related_id || '')) && isPendingWorkflowStatus(item.status));
+      const requests = [...(state.requestsReceived || []), ...(state.requestsSent || [])].filter(item => propertyIds.has(String(item.propertyId || item.related_id || '')) && isPendingWorkflowStatus(item.status));
+      const tasks = (state.tasks || []).filter(item => propertyIds.has(String(item.propertyId || item.related_id || item.relatedId || '')) && item.status !== 'done');
+      const matches = batchProperties.reduce((sum, property) => sum + getCompatibleNeedsForProperty(property, 50).length, 0);
+      return { properties: batchProperties.length, matches, operations: operations.length, requests: requests.length, tasks: tasks.length, blockers: operations.length + requests.length + tasks.length };
+    }
+
+    function xmlFeedImpactMessage(batchId, action) {
+      const impact = getXmlFeedImpactSummary(batchId);
+      const lines = [
+        `Propiedades afectadas: ${impact.properties}`,
+        `Coincidencias que dejarán de aparecer: ${impact.matches}`,
+      ];
+      if (impact.blockers) lines.push(`Procesos pendientes detectados: ${impact.operations} operaciones, ${impact.requests} solicitudes, ${impact.tasks} tareas.`);
+      if (action === 'delete' && impact.blockers) lines.push('El XML quedará pendiente de eliminación y oculto del Marketplace hasta cerrar esos procesos.');
+      if (action === 'pause') lines.push('Al pausar, estas propiedades dejarán de mostrarse en Marketplace, matches y colaboraciones hasta reactivar el XML.');
+      return { impact, message: lines.join('\n') };
     }
 
     function showImportBatchReport(batchId) {
@@ -9536,16 +10190,36 @@ $captacion_current_user = wp_get_current_user();
       if (!batch) { showToast('Informe no disponible.', 'info'); return; }
       const report = batch.report || {};
       const errors = Array.isArray(report.technical_errors) ? report.technical_errors : [];
-      const message = [
-        `XML: ${batch.source_file_name || batch.import_batch_id}`,
-        `Estado: ${batch.status}`,
-        `Propiedades importadas: ${batch.properties_count || 0}`,
-        `Propiedades activas: ${batch.active_properties_count || 0}`,
-        `Pendientes de revisión: ${batch.pending_review_properties_count || 0}`,
-        `Errores: ${batch.records_rejected || 0}`,
-        errors.length ? `Detalle: ${errors.map(e => e.error || e.key || 'Error').join(' | ')}` : ''
-      ].filter(Boolean).join('\n');
-      alert(message);
+      const modal = document.getElementById('xml-feed-report-modal');
+      const title = document.getElementById('xml-feed-report-title');
+      const body = document.getElementById('xml-feed-report-body');
+      if (!modal || !title || !body) return;
+      const sourceName = batch.source_file_name || batch.import_batch_id;
+      const createdAt = batch.created_at ? new Date(batch.created_at).toLocaleString('es-ES') : 'Sin fecha';
+      const updatedAt = batch.updated_at ? new Date(batch.updated_at).toLocaleString('es-ES') : 'Sin fecha';
+      const imported = Number(batch.records_imported || report.imported || 0);
+      const total = Number(batch.records_total || report.total || 0);
+      const rejected = Number(batch.records_rejected || report.rejected || 0);
+      title.textContent = `Resumen: ${sourceName}`;
+      body.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200"><strong class="block text-2xl text-blue font-black">${Number(batch.properties_count || 0)}</strong><span class="text-[10px] uppercase font-black text-slate-400">Propiedades</span></div>
+          <div class="p-3 rounded-2xl bg-green-light border border-green/20"><strong class="block text-2xl text-green font-black">${Number(batch.active_properties_count || 0)}</strong><span class="text-[10px] uppercase font-black text-green">Activas</span></div>
+          <div class="p-3 rounded-2xl bg-amber-light border border-amber/20"><strong class="block text-2xl text-amber font-black">${Number(batch.pending_review_properties_count || 0)}</strong><span class="text-[10px] uppercase font-black text-amber">Revisión</span></div>
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200"><strong class="block text-2xl text-navy font-black">${Number(batch.needs_count || 0)}</strong><span class="text-[10px] uppercase font-black text-slate-400">Demandas</span></div>
+        </div>
+        <div class="space-y-2 text-xs bg-slate-50 border border-slate-200 rounded-2xl p-4">
+          <p><strong class="text-navy">Origen:</strong> ${escapeHTML(sourceName)}</p>
+          <p><strong class="text-navy">Lote:</strong> ${escapeHTML(batch.import_batch_id)}</p>
+          <p><strong class="text-navy">Tipo:</strong> ${escapeHTML(batch.data_origin || 'xml')}</p>
+          <p><strong class="text-navy">Estado:</strong> ${escapeHTML(batch.status || 'active')}</p>
+          <p><strong class="text-navy">Creado:</strong> ${createdAt}</p>
+          <p><strong class="text-navy">Última actualización:</strong> ${updatedAt}</p>
+          <p><strong class="text-navy">Registros:</strong> ${imported}/${total} importados · ${rejected} con error</p>
+        </div>
+        ${errors.length ? `<div class="mt-4 p-4 rounded-2xl bg-red-50 border border-red-100 text-xs text-red-700"><strong class="block mb-2">Incidencias técnicas</strong>${errors.slice(0, 8).map(error => `<p>${escapeHTML(error.error || error.key || 'Error de importación')}</p>`).join('')}</div>` : '<div class="mt-4 p-4 rounded-2xl bg-green-light border border-green/20 text-xs text-green font-bold">Sin incidencias técnicas registradas.</div>'}
+      `;
+      modal.classList.remove('hidden');
     }
 
     function showPendingReviewProperties() {
@@ -9558,7 +10232,12 @@ $captacion_current_user = wp_get_current_user();
       }, 50);
     }
 
-    async function updateImportBatchStatus(batchId, status) {
+    async function updateImportBatchStatus(batchId, status, button = null) {
+      if (status === 'paused') {
+        const { message } = xmlFeedImpactMessage(batchId, 'pause');
+        if (!confirm(`${message}\n\n¿Quieres pausar este XML?`)) return;
+      }
+      setXmlFeedActionLoading(button, true, status === 'paused' ? 'Pausando...' : 'Activando...');
       try {
         const res = await fetch(window.CAPTACION_API.endpoints.xmlFeed + encodeURIComponent(batchId), {
           method: 'PATCH',
@@ -9568,17 +10247,23 @@ $captacion_current_user = wp_get_current_user();
         const data = await res.json();
         if (data.ok) {
           showToast(status === 'paused' ? 'XML pausado.' : 'XML activado.', 'success');
-          loadImportBatches();
-          loadWordPressRealEstateRecords();
+          await loadXmlFeeds();
+          await loadWordPressRealEstateRecords();
+          renderMarketplace();
+          renderSalesMatches();
+          renderDashboard();
         } else {
           showToast(data.message || 'No se pudo actualizar el XML.', 'error');
         }
       } catch (e) {
         showToast('Error de red: ' + e.message, 'error');
+      } finally {
+        setXmlFeedActionLoading(button, false);
       }
     }
 
-    async function syncImportBatch(batchId) {
+    async function syncImportBatch(batchId, button = null) {
+      setXmlFeedActionLoading(button, true, 'Actualizando...');
       try {
         const res = await fetch(window.CAPTACION_API.endpoints.syncXmlFeed + encodeURIComponent(batchId) + '/sync', {
           method: 'POST',
@@ -9587,18 +10272,22 @@ $captacion_current_user = wp_get_current_user();
         const data = await res.json();
         if (data.ok) {
           showToast(`XML actualizado: ${data.imported} propiedades.`, 'success');
-          loadImportBatches();
-          loadWordPressRealEstateRecords();
+          await loadXmlFeeds();
+          await loadWordPressRealEstateRecords();
         } else {
           showToast(data.message || 'No se pudo actualizar el XML.', 'error');
         }
       } catch (e) {
         showToast('Error de red: ' + e.message, 'error');
+      } finally {
+        setXmlFeedActionLoading(button, false);
       }
     }
 
-    async function deleteImportBatch(batchId) {
-      if (!confirm('¿Eliminar este lote? Los registros se marcarán como eliminados y no podrán recuperarse.')) return;
+    async function deleteImportBatch(batchId, button = null) {
+      const { impact, message } = xmlFeedImpactMessage(batchId, 'delete');
+      if (!confirm(`${message}\n\nEsta acción es irreversible. Las propiedades dejarán de visualizarse en Marketplace.\n\nSi hay procesos activos de comprar captación, el XML quedará pendiente de eliminación hasta que esos procesos terminen.\n\n¿Quieres solicitar la eliminación de este XML?`)) return;
+      setXmlFeedActionLoading(button, true, 'Eliminando...');
       try {
         const res = await fetch(window.CAPTACION_API.endpoints.xmlFeed + encodeURIComponent(batchId), {
           method: 'DELETE',
@@ -9606,15 +10295,28 @@ $captacion_current_user = wp_get_current_user();
           body: JSON.stringify({ confirm: 'CONFIRMAR' })
         });
         const data = await res.json();
-        if (data.ok) {
-          showToast('Lote eliminado correctamente.', 'success');
-          loadImportBatches();
-          loadWordPressRealEstateRecords();
+        if (data.ok || data.success) {
+          if (data.status === 'pending_deletion') {
+            const nextBatches = (window.CAPTACION_XML_BATCHES || []).map(item => item.import_batch_id === batchId ? { ...item, status: 'pending_deletion', pending_blockers_count: data.blockers?.count || impact.blockers || 0, pending_blockers: data.blockers?.items || [] } : item);
+            renderXmlFeedsList(nextBatches);
+            showToast(data.message || 'XML pendiente de eliminación hasta cerrar sus procesos activos.', 'info');
+          } else {
+            const remainingBatches = (window.CAPTACION_XML_BATCHES || []).filter(item => item.import_batch_id !== batchId);
+            renderXmlFeedsList(remainingBatches);
+            showToast(data.message || 'XML eliminado correctamente.', 'success');
+          }
+          await loadXmlFeeds();
+          await loadWordPressRealEstateRecords();
+          renderMarketplace();
+          renderSalesMatches();
+          renderDashboard();
         } else {
-          showToast(data.message || 'Error al eliminar.', 'error');
+          showToast(data.message || data?.data?.message || 'Error al eliminar.', 'error');
         }
       } catch (e) {
         showToast('Error de red: ' + e.message, 'error');
+      } finally {
+        setXmlFeedActionLoading(button, false);
       }
     }
 
@@ -9662,7 +10364,7 @@ $captacion_current_user = wp_get_current_user();
         const data = await res.json();
         if (data.ok) {
           resultDiv.innerHTML = '<span class="text-green">Todos tus datos privados han sido eliminados.</span>';
-          loadImportBatches();
+          await loadXmlFeeds();
           input.value = '';
         } else {
           resultDiv.innerHTML = `<span class="text-red">Error: ${data.message || 'Error desconocido'}</span>`;
@@ -9733,7 +10435,7 @@ $captacion_current_user = wp_get_current_user();
   window.advanceProtectedFlow=function(){const d=getComm();const t=d.threads.find(x=>x.id===activeThreadId);if(!t)return;const idx=stageIndex(t.stage);if(idx>=FLOW_STAGES.length-1)return;const next=FLOW_STAGES[idx+1];t.stage=next.id;t.updatedAt=now();t.messages.push({id:uid('MSG'),kind:'system',body:`Flujo actualizado: ${next.label}.`,createdAt:now()});const ev={id:uid('EVT'),type:'Cambio de estado',entityRef:t.entityRef,detail:`La sala protegida avanzó a: ${next.label}.`,priority:'medium',createdAt:now(),deliveries:[{channel:'Plataforma',status:'Entregada'}]};if(d.preferences.email)ev.deliveries.push({channel:'Email',status:'Entregada'});if(d.preferences.whatsapp)ev.deliveries.push({channel:'WhatsApp',status:'Entregada'});d.events.unshift(ev);saveComm(d);addTrace('FLOW','FLOW_STAGE_CHANGED',t.id,`Nuevo estado: ${next.label}.`);renderThreadModal();renderCommunicationModules();if(window.showToast)showToast(`Flujo actualizado: ${next.label}.`,'success')}
   function renderTrace(){const el=document.getElementById('comm-trace-list');if(!el)return;const d=getComm();const filter=document.getElementById('comm-trace-filter')?.value||'';const list=(d.trace||[]).filter(x=>!filter||x.category===filter);el.innerHTML=list.map(x=>`<article class="comm-trace-line"><div class="flex flex-wrap items-center gap-2"><span class="text-[9px] font-black uppercase tracking-wider text-blue">${safeEsc(x.category)}</span><span class="text-[9px] text-slate-400">${new Date(x.createdAt).toLocaleString('es-ES')}</span><span class="private-status-pill ${x.result==='blocked'?'bg-red-50 text-red-600':'bg-green-light text-green'}">${safeEsc(x.result)}</span></div><strong class="block text-xs text-navy mt-1">${safeEsc(x.action)} · ${safeEsc(x.entity)}</strong><p class="text-[11px] text-slate-500 mt-1 leading-relaxed">${safeEsc(x.detail)}</p></article>`).join('')||'<p class="text-xs text-slate-500">No existen eventos para ese filtro.</p>'}
   window.renderCommunicationTrace=renderTrace;
-  window.exportCommunicationTrace=function(){const d=getComm();const payload={exportedAt:new Date().toISOString(),notice:'Exportación demostrativa de trazabilidad. En producción debe generarse desde backend con firma y controles de acceso.',trace:d.trace,events:d.events,threads:d.threads.map(t=>({id:t.id,entityRef:t.entityRef,stage:t.stage,updatedAt:t.updatedAt,messageCount:(t.messages||[]).length}))};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captacion-app-trazabilidad-${Date.now()}.json`;a.click();URL.revokeObjectURL(url);addTrace('FLOW','TRACE_EXPORTED','AUDIT','El usuario exportó un registro demostrativo de trazabilidad.');renderTrace()}
+  window.exportCommunicationTrace=function(){const d=getComm();const payload={exportedAt:new Date().toISOString(),notice:'Exportación operativa de trazabilidad. El registro debe generarse desde backend con firma y controles de acceso.',trace:d.trace,events:d.events,threads:d.threads.map(t=>({id:t.id,entityRef:t.entityRef,stage:t.stage,updatedAt:t.updatedAt,messageCount:(t.messages||[]).length}))};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`captacion-app-trazabilidad-${Date.now()}.json`;a.click();URL.revokeObjectURL(url);addTrace('FLOW','TRACE_EXPORTED','AUDIT','El usuario exportó un registro operativo de trazabilidad.');renderTrace()}
   function appendCommunicationOverview(){const fav=document.getElementById('private-overview-favorites')?.closest('section');if(!fav||document.getElementById('private-overview-communications'))return;const box=document.createElement('section');box.id='private-overview-communications';box.className='private-section-card overflow-hidden mb-6';box.innerHTML=`<div class="px-5 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3"><div><h4 class="text-sm font-black text-navy">Centro de comunicación protegida</h4><p class="text-[11px] text-slate-500 mt-1">Suscripciones, avisos multicanal y salas internas con trazabilidad.</p></div><div class="flex gap-2"><button onclick="switchPrivateDashboardPanel('subscriptions')" class="px-3 py-2 rounded-lg bg-blue text-white text-[10px] font-bold">Gestionar alertas</button><button onclick="switchPrivateDashboardPanel('communications')" class="px-3 py-2 rounded-lg border border-slate-200 text-navy text-[10px] font-bold">Abrir salas</button></div></div><div id="private-overview-comm-stats" class="grid grid-cols-2 lg:grid-cols-4 gap-3 p-4"></div>`;fav.parentNode.insertBefore(box,fav);renderOverviewCommStats()}
   function renderOverviewCommStats(){const el=document.getElementById('private-overview-comm-stats');if(!el)return;const d=getComm();el.innerHTML=[['Suscripciones activas',d.subscriptions.filter(x=>x.status==='active').length],['Salas privadas',d.threads.length],['Avisos multicanal',d.events.length],['Eventos auditados',d.trace.length]].map(([a,b])=>`<div class="private-mini-card"><span class="block text-[10px] uppercase tracking-wider text-slate-500 font-black">${safeEsc(a)}</span><strong class="block text-xl text-blue mt-1">${safeEsc(b)}</strong></div>`).join('')}
   window.renderCommunicationModules=function(){updateCommSidebar();renderCommStats();renderSubscriptions();renderDeliveries();renderThreads();renderTrace();renderOverviewCommStats()}
@@ -9751,3 +10453,4 @@ $captacion_current_user = wp_get_current_user();
 <?php wp_footer(); ?>
 </body>
 </html>
+<!-- captacion-app eof padding xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->

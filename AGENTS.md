@@ -61,6 +61,7 @@ No romper ni alterar sin solicitud directa:
 - No introducir textos con problemas de codificacion.
 - Mantener la propuesta principal: mas oportunidades de negocio inmobiliario mediante colaboracion profesional.
 - No cambiar copy SEO/CRO validado si no se solicita.
+- Para tareas de diseño web, UX/UI, CRO, branding, accesibilidad o frontend visual, consultar la skill de OpenCode `.opencode/skills/saas-web-design/SKILL.md` antes de proponer o modificar diseño.
 
 ## Match oferta-demanda
 

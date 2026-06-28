@@ -24,6 +24,7 @@ function captacion_app_defaults() {
         'mailchimp_api_key' => '',
         'mailchimp_audience_id' => '',
         'mailchimp_double_optin' => '0',
+        'saas_admin_email' => 'inmobia360@gmail.com',
     );
 }
 
@@ -61,6 +62,8 @@ function captacion_app_sanitize_settings($input) {
         } elseif (strpos($key, 'stripe_') === 0) {
             $output[$key] = esc_url_raw($value);
         } elseif ($key === 'contact_email') {
+            $output[$key] = sanitize_email($value);
+        } elseif ($key === 'saas_admin_email') {
             $output[$key] = sanitize_email($value);
         } elseif ($key === 'mailchimp_api_key' || $key === 'mailchimp_audience_id') {
             $output[$key] = sanitize_text_field($value);
@@ -189,6 +192,23 @@ function captacion_app_render_settings_page() {
                 </p>
             </div>
         <?php endif; ?>
+        <?php if (isset($_GET['captacion_cleanup_records']) || isset($_GET['captacion_cleanup_batches'])) : ?>
+            <div class="notice notice-success is-dismissible">
+                <p>
+                    Limpieza SaaS completada. Registros demo/sinteticos marcados como eliminados: <?php echo esc_html(absint($_GET['captacion_cleanup_records'] ?? 0)); ?>.
+                    Lotes demo marcados como eliminados: <?php echo esc_html(absint($_GET['captacion_cleanup_batches'] ?? 0)); ?>.
+                </p>
+            </div>
+        <?php endif; ?>
+        <?php if (isset($_GET['captacion_reset_day_one'])) : ?>
+            <div class="notice notice-success is-dismissible">
+                <p>
+                    Reset SaaS dia 1 completado. Tablas vaciadas: <?php echo esc_html(absint($_GET['captacion_reset_tables'] ?? 0)); ?>.
+                    Usuarios SaaS eliminados: <?php echo esc_html(absint($_GET['captacion_reset_users'] ?? 0)); ?>.
+                    Administrador SaaS preparado: <?php echo esc_html(sanitize_email($_GET['captacion_reset_admin'] ?? '')); ?>.
+                </p>
+            </div>
+        <?php endif; ?>
 
         <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px;">
             <h2>Restaurar paginas editables</h2>
@@ -197,6 +217,36 @@ function captacion_app_render_settings_page() {
                 <?php wp_nonce_field('captacion_app_create_pages'); ?>
                 <input type="hidden" name="action" value="captacion_app_create_pages">
                 <?php submit_button('Restaurar paginas base', 'secondary', 'submit', false); ?>
+            </form>
+        </div>
+
+        <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px;">
+            <h2>Preparar SaaS para produccion</h2>
+            <p>Marca como eliminados datos demo/sinteticos y lotes demo. No borra usuarios WordPress ni datos privados reales.</p>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <?php wp_nonce_field('captacion_app_prepare_production'); ?>
+                <input type="hidden" name="action" value="captacion_app_prepare_production">
+                <?php submit_button('Limpiar datos demo del SaaS', 'delete', 'submit', false); ?>
+            </form>
+        </div>
+
+        <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px; border-left:4px solid #b32d2e;">
+            <h2>Reset SaaS dia 1</h2>
+            <p><strong>Accion irreversible.</strong> Vacia los repositorios propios de Captacion.app, elimina usuarios SaaS detectados por metadatos de la app y prepara el administrador SaaS configurado. No guarda la contrasena en codigo.</p>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" autocomplete="off">
+                <?php wp_nonce_field('captacion_app_reset_day_one'); ?>
+                <input type="hidden" name="action" value="captacion_app_reset_day_one">
+                <table class="form-table" role="presentation">
+                    <tr>
+                        <th scope="row"><label for="captacion_reset_confirm">Confirmacion</label></th>
+                        <td><input id="captacion_reset_confirm" class="regular-text" name="captacion_reset_confirm" placeholder="RESET" autocomplete="off"> <p class="description">Escribe RESET para ejecutar la limpieza total.</p></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="captacion_reset_admin_password">Contrasena admin SaaS</label></th>
+                        <td><input id="captacion_reset_admin_password" class="regular-text" type="password" name="captacion_reset_admin_password" autocomplete="new-password"> <p class="description">Se aplicara al usuario <?php echo esc_html($settings['saas_admin_email']); ?>. No se almacena en archivos del tema.</p></td>
+                    </tr>
+                </table>
+                <?php submit_button('Reset SaaS dia 1', 'delete', 'submit', false); ?>
             </form>
         </div>
 
@@ -241,6 +291,13 @@ function captacion_app_render_settings_page() {
                 <tr>
                     <th scope="row"><label for="captacion_contact_email">Email de contacto</label></th>
                     <td><input id="captacion_contact_email" class="regular-text" type="email" name="captacion_app_settings[contact_email]" value="<?php echo esc_attr($settings['contact_email']); ?>"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="captacion_saas_admin_email">Administrador SaaS</label></th>
+                    <td>
+                        <input id="captacion_saas_admin_email" class="regular-text" type="email" name="captacion_app_settings[saas_admin_email]" value="<?php echo esc_attr($settings['saas_admin_email']); ?>">
+                        <p class="description">Este usuario tendra acceso SaaS premium total al iniciar sesion. La contrasena se gestiona en Usuarios de WordPress, no en el tema.</p>
+                    </td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="captacion_stripe_payment_link">Payment Link de Stripe</label></th>
@@ -633,6 +690,24 @@ function captacion_app_update_import_batch_status($batch_id, $status, $extra = a
     return $wpdb->update($table, $data, array('import_batch_id' => $batch_id));
 }
 
+function captacion_app_visible_import_batch_statuses() {
+    return array('active', 'error');
+}
+
+function captacion_app_hidden_import_batch_statuses() {
+    return array('paused', 'pending_deletion', 'deleted');
+}
+
+function captacion_app_is_terminal_workflow_status($status) {
+    $status = strtolower(remove_accents(sanitize_text_field((string) $status)));
+    if ($status === '') return false;
+    $terminal = array('completed', 'completada', 'completado', 'closed', 'cerrada', 'cerrado', 'cancelled', 'canceled', 'cancelada', 'cancelado', 'rejected', 'rechazada', 'rechazado', 'denied', 'aprobada', 'aprobado', 'approved', 'done', 'finalizada', 'finalizado');
+    foreach ($terminal as $needle) {
+        if (strpos($status, $needle) !== false) return true;
+    }
+    return false;
+}
+
 function captacion_app_get_import_batch($batch_id) {
     global $wpdb;
     $table = captacion_app_import_batches_table_name();
@@ -645,6 +720,116 @@ function captacion_app_user_can_manage_import_batch($batch) {
     if (current_user_can('manage_options')) return true;
     $user_id = get_current_user_id();
     return absint($batch['owner_user_id']) === $user_id;
+}
+
+function captacion_app_get_import_batch_pending_blockers($batch_id) {
+    global $wpdb;
+    $records_table = captacion_app_records_table_name();
+    $properties = $wpdb->get_results($wpdb->prepare(
+        "SELECT record_key, related_id, payload FROM {$records_table} WHERE import_batch_id = %s AND record_type = 'property' AND deleted_at IS NULL LIMIT 1000",
+        $batch_id
+    ), ARRAY_A);
+    $property_ids = array();
+    foreach ($properties as $property) {
+        foreach (array($property['record_key'] ?? '', $property['related_id'] ?? '') as $value) {
+            $value = sanitize_text_field($value);
+            if ($value !== '') $property_ids[$value] = true;
+        }
+        $payload = json_decode($property['payload'] ?: '{}', true);
+        if (is_array($payload)) {
+            foreach (array($payload['id'] ?? '', $payload['reference'] ?? '', $payload['recordKey'] ?? '') as $value) {
+                $value = sanitize_text_field($value);
+                if ($value !== '') $property_ids[$value] = true;
+            }
+        }
+    }
+
+    if (empty($property_ids)) {
+        return array('count' => 0, 'items' => array());
+    }
+
+    $blockers = array();
+    $candidate_rows = $wpdb->get_results(
+        "SELECT record_type, record_key, title, status, related_id, payload FROM {$records_table} WHERE record_type IN ('access_request','operation','task') AND deleted_at IS NULL ORDER BY updated_at DESC LIMIT 500",
+        ARRAY_A
+    );
+    foreach ($candidate_rows as $row) {
+        $status = sanitize_text_field($row['status'] ?? '');
+        if (captacion_app_is_terminal_workflow_status($status)) continue;
+        $payload = json_decode($row['payload'] ?: '{}', true);
+        $references = array(sanitize_text_field($row['related_id'] ?? ''));
+        if (is_array($payload)) {
+            foreach (array('propertyId', 'property_id', 'related_id', 'opportunity_id', 'id') as $key) {
+                if (!empty($payload[$key])) $references[] = sanitize_text_field($payload[$key]);
+            }
+        }
+        foreach ($references as $reference) {
+            if ($reference !== '' && isset($property_ids[$reference])) {
+                $blockers[] = array(
+                    'type' => sanitize_key($row['record_type']),
+                    'id' => sanitize_text_field($row['record_key']),
+                    'title' => sanitize_text_field($row['title']),
+                    'status' => sanitize_text_field($row['status']),
+                );
+                break;
+            }
+        }
+    }
+
+    return array('count' => count($blockers), 'items' => array_slice($blockers, 0, 10));
+}
+
+function captacion_app_soft_delete_import_batch_records($batch_id, $now = '') {
+    global $wpdb;
+    $now = $now ?: current_time('mysql');
+    $records_table = captacion_app_records_table_name();
+    return $wpdb->query($wpdb->prepare(
+        "UPDATE {$records_table} SET deleted_at = %s WHERE import_batch_id = %s AND deleted_at IS NULL",
+        $now,
+        $batch_id
+    ));
+}
+
+function captacion_app_mark_import_batch_deleted($batch_id, $now = '') {
+    global $wpdb;
+    $now = $now ?: current_time('mysql');
+    $batches_table = captacion_app_import_batches_table_name();
+    return $wpdb->query($wpdb->prepare(
+        "UPDATE {$batches_table} SET deleted_at = %s, status = 'deleted', updated_at = %s WHERE import_batch_id = %s",
+        $now,
+        $now,
+        $batch_id
+    ));
+}
+
+function captacion_app_complete_pending_feed_deletions($owner_user_id = 0) {
+    global $wpdb;
+    captacion_app_maybe_install_import_batches_table();
+    captacion_app_maybe_install_records_table();
+    $batches_table = captacion_app_import_batches_table_name();
+    if ($owner_user_id) {
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$batches_table} WHERE status = 'pending_deletion' AND deleted_at IS NULL AND owner_user_id = %d LIMIT 50",
+            absint($owner_user_id)
+        ), ARRAY_A);
+    } else {
+        $rows = $wpdb->get_results("SELECT * FROM {$batches_table} WHERE status = 'pending_deletion' AND deleted_at IS NULL LIMIT 50", ARRAY_A);
+    }
+    $completed = array();
+    foreach ($rows as $batch) {
+        $batch_id = $batch['import_batch_id'];
+        $blockers = captacion_app_get_import_batch_pending_blockers($batch_id);
+        if (!empty($blockers['count'])) continue;
+        $now = current_time('mysql');
+        captacion_app_soft_delete_import_batch_records($batch_id, $now);
+        captacion_app_mark_import_batch_deleted($batch_id, $now);
+        captacion_app_log_resource_event(array('resource_id' => 'import_batch_delete'), 'xml_batch_deletion_completed', array(
+            'import_batch_id' => $batch_id,
+            'owner_user_id' => $batch['owner_user_id'],
+        ));
+        $completed[] = $batch_id;
+    }
+    return $completed;
 }
 
 function captacion_app_resource_catalog_defaults() {
@@ -912,8 +1097,25 @@ function captacion_app_normalize_user_plan($plan_type) {
     return in_array($plan_type, array('basic', 'professional_plus', 'premium'), true) ? $plan_type : 'basic';
 }
 
+function captacion_app_is_saas_admin($user_id = 0) {
+    $user_id = absint($user_id ?: get_current_user_id());
+    if (!$user_id) return false;
+    $user = get_userdata($user_id);
+    if (!$user || empty($user->user_email)) return false;
+    $admin_email = strtolower(sanitize_email(captacion_app_setting('saas_admin_email')));
+    return $admin_email && strtolower((string) $user->user_email) === $admin_email;
+}
+
 function captacion_app_ensure_user_access_meta($user_id) {
     $user_id = absint($user_id);
+    if (captacion_app_is_saas_admin($user_id)) {
+        update_user_meta($user_id, 'captacion_plan_type', 'premium');
+        update_user_meta($user_id, 'captacion_subscription_status', 'active');
+        update_user_meta($user_id, 'captacion_included_marketplace_accesses', 999999);
+        update_user_meta($user_id, 'captacion_extra_marketplace_accesses', 0);
+        update_user_meta($user_id, 'captacion_last_reset_at', current_time('mysql'));
+        return;
+    }
     $plan_type = captacion_app_normalize_user_plan(get_user_meta($user_id, 'captacion_plan_type', true));
     $config = captacion_app_plan_config($plan_type);
     $last_reset = sanitize_text_field((string) get_user_meta($user_id, 'captacion_last_reset_at', true));
@@ -933,6 +1135,22 @@ function captacion_app_get_user_access_state($user_id) {
     $user_id = absint($user_id);
     if (!$user_id) return array('plan_type'=>'basic','included_marketplace_accesses'=>0,'used_marketplace_accesses'=>0,'extra_marketplace_accesses'=>0,'remaining_marketplace_accesses'=>0,'credits_purchased'=>0,'last_reset_at'=>'','subscription_status'=>'guest');
     captacion_app_ensure_user_access_meta($user_id);
+    if (captacion_app_is_saas_admin($user_id)) {
+        return array(
+            'plan_type' => 'premium',
+            'included_marketplace_accesses' => 999999,
+            'used_marketplace_accesses' => 0,
+            'extra_marketplace_accesses' => 0,
+            'remaining_marketplace_accesses' => 999999,
+            'monthly_consumed_accesses' => 0,
+            'monthly_total_accesses' => 999999,
+            'usage_percentage' => 0,
+            'credits_purchased' => 0,
+            'last_reset_at' => sanitize_text_field((string) get_user_meta($user_id, 'captacion_last_reset_at', true)),
+            'subscription_status' => 'active',
+            'is_saas_admin' => true,
+        );
+    }
     $plan_type = captacion_app_normalize_user_plan(get_user_meta($user_id, 'captacion_plan_type', true));
     $included = absint(get_user_meta($user_id, 'captacion_included_marketplace_accesses', true));
     $used = absint(get_user_meta($user_id, 'captacion_used_marketplace_accesses', true));
@@ -1010,7 +1228,24 @@ function captacion_app_confirm_single_marketplace_access($user_id, $opportunity_
     captacion_app_maybe_install_access_log_table();
     $inserted = $wpdb->insert(captacion_app_access_log_table_name(), array('user_id'=>$user_id,'opportunity_id'=>$opportunity_id,'plan_type'=>'basic','access_type'=>'single_purchase','amount_paid'=>(float)$amount_paid,'created_at'=>current_time('mysql')), array('%d','%s','%s','%s','%f','%s'));
     if ($inserted && $payment_reference) update_user_meta($user_id, 'captacion_single_payment_' . sanitize_key($payment_reference), current_time('mysql'));
+    if ($inserted) captacion_app_mark_access_requests_for_opportunity($opportunity_id, 'approved');
     return (bool) $inserted;
+}
+
+function captacion_app_mark_access_requests_for_opportunity($opportunity_id, $status) {
+    global $wpdb;
+    $opportunity_id = sanitize_text_field((string) $opportunity_id);
+    $status = sanitize_text_field((string) $status);
+    if (!$opportunity_id || !$status) return 0;
+    $records_table = captacion_app_records_table_name();
+    $updated = $wpdb->query($wpdb->prepare(
+        "UPDATE {$records_table} SET status = %s, updated_at = %s WHERE record_type = 'access_request' AND related_id = %s AND deleted_at IS NULL",
+        $status,
+        current_time('mysql'),
+        $opportunity_id
+    ));
+    captacion_app_complete_pending_feed_deletions();
+    return absint($updated);
 }
 
 function captacion_app_rest_public_nonce_permission(WP_REST_Request $request) {
@@ -1253,6 +1488,18 @@ function captacion_app_rest_consume_access(WP_REST_Request $request) {
     captacion_app_maybe_install_access_log_table();
     if (captacion_app_user_has_opportunity_access($user_id, $opportunity_id)) return rest_ensure_response(array('ok'=>true, 'already_unlocked'=>true, 'accessState'=>captacion_app_get_user_access_state($user_id)));
     $state = captacion_app_get_user_access_state($user_id);
+    if (!empty($state['is_saas_admin'])) {
+        $wpdb->insert(captacion_app_access_log_table_name(), array(
+            'user_id'=>$user_id,
+            'opportunity_id'=>$opportunity_id,
+            'plan_type'=>'premium',
+            'access_type'=>'saas_admin',
+            'amount_paid'=>0,
+            'created_at'=>current_time('mysql'),
+        ), array('%d','%s','%s','%s','%f','%s'));
+        captacion_app_mark_access_requests_for_opportunity($opportunity_id, 'approved');
+        return rest_ensure_response(array('ok'=>true, 'already_unlocked'=>false, 'access_type'=>'saas_admin', 'accessState'=>captacion_app_get_user_access_state($user_id)));
+    }
     if ($state['remaining_marketplace_accesses'] < 1) return new WP_Error('captacion_access_balance', 'No tienes accesos disponibles. Elige la opcion de compra correspondiente a tu plan.', array('status'=>402, 'accessState'=>$state));
     $included_remaining = max(0, $state['included_marketplace_accesses'] - $state['used_marketplace_accesses']);
     $access_type = $included_remaining > 0 ? 'included' : 'extra';
@@ -1266,6 +1513,7 @@ function captacion_app_rest_consume_access(WP_REST_Request $request) {
         'amount_paid'=>0,
         'created_at'=>current_time('mysql'),
     ), array('%d','%s','%s','%s','%f','%s'));
+    captacion_app_mark_access_requests_for_opportunity($opportunity_id, 'approved');
     return rest_ensure_response(array('ok'=>true, 'already_unlocked'=>false, 'access_type'=>$access_type, 'accessState'=>captacion_app_get_user_access_state($user_id)));
 }
 
@@ -1289,7 +1537,7 @@ function captacion_app_rest_purchase_intent(WP_REST_Request $request) {
         'ok'=>true,
         'checkoutConfigured'=>(bool) $checkout_url,
         'checkoutUrl'=>$checkout_url,
-        'message'=>$checkout_url ? 'Continua al checkout. Los accesos se concederan solo tras confirmacion del webhook.' : 'Checkout en preproduccion. Configura el Payment Link y el webhook antes de cobrar.',
+        'message'=>$checkout_url ? 'Continua al checkout. Los accesos se concederan solo tras confirmacion del webhook.' : 'Checkout no disponible temporalmente. Revisa la configuracion de pago antes de activar nuevas compras.',
     ));
 }
 
@@ -1358,6 +1606,24 @@ function captacion_app_property_types() {
 
 function captacion_app_normalize_property_type($value) {
     $value = sanitize_text_field((string) $value);
+    $normalized = strtolower(remove_accents($value));
+    $external = array(
+        'commercial' => 'Local comercial',
+        'retail' => 'Local comercial',
+        'shop' => 'Local comercial',
+        'premises' => 'Local comercial',
+        'apartment' => 'Apartamento',
+        'flat' => 'Piso',
+        'house' => 'Casa / chalet',
+        'chalet' => 'Casa / chalet',
+        'villa' => 'Casa / chalet',
+        'office' => 'Oficina',
+        'industrial' => 'Nave',
+        'warehouse' => 'Nave',
+        'plot' => 'Terreno / solar',
+        'land' => 'Terreno / solar',
+    );
+    if (isset($external[$normalized])) return $external[$normalized];
     $legacy = array(
         'Casa/Chalet' => 'Casa / chalet',
         'Casa / Chalet' => 'Casa / chalet',
@@ -1570,10 +1836,16 @@ function captacion_app_upsert_record($data) {
     if ($existing_id) {
         unset($row['created_at']);
         $wpdb->update($table, $row, array('id' => absint($existing_id)));
+        if (in_array($type, array('access_request', 'task'), true) && captacion_app_is_terminal_workflow_status($row['status'])) {
+            captacion_app_complete_pending_feed_deletions(absint($row['owner_user_id']));
+        }
         return absint($existing_id);
     }
     $row['created_at'] = $now;
     $wpdb->insert($table, $row);
+    if (in_array($type, array('access_request', 'task'), true) && captacion_app_is_terminal_workflow_status($row['status'])) {
+        captacion_app_complete_pending_feed_deletions(absint($row['owner_user_id']));
+    }
     return absint($wpdb->insert_id);
 }
 
@@ -1617,12 +1889,12 @@ function captacion_app_rest_list_records(WP_REST_Request $request) {
     $table = captacion_app_records_table_name();
     $type = sanitize_key((string) $request->get_param('record_type'));
     $email = sanitize_email((string) $request->get_param('user_email'));
-    $limit = min(200, max(1, absint($request->get_param('limit') ?: 100)));
+    $limit = min(5000, max(1, absint($request->get_param('limit') ?: 100)));
     $include_demo = rest_sanitize_boolean($request->get_param('include_demo') ?? false);
     $where = array('deleted_at IS NULL');
     $params = array();
     $batches_table = captacion_app_import_batches_table_name();
-    $where[] = "NOT EXISTS (SELECT 1 FROM {$batches_table} b WHERE b.import_batch_id = {$table}.import_batch_id AND b.status = 'paused' AND b.deleted_at IS NULL)";
+    $where[] = "NOT EXISTS (SELECT 1 FROM {$batches_table} b WHERE b.import_batch_id = {$table}.import_batch_id AND b.status IN ('paused','pending_deletion','deleted') AND b.deleted_at IS NULL)";
     $user_id = get_current_user_id();
     if (current_user_can('manage_options')) {
         if ($email) { $where[] = 'user_email = %s'; $params[] = $email; }
@@ -1745,6 +2017,9 @@ function captacion_app_property_marketplace_missing_fields($payload) {
         'description' => array('description'),
         'owner' => array('owner_user_id', 'user_id'),
         'source' => array('data_origin', 'source_type'),
+        'rooms' => array('rooms', 'bedrooms'),
+        'bathrooms' => array('bathrooms', 'baths'),
+        'surface' => array('surface', 'total_area_m2', 'built_area'),
     );
     foreach ($required as $label => $keys) {
         $has_value = false;
@@ -2020,6 +2295,7 @@ function captacion_app_rest_xml_feed_import_url(WP_REST_Request $request) {
     $result = captacion_app_import_records_from_xml($parsed, array('user_id' => $user_id, 'import_batch_id' => $batch_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => $user_id, 'source_file_name' => $source_label, 'source_hash' => $download['hash']));
     $summary = array_merge($result['summary'], array('properties_updated' => $result['updated'], 'properties_pending_review' => $result['pending_review'], 'technical_errors' => array_slice($result['errors'], 0, 10)));
     captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'summary_json' => $summary));
+    captacion_app_log_resource_event(array('resource_id' => 'xml_feed_import_url'), 'xml_batch_created', array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'source' => $source_label));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'updated' => $result['updated'], 'pending_review' => $result['pending_review'], 'rejected' => $result['rejected'], 'summary' => $summary));
 }
 
@@ -2075,6 +2351,7 @@ function captacion_app_rest_xml_feed_import_file(WP_REST_Request $request) {
     $result = captacion_app_import_records_from_xml($parsed, array('user_id' => $user_id, 'import_batch_id' => $batch_id, 'data_origin' => 'xml_file', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => $user_id, 'source_file_name' => substr($filename, 0, 190), 'source_hash' => $hash));
     $summary = array_merge($result['summary'], array('properties_updated' => $result['updated'], 'properties_pending_review' => $result['pending_review'], 'technical_errors' => array_slice($result['errors'], 0, 10)));
     captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'summary_json' => $summary));
+    captacion_app_log_resource_event(array('resource_id' => 'xml_feed_import_file'), 'xml_batch_created', array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'source' => $filename));
     return rest_ensure_response(array(
         'success' => true,
         'ok' => true,
@@ -2103,7 +2380,10 @@ function captacion_app_rest_xml_feed_sync(WP_REST_Request $request) {
     if (is_wp_error($parsed)) return $parsed;
     global $wpdb;
     $records_table = captacion_app_records_table_name();
-    $wpdb->query($wpdb->prepare("UPDATE {$records_table} SET deleted_at = %s WHERE import_batch_id = %s AND deleted_at IS NULL", current_time('mysql'), $batch_id));
+    $blockers = captacion_app_get_import_batch_pending_blockers($batch_id);
+    if (empty($blockers['count'])) {
+        $wpdb->query($wpdb->prepare("UPDATE {$records_table} SET deleted_at = %s WHERE import_batch_id = %s AND deleted_at IS NULL", current_time('mysql'), $batch_id));
+    }
     $result = captacion_app_import_records_from_xml($parsed, array('user_id' => absint($batch['owner_user_id']), 'import_batch_id' => $batch_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => absint($batch['owner_user_id']), 'source_file_name' => $batch['source_file_name'], 'source_hash' => $download['hash']));
     captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'], 'records_rejected' => $result['rejected'], 'summary_json' => $result['summary']));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'rejected' => $result['rejected']));
@@ -2273,7 +2553,7 @@ function captacion_app_rest_xml_user_export(WP_REST_Request $request) {
 }
 
 function captacion_app_rest_delete_import_batch(WP_REST_Request $request) {
-    $batch_id = sanitize_text_field($request->get_param('import_batch_id'));
+    $batch_id = sanitize_text_field($request->get_param('import_batch_id') ?: $request->get_param('feed_id'));
     $confirm = sanitize_text_field($request->get_param('confirm') ?? '');
     if ($confirm !== 'CONFIRMAR') {
         return new WP_Error('captacion_confirm_required', 'Debes enviar confirm=CONFIRMAR para eliminar.', array('status' => 400));
@@ -2285,27 +2565,61 @@ function captacion_app_rest_delete_import_batch(WP_REST_Request $request) {
     if (!captacion_app_user_can_manage_import_batch($batch)) {
         return new WP_Error('captacion_forbidden', 'No tienes permiso para eliminar este lote.', array('status' => 403));
     }
-    global $wpdb;
-    $table = captacion_app_records_table_name();
+    captacion_app_log_resource_event(array('resource_id' => 'import_batch_delete'), 'xml_batch_deletion_requested', array(
+        'import_batch_id' => $batch_id,
+        'owner_user_id' => $batch['owner_user_id'],
+        'current_status' => $batch['status'] ?? '',
+    ));
+    if (($batch['status'] ?? '') === 'pending_deletion') {
+        $completed = captacion_app_complete_pending_feed_deletions(absint($batch['owner_user_id']));
+        return rest_ensure_response(array(
+            'success' => true,
+            'ok' => true,
+            'feed_id' => $batch_id,
+            'import_batch_id' => $batch_id,
+            'status' => in_array($batch_id, $completed, true) ? 'deleted' : 'pending_deletion',
+            'message' => in_array($batch_id, $completed, true) ? 'XML eliminado correctamente' : 'El XML sigue pendiente de eliminación hasta cerrar sus procesos activos.',
+        ));
+    }
+    $blockers = captacion_app_get_import_batch_pending_blockers($batch_id);
+    if (!empty($blockers['count'])) {
+        global $wpdb;
+        $batches_table = captacion_app_import_batches_table_name();
+        $wpdb->update($batches_table, array('status' => 'pending_deletion', 'updated_at' => current_time('mysql')), array('import_batch_id' => $batch_id));
+        captacion_app_log_resource_event(array('resource_id' => 'import_batch_delete'), 'xml_batch_deletion_pending', array(
+            'import_batch_id' => $batch_id,
+            'owner_user_id' => $batch['owner_user_id'],
+            'blockers' => $blockers,
+        ));
+        return rest_ensure_response(array(
+            'success' => true,
+            'ok' => true,
+            'feed_id' => $batch_id,
+            'import_batch_id' => $batch_id,
+            'status' => 'pending_deletion',
+            'blockers' => $blockers,
+            'message' => 'El XML queda pendiente de eliminación hasta cerrar las operaciones o compras activas vinculadas.',
+        ));
+    }
     $now = current_time('mysql');
-    $wpdb->query($wpdb->prepare(
-        "UPDATE {$table} SET deleted_at = %s WHERE import_batch_id = %s",
-        $now, $batch_id
-    ));
-    $batches_table = captacion_app_import_batches_table_name();
-    $wpdb->query($wpdb->prepare(
-        "UPDATE {$batches_table} SET deleted_at = %s, status = 'deleted', updated_at = %s WHERE import_batch_id = %s",
-        $now, $now, $batch_id
-    ));
+    captacion_app_soft_delete_import_batch_records($batch_id, $now);
+    captacion_app_mark_import_batch_deleted($batch_id, $now);
     captacion_app_log_resource_event(array('resource_id' => 'import_batch_delete'), 'xml_batch_deleted', array(
         'import_batch_id' => $batch_id,
         'owner_user_id' => $batch['owner_user_id'],
     ));
-    return rest_ensure_response(array('ok' => true, 'message' => 'Lote eliminado correctamente.'));
+    return rest_ensure_response(array(
+        'success' => true,
+        'ok' => true,
+        'feed_id' => $batch_id,
+        'import_batch_id' => $batch_id,
+        'status' => 'deleted',
+        'message' => 'XML eliminado correctamente',
+    ));
 }
 
 function captacion_app_rest_update_import_batch(WP_REST_Request $request) {
-    $batch_id = sanitize_text_field($request->get_param('import_batch_id'));
+    $batch_id = sanitize_text_field($request->get_param('import_batch_id') ?: $request->get_param('feed_id'));
     $status = sanitize_key($request->get_param('status') ?? '');
     if (!in_array($status, array('active', 'paused'), true)) {
         return new WP_Error('captacion_batch_status', 'Estado de lote no permitido.', array('status' => 400));
@@ -2320,7 +2634,138 @@ function captacion_app_rest_update_import_batch(WP_REST_Request $request) {
     global $wpdb;
     $batches_table = captacion_app_import_batches_table_name();
     $wpdb->update($batches_table, array('status' => $status, 'updated_at' => current_time('mysql')), array('import_batch_id' => $batch_id));
+    captacion_app_log_resource_event(array('resource_id' => 'import_batch_status'), $status === 'paused' ? 'xml_batch_paused' : 'xml_batch_reactivated', array(
+        'import_batch_id' => $batch_id,
+        'owner_user_id' => $batch['owner_user_id'],
+    ));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'status' => $status));
+}
+
+function captacion_app_rest_feed_pending_properties(WP_REST_Request $request) {
+    $feed_id = sanitize_text_field($request->get_param('feed_id'));
+    $batch = captacion_app_get_import_batch($feed_id);
+    if (!$batch || !empty($batch['deleted_at'])) return new WP_Error('captacion_feed_not_found', 'Feed no encontrado.', array('status' => 404));
+    if (!captacion_app_user_can_manage_import_batch($batch)) return new WP_Error('captacion_forbidden', 'No tienes permiso.', array('status' => 403));
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $rows = $wpdb->get_results($wpdb->prepare(
+        "SELECT id, record_key, title, payload, status FROM {$table} WHERE import_batch_id = %s AND record_type = 'property' AND status = 'pending_review' AND deleted_at IS NULL ORDER BY id ASC LIMIT 1000",
+        $feed_id
+    ), ARRAY_A);
+    $properties = array();
+    foreach ($rows as $row) {
+        $payload = json_decode($row['payload'] ?: '{}', true);
+        $properties[] = array(
+            'id' => absint($row['id']),
+            'record_key' => $row['record_key'],
+            'title' => sanitize_text_field($row['title']),
+            'external_id' => sanitize_text_field($payload['external_id'] ?? $payload['id'] ?? ''),
+            'property_type' => sanitize_text_field($payload['property_type'] ?? $payload['type'] ?? ''),
+            'type' => sanitize_text_field($payload['type'] ?? $payload['property_type'] ?? ''),
+            'price' => isset($payload['price']) ? (float) $payload['price'] : 0,
+            'province' => sanitize_text_field($payload['province'] ?? ''),
+            'municipality' => sanitize_text_field($payload['municipality'] ?? $payload['city'] ?? ''),
+            'status' => sanitize_text_field($row['status']),
+            'missing_fields' => is_array($payload['missing_fields'] ?? null) ? $payload['missing_fields'] : array(),
+            'payload' => $payload,
+        );
+    }
+    return rest_ensure_response(array('ok' => true, 'feed_id' => $feed_id, 'total' => count($properties), 'properties' => $properties));
+}
+
+function captacion_app_rest_update_pending_property(WP_REST_Request $request) {
+    $feed_id = sanitize_text_field($request->get_param('feed_id'));
+    $record_key = sanitize_text_field($request->get_param('record_key'));
+    $batch = captacion_app_get_import_batch($feed_id);
+    if (!$batch || !empty($batch['deleted_at'])) return new WP_Error('captacion_feed_not_found', 'Feed no encontrado.', array('status' => 404));
+    if (!captacion_app_user_can_manage_import_batch($batch)) return new WP_Error('captacion_forbidden', 'No tienes permiso.', array('status' => 403));
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    $row = $wpdb->get_row($wpdb->prepare(
+        "SELECT id, payload, status FROM {$table} WHERE record_key = %s AND import_batch_id = %s AND record_type = 'property' AND deleted_at IS NULL",
+        $record_key, $feed_id
+    ), ARRAY_A);
+    if (!$row) return new WP_Error('captacion_property_not_found', 'Propiedad no encontrada.', array('status' => 404));
+    $payload = json_decode($row['payload'] ?: '{}', true);
+    $field = sanitize_key($request->get_param('field'));
+    $value = sanitize_text_field($request->get_param('value'));
+    if (!$field) return new WP_Error('captacion_field_required', 'Indica el campo a actualizar.', array('status' => 400));
+    if ($field === '_publish') {
+        $payload['publication_status'] = 'active';
+        $payload['status'] = 'active';
+        $wpdb->update($table, array('payload' => wp_json_encode($payload), 'status' => 'active', 'updated_at' => current_time('mysql')), array('id' => absint($row['id'])));
+        return rest_ensure_response(array('ok' => true, 'record_key' => $record_key, 'status' => 'active', 'missing_fields' => $payload['missing_fields'] ?? array()));
+    }
+    $field_map = array(
+        'title' => 'title',
+        'type' => 'property_type',
+        'operation' => 'operation',
+        'price' => 'price',
+        'currency' => 'currency',
+        'location' => null,
+        'description' => 'description',
+        'owner' => null,
+        'rooms' => 'rooms',
+        'bathrooms' => 'bathrooms',
+        'surface' => 'surface',
+    );
+    if ($field === 'location') {
+        $parts = array_map('trim', explode(',', $value));
+        $payload['province'] = $parts[0] ?? '';
+        $payload['municipality'] = $parts[1] ?? $parts[0] ?? '';
+    } elseif ($field === 'owner') {
+        $payload['owner_name'] = $value;
+        $payload['contact_email'] = $value;
+    } elseif (isset($field_map[$field])) {
+        $payload[$field_map[$field]] = $value;
+    }
+    $missing = captacion_app_property_marketplace_missing_fields($payload);
+    $payload['missing_fields'] = $missing;
+    $payload['review_alerts'] = $missing;
+    $current_status = $row['status'] ?? 'pending_review';
+    $new_status = ($current_status === 'active') ? 'active' : (empty($missing) ? 'active' : 'pending_review');
+    $wpdb->update($table, array('payload' => wp_json_encode($payload), 'status' => $new_status, 'updated_at' => current_time('mysql')), array('id' => absint($row['id'])));
+    return rest_ensure_response(array('ok' => true, 'record_key' => $record_key, 'status' => $new_status, 'missing_fields' => $missing));
+}
+
+function captacion_app_rest_publish_all_pending(WP_REST_Request $request) {
+    $feed_id = sanitize_text_field($request->get_param('feed_id'));
+    $body = $request->get_json_params();
+    $keys = is_array($body['keys'] ?? null) ? array_map('sanitize_text_field', $body['keys']) : null;
+
+    $batch = captacion_app_get_import_batch($feed_id);
+    if (!$batch || !empty($batch['deleted_at'])) return new WP_Error('captacion_feed_not_found', 'Feed no encontrado.', array('status' => 404));
+    if (!captacion_app_user_can_manage_import_batch($batch)) return new WP_Error('captacion_forbidden', 'No tienes permiso.', array('status' => 403));
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+
+    if ($keys !== null) {
+        if (empty($keys)) {
+            return rest_ensure_response(array('ok' => true, 'feed_id' => $feed_id, 'published_properties' => 0));
+        }
+        $placeholders = implode(',', array_fill(0, count($keys), '%s'));
+        $sql = $wpdb->prepare(
+            "SELECT id, payload FROM {$table} WHERE import_batch_id = %s AND record_type = 'property' AND status = 'pending_review' AND record_key IN ($placeholders) AND deleted_at IS NULL",
+            array_merge(array($feed_id), $keys)
+        );
+    } else {
+        $sql = $wpdb->prepare(
+            "SELECT id, payload FROM {$table} WHERE import_batch_id = %s AND record_type = 'property' AND status = 'pending_review' AND deleted_at IS NULL",
+            $feed_id
+        );
+    }
+
+    $rows = $wpdb->get_results($sql, ARRAY_A);
+    $updated = 0;
+    $requested = is_array($keys) ? count($keys) : count($rows);
+    foreach ($rows as $row) {
+        $payload = json_decode($row['payload'] ?: '{}', true);
+        $payload['publication_status'] = 'active';
+        $payload['status'] = 'active';
+        $wpdb->update($table, array('payload' => wp_json_encode($payload), 'status' => 'active', 'updated_at' => current_time('mysql')), array('id' => absint($row['id'])));
+        $updated++;
+    }
+    return rest_ensure_response(array('ok' => true, 'feed_id' => $feed_id, 'requested_properties' => $requested, 'published_properties' => $updated, 'not_found_properties' => max(0, $requested - $updated)));
 }
 
 function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
@@ -2328,11 +2773,12 @@ function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
     $batches_table = captacion_app_import_batches_table_name();
     $records_table = captacion_app_records_table_name();
     $user_id = get_current_user_id();
+    captacion_app_complete_pending_feed_deletions(current_user_can('manage_options') ? 0 : $user_id);
     if (current_user_can('manage_options')) {
-        $rows = $wpdb->get_results("SELECT * FROM {$batches_table} WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 100", ARRAY_A);
+        $rows = $wpdb->get_results("SELECT * FROM {$batches_table} WHERE deleted_at IS NULL AND (status IS NULL OR status != 'deleted') ORDER BY created_at DESC LIMIT 100", ARRAY_A);
     } else {
         $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$batches_table} WHERE owner_user_id = %d AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 100",
+            "SELECT * FROM {$batches_table} WHERE owner_user_id = %d AND deleted_at IS NULL AND (status IS NULL OR status != 'deleted') ORDER BY created_at DESC LIMIT 100",
             $user_id
         ), ARRAY_A);
     }
@@ -2345,7 +2791,13 @@ function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
         $row['needs_count'] = 0;
         $row['active_properties_count'] = 0;
         $row['pending_review_properties_count'] = 0;
+        $row['pending_blockers_count'] = 0;
         $row['report'] = json_decode($row['summary_json'] ?: '{}', true);
+        if (($row['status'] ?? '') === 'pending_deletion') {
+            $blockers = captacion_app_get_import_batch_pending_blockers($row['import_batch_id']);
+            $row['pending_blockers_count'] = absint($blockers['count'] ?? 0);
+            $row['pending_blockers'] = $blockers['items'] ?? array();
+        }
         foreach ($counts as $count_row) {
             if ($count_row['record_type'] === 'property') $row['properties_count'] = absint($count_row['total']);
             if ($count_row['record_type'] === 'need') $row['needs_count'] = absint($count_row['total']);
@@ -2366,6 +2818,9 @@ function captacion_app_rest_delete_my_data(WP_REST_Request $request) {
     $user_id = get_current_user_id();
     if (!$user_id) {
         return new WP_Error('captacion_auth', 'Debes iniciar sesión.', array('status' => 401));
+    }
+    if (!current_user_can('manage_options') && !captacion_app_is_saas_admin($user_id)) {
+        return new WP_Error('captacion_forbidden', 'Esta acción solo está disponible para administradores.', array('status' => 403));
     }
     $confirm = sanitize_text_field($request->get_param('confirm') ?? '');
     if ($confirm !== 'CONFIRMAR') {
@@ -2498,6 +2953,38 @@ function captacion_app_register_records_routes() {
     register_rest_route('captacion/v1', '/xml-feeds/(?P<import_batch_id>[a-zA-Z0-9_-]+)/sync', array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'captacion_app_rest_xml_feed_sync',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/xml-feeds', array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => 'captacion_app_rest_list_import_batches',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/xml-feeds/(?P<feed_id>[a-zA-Z0-9_-]+)', array(
+        array(
+            'methods' => WP_REST_Server::DELETABLE,
+            'callback' => 'captacion_app_rest_delete_import_batch',
+            'permission_callback' => 'captacion_app_rest_private_permission',
+        ),
+        array(
+            'methods' => WP_REST_Server::EDITABLE,
+            'callback' => 'captacion_app_rest_update_import_batch',
+            'permission_callback' => 'captacion_app_rest_private_permission',
+        ),
+    ));
+    register_rest_route('captacion/v1', '/xml-feeds/(?P<feed_id>[a-zA-Z0-9_-]+)/pending', array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => 'captacion_app_rest_feed_pending_properties',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/xml-feeds/(?P<feed_id>[a-zA-Z0-9_-]+)/properties/(?P<record_key>[^/]+)', array(
+        'methods' => WP_REST_Server::EDITABLE,
+        'callback' => 'captacion_app_rest_update_pending_property',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/xml-feeds/(?P<feed_id>[a-zA-Z0-9_-]+)/publish-all', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_rest_publish_all_pending',
         'permission_callback' => 'captacion_app_rest_private_permission',
     ));
     register_rest_route('captacion/v1', '/import-batches', array(
@@ -3110,26 +3597,26 @@ HTML,
 HTML,
         'aviso-legal' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Aviso legal Captacion.app</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El aviso legal Captacion.app recoge la informacion provisional sobre titularidad, condiciones de uso, responsabilidades y datos pendientes de validacion antes del lanzamiento comercial. <strong>TODO LEGAL — sustituir antes de produccion.</strong> Titular provisional de staging: EMPRESA PENDIENTE DE DEFINIR, S.L.; NIF/CIF B00000000; domicilio social pendiente de completar; privacidad@captacion.app; contacto@captacion.app.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El aviso legal Captacion.app recoge informacion sobre titularidad, condiciones de uso, responsabilidades y canales de contacto aplicables a la plataforma profesional B2B. La informacion societaria completa se facilitara en los documentos contractuales o canales oficiales correspondientes.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Los flujos, formularios y contenidos deben alinearse con la operativa final, las condiciones de uso y la politica de privacidad revisada por asesoria juridica.</p><!-- /wp:paragraph -->
-<!-- wp:heading {"level":3} --><h3>Pendientes antes del lanzamiento</h3><!-- /wp:heading -->
-<!-- wp:list --><ul><li>Insertar datos mercantiles y de contacto del titular real.</li><li>Revisar condiciones de uso, propiedad intelectual y limitaciones de responsabilidad.</li><li>Alinear textos con la operativa final y con la politica de privacidad definitiva.</li></ul><!-- /wp:list -->
+<!-- wp:heading {"level":3} --><h3>Informacion operativa</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li>Mantener actualizados los datos oficiales del titular en los canales contractuales y documentos legales aplicables.</li><li>Revisar condiciones de uso, propiedad intelectual y limitaciones de responsabilidad.</li><li>Alinear textos con la operativa vigente y con la politica de privacidad publicada.</li></ul><!-- /wp:list -->
 HTML,
         'privacidad' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Politica de privacidad Captacion.app</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>La politica de privacidad Captacion.app debe explicar como se tratan los datos de profesionales, usuarios, leads y contrapartes dentro de la plataforma. <strong>TODO LEGAL — sustituir antes de produccion.</strong> Responsable provisional de staging: EMPRESA PENDIENTE DE DEFINIR, S.L.; NIF/CIF B00000000; domicilio social pendiente de completar; privacidad@captacion.app. DPO no designado salvo confirmacion.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>La politica de privacidad Captacion.app explica como se tratan los datos de profesionales, usuarios, leads y contrapartes dentro de la plataforma. Las consultas de privacidad se atienden mediante los canales oficiales publicados por Captacion.app.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Captacion.app trabaja con informacion comercial sensible y, potencialmente, con datos personales de profesionales, leads y contrapartes. Por eso la politica final debe definir con precision finalidades, bases juridicas, plazos de conservacion, destinatarios y derechos de los interesados.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Se recomienda limitar la captacion de datos al minimo imprescindible y evitar recoger informacion real de terceros hasta que el flujo de cumplimiento, seguridad y encargados del tratamiento este cerrado.</p><!-- /wp:paragraph -->
-<!-- wp:heading {"level":3} --><h3>Recomendaciones para esta fase</h3><!-- /wp:heading -->
-<!-- wp:list --><ul><li>Usar formularios solo con datos de prueba o leads controlados.</li><li>Revisar textos de consentimiento y finalidades antes de campañas reales.</li><li>Definir politica de encargados, copias de seguridad y control de accesos.</li></ul><!-- /wp:list -->
+<!-- wp:heading {"level":3} --><h3>Recomendaciones operativas</h3><!-- /wp:heading -->
+<!-- wp:list --><ul><li>Usar formularios solo con datos adecuados, minimizados y autorizados.</li><li>Revisar textos de consentimiento y finalidades antes de activar nuevas campanas.</li><li>Mantener documentados encargados, copias de seguridad y control de accesos.</li></ul><!-- /wp:list -->
 HTML,
         'cookies' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Politica de cookies Captacion.app</h2><!-- /wp:heading -->
 <!-- wp:paragraph --><p>La politica de cookies Captacion.app se apoya en Complianz como fuente principal de consentimiento, bloqueo preventivo, inventario y declaracion de cookies. Las tecnologias no necesarias deben permanecer desactivadas hasta obtener consentimiento valido.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Necesarias: activas para funcionamiento, sesion y seguridad.</li><li>Preferencias: sujetas a la clasificacion final de Complianz.</li><li>Estadisticas: desactivadas hasta consentimiento.</li><li>Marketing: desactivado hasta consentimiento.</li></ul><!-- /wp:list -->
-<!-- wp:paragraph --><p>El entorno de preproduccion utiliza localStorage para sesion demo, tema y datos operativos temporales. No se utiliza como consentimiento legal. El mapa usa Leaflet y teselas de OpenStreetMap como servicio tecnico solicitado; debe figurar en el inventario y revisarse antes de produccion.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El sitio puede utilizar almacenamiento local para sesion, tema y datos operativos temporales. No se utiliza como consentimiento legal. El mapa usa Leaflet y teselas de OpenStreetMap como servicio tecnico solicitado y debe figurar en el inventario de tecnologias cuando corresponda.</p><!-- /wp:paragraph -->
 <!-- wp:shortcode -->[cmplz-document type="cookie-statement" region="eu"]<!-- /wp:shortcode -->
-<!-- wp:paragraph --><p><strong>TODO LEGAL — sustituir antes de produccion.</strong> Completar titular, NIF/CIF, domicilio, emails, dominio final e inventario definitivo mediante el wizard y escaner de Complianz.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p><strong>Informacion legal.</strong> El inventario de cookies y tecnologias similares debe mantenerse actualizado mediante el wizard y escaner de Complianz, junto con los datos oficiales del titular cuando esten disponibles en los documentos contractuales o canales oficiales aplicables.</p><!-- /wp:paragraph -->
 HTML,
         'normas-publicacion' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Normas de publicacion inmobiliaria</h2><!-- /wp:heading -->
@@ -3332,6 +3819,138 @@ function captacion_app_create_editable_pages() {
     exit;
 }
 add_action('admin_post_captacion_app_create_pages', 'captacion_app_create_editable_pages');
+
+function captacion_app_prepare_production_cleanup() {
+    if (!current_user_can('manage_options') || !check_admin_referer('captacion_app_prepare_production')) {
+        wp_die('No autorizado');
+    }
+
+    captacion_app_maybe_install_records_table();
+    captacion_app_maybe_install_import_batches_table();
+
+    global $wpdb;
+    $now = current_time('mysql');
+    $records_table = captacion_app_records_table_name();
+    $batches_table = captacion_app_import_batches_table_name();
+
+    $records_updated = $wpdb->query($wpdb->prepare(
+        "UPDATE {$records_table}
+         SET deleted_at = %s, status = CASE WHEN status = '' THEN 'deleted' ELSE status END
+         WHERE deleted_at IS NULL
+           AND (is_demo = 1 OR privacy_scope = 'global_demo' OR data_origin IN ('seed_demo','synthetic_demo','demo'))",
+        $now
+    ));
+
+    $batches_updated = $wpdb->query($wpdb->prepare(
+        "UPDATE {$batches_table}
+         SET deleted_at = %s, status = 'deleted', updated_at = %s
+         WHERE deleted_at IS NULL
+           AND (is_demo = 1 OR privacy_scope = 'global_demo' OR data_origin IN ('seed_demo','synthetic_demo','demo'))",
+        $now,
+        $now
+    ));
+
+    wp_safe_redirect(add_query_arg(array(
+        'page' => 'captacion-app-settings',
+        'captacion_cleanup_records' => max(0, absint($records_updated)),
+        'captacion_cleanup_batches' => max(0, absint($batches_updated)),
+    ), admin_url('admin.php')));
+    exit;
+}
+add_action('admin_post_captacion_app_prepare_production', 'captacion_app_prepare_production_cleanup');
+
+function captacion_app_reset_day_one() {
+    if (!current_user_can('manage_options') || !check_admin_referer('captacion_app_reset_day_one')) {
+        wp_die('No autorizado');
+    }
+
+    $confirm = sanitize_text_field(wp_unslash($_POST['captacion_reset_confirm'] ?? ''));
+    $password = (string) wp_unslash($_POST['captacion_reset_admin_password'] ?? '');
+    $admin_email = sanitize_email(captacion_app_setting('saas_admin_email')) ?: 'inmobia360@gmail.com';
+
+    if ($confirm !== 'RESET') {
+        wp_die('Debes escribir RESET para ejecutar esta accion.');
+    }
+    if (strlen($password) < 8) {
+        wp_die('La contrasena del administrador SaaS debe tener al menos 8 caracteres.');
+    }
+
+    captacion_app_maybe_install_mail_events_table();
+    captacion_app_maybe_install_records_table();
+    captacion_app_maybe_install_import_batches_table();
+    captacion_app_maybe_install_resource_events_table();
+    captacion_app_maybe_install_access_log_table();
+
+    global $wpdb;
+    $tables = array(
+        captacion_app_records_table_name(),
+        captacion_app_import_batches_table_name(),
+        captacion_app_access_log_table_name(),
+        captacion_app_events_table_name(),
+        captacion_app_resource_events_table_name(),
+    );
+
+    $tables_reset = 0;
+    foreach ($tables as $table) {
+        $exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
+        if ($exists === $table) {
+            $wpdb->query("TRUNCATE TABLE {$table}");
+            $tables_reset++;
+        }
+    }
+
+    require_once ABSPATH . 'wp-admin/includes/user.php';
+    $current_user_id = get_current_user_id();
+    $admin_user = get_user_by('email', $admin_email);
+    $admin_user_id = $admin_user ? absint($admin_user->ID) : 0;
+    $saas_user_ids = $wpdb->get_col("SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE 'captacion\_%'");
+    $users_deleted = 0;
+    foreach ($saas_user_ids as $user_id) {
+        $user_id = absint($user_id);
+        if (!$user_id || $user_id === $current_user_id || ($admin_user_id && $user_id === $admin_user_id)) continue;
+        if (wp_delete_user($user_id, $current_user_id)) $users_deleted++;
+    }
+
+    $wpdb->query("DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE 'captacion\_%'");
+
+    if ($admin_user_id) {
+        wp_update_user(array('ID' => $admin_user_id, 'user_email' => $admin_email, 'display_name' => 'Administrador SaaS'));
+        wp_set_password($password, $admin_user_id);
+    } else {
+        $login = sanitize_user(current(explode('@', $admin_email)), true) ?: 'inmobia360';
+        if (username_exists($login)) $login = 'inmobia360_saas';
+        $admin_user_id = wp_insert_user(array(
+            'user_login' => $login,
+            'user_email' => $admin_email,
+            'user_pass' => $password,
+            'display_name' => 'Administrador SaaS',
+            'role' => 'subscriber',
+        ));
+        if (is_wp_error($admin_user_id)) {
+            wp_die($admin_user_id->get_error_message());
+        }
+        $admin_user_id = absint($admin_user_id);
+    }
+
+    update_user_meta($admin_user_id, 'captacion_email_verified', '1');
+    update_user_meta($admin_user_id, 'captacion_plan_type', 'premium');
+    update_user_meta($admin_user_id, 'captacion_subscription_status', 'active');
+    update_user_meta($admin_user_id, 'captacion_included_marketplace_accesses', 999999);
+    update_user_meta($admin_user_id, 'captacion_used_marketplace_accesses', 0);
+    update_user_meta($admin_user_id, 'captacion_extra_marketplace_accesses', 0);
+    update_user_meta($admin_user_id, 'captacion_commercial_consent', '1');
+    update_user_meta($admin_user_id, 'captacion_last_reset_at', current_time('mysql'));
+
+    wp_safe_redirect(add_query_arg(array(
+        'page' => 'captacion-app-settings',
+        'captacion_reset_day_one' => 1,
+        'captacion_reset_tables' => $tables_reset,
+        'captacion_reset_users' => $users_deleted,
+        'captacion_reset_admin' => $admin_email,
+    ), admin_url('admin.php')));
+    exit;
+}
+add_action('admin_post_captacion_app_reset_day_one', 'captacion_app_reset_day_one');
 
 function captacion_app_is_configured_stripe_link($url) {
     return is_string($url)
