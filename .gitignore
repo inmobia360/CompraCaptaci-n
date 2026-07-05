@@ -57,8 +57,10 @@ desktop.ini
 # Local secrets and WordPress runtime config
 .env
 .env.*
+!.env.example
 wp-config.php
 wp-config-local.php
+
 *.pem
 *.key
 *.p12
