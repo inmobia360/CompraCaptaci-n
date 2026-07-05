@@ -4409,7 +4409,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       container.innerHTML = `
         <div class="overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-xl">
           <div id="home-explainer-video-slot" class="aspect-video overflow-hidden bg-slate-100">
-            <video class="h-full w-full object-cover" autoplay muted loop playsinline controls preload="metadata" aria-label="Video de presentación de Compra Captación">
+            <video class="h-full w-full object-cover" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="<?php echo esc_url($captacion_media['video_poster']); ?>" aria-label="Video de presentación de Compra Captación">
               <source src="<?php echo esc_url($captacion_media['video_mp4']); ?>" type="video/mp4">
               Tu navegador no puede reproducir este video.
             </video>
@@ -4460,7 +4460,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         <div class="space-y-4 lg:space-y-5">
           <div class="overflow-hidden rounded-[24px] border border-slate-200/60 bg-white shadow-xl">
             <div id="home-explainer-video-slot" class="aspect-video overflow-hidden bg-slate-100">
-              <video class="h-full w-full object-cover object-top" autoplay muted loop playsinline controls preload="metadata" aria-label="Video de presentación de Compra Captación">
+              <video class="h-full w-full object-cover object-top" autoplay muted loop playsinline webkit-playsinline preload="auto" poster="<?php echo esc_url($captacion_media['video_poster']); ?>" aria-label="Video de presentación de Compra Captación">
                 <source src="<?php echo esc_url($captacion_media['video_mp4']); ?>" type="video/mp4">
                 Tu navegador no puede reproducir este video.
               </video>
