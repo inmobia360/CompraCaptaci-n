@@ -1008,10 +1008,10 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
                 Red privada B2B para profesionales inmobiliarios
               </div>
               <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl font-black text-navy leading-[1.04] tracking-tight">
-                Captaciones inmobiliarias con <span class="text-green">demanda activa</span>
+                Compra, vende y comparte captaciones entre profesionales
               </h1>
               <p class="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
-                Publica oportunidades, encuentra colaboradores y accede a una red profesional diseñada para generar más negocio inmobiliario.
+                Publica oportunidades, cruza demandas activas y colabora con otros profesionales sin exponer datos sensibles desde el primer momento.
               </p>
 
               <!-- Dos conceptos clave -->

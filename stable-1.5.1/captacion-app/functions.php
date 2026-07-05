@@ -9,7 +9,7 @@ function captacion_app_defaults() {
         'site_title' => 'Captaciones inmobiliarias | Compra, vende y colabora entre profesionales',
         'meta_description' => 'Compra Captación es un marketplace B2B de captaciones inmobiliarias para profesionales. Publica oportunidades, busca demandas activas y colabora con acceso protegido.',
         'hero_kicker' => 'Red privada B2B para profesionales inmobiliarios',
-        'hero_title' => 'Portal de <span class="text-blue">captaciones inmobiliarias</span> para profesionales',
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
         'hero_description' => 'Compra Captación ayuda a agentes, agencias e inversores a publicar captaciones, cruzar demandas activas y colaborar con acceso protegido, trazabilidad comercial y mejor contexto de operacion.',
         'primary_cta' => 'Entender el recorrido',
         'secondary_cta' => 'Ver el producto en accion',
@@ -34,36 +34,36 @@ function captacion_app_defaults() {
         'ai_admin_model' => '',
         'saas_admin_email' => 'inmobia360@gmail.com',
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_settings() {
     static $settings_cache = null;
     if ($settings_cache !== null) {
         return $settings_cache;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $saved = get_option('captacion_app_settings', array());
     $defaults = captacion_app_defaults();
-    $settings = wp_parse_args(is_array($saved) ? $saved : array(), $defaults);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     foreach ($defaults as $key => $default) {
         if (strpos($key, 'stripe_') === 0 && $default && strpos((string) $default, 'REEMPLAZA_') === false && (!$settings[$key] || strpos((string) $settings[$key], 'REEMPLAZA_') !== false)) {
             $settings[$key] = $default;
         }
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $settings_cache = $settings;
     return $settings_cache;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_setting($key) {
     $settings = captacion_app_settings();
     return isset($settings[$key]) ? $settings[$key] : '';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_sanitize_settings($input) {
     $defaults = captacion_app_defaults();
-    $output = array();
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     foreach ($defaults as $key => $default) {
         $value = isset($input[$key]) ? wp_unslash($input[$key]) : $default;
@@ -86,10 +86,10 @@ function captacion_app_sanitize_settings($input) {
         } else {
             $output[$key] = sanitize_text_field($value);
         }
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return $output;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_admin_menu() {
     add_menu_page(
@@ -110,7 +110,7 @@ function captacion_app_admin_menu() {
         'captacion_app_render_resources_admin_page'
     );
 }
-add_action('admin_menu', 'captacion_app_admin_menu');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_settings() {
     register_setting('captacion_app_settings_group', 'captacion_app_settings', array(
@@ -118,7 +118,7 @@ function captacion_app_register_settings() {
         'default' => captacion_app_defaults(),
     ));
 }
-add_action('admin_init', 'captacion_app_register_settings');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_sanitize_resource_settings($input) {
     $output = array();
@@ -135,7 +135,7 @@ function captacion_app_sanitize_resource_settings($input) {
         );
     }
     return $output;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_resource_settings() {
     register_setting('captacion_app_resources_group', 'captacion_app_resource_settings', array(
@@ -143,7 +143,7 @@ function captacion_app_register_resource_settings() {
         'default' => array(),
     ));
 }
-add_action('admin_init', 'captacion_app_register_resource_settings');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_render_resources_admin_page() {
     if (!current_user_can('manage_options')) return;
@@ -186,12 +186,12 @@ function captacion_app_render_resources_admin_page() {
         </table>
     </div>
     <?php
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_render_settings_page() {
     if (!current_user_can('manage_options')) {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $settings = captacion_app_settings();
     ?>
@@ -222,7 +222,7 @@ function captacion_app_render_settings_page() {
                     Administrador SaaS preparado: <?php echo esc_html(sanitize_email($_GET['captacion_reset_admin'] ?? '')); ?>.
                 </p>
             </div>
-        <?php endif; ?>
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px;">
             <h2>Restaurar paginas editables</h2>
@@ -232,7 +232,7 @@ function captacion_app_render_settings_page() {
                 <input type="hidden" name="action" value="captacion_app_create_pages">
                 <?php submit_button('Restaurar paginas base', 'secondary', 'submit', false); ?>
             </form>
-        </div>
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px;">
             <h2>Preparar SaaS para produccion</h2>
@@ -242,7 +242,7 @@ function captacion_app_render_settings_page() {
                 <input type="hidden" name="action" value="captacion_app_prepare_production">
                 <?php submit_button('Limpiar datos demo del SaaS', 'delete', 'submit', false); ?>
             </form>
-        </div>
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px; border-left:4px solid #b32d2e;">
             <h2>Reset SaaS dia 1</h2>
@@ -262,7 +262,7 @@ function captacion_app_render_settings_page() {
                 </table>
                 <?php submit_button('Reset SaaS dia 1', 'delete', 'submit', false); ?>
             </form>
-        </div>
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         <form method="post" action="options.php">
             <?php settings_fields('captacion_app_settings_group'); ?>
@@ -446,22 +446,22 @@ function captacion_app_render_settings_page() {
                         <label><input type="checkbox" name="captacion_app_settings[mailchimp_double_optin]" value="1" <?php checked($settings['mailchimp_double_optin'], '1'); ?>> Enviar confirmacion antes de suscribir</label>
                         <p class="description">Desmarcado: el contacto entra directamente como suscrito. Marcado: queda pendiente de confirmar.</p>
                     </td>
-                </tr>
+                'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
             </table>
             <?php submit_button('Guardar cambios'); ?>
         </form>
     </div>
     <?php
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_setup() {
     add_theme_support('title-tag');
 }
-add_action('after_setup_theme', 'captacion_app_setup');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_media_url($relative_path) {
-    static $cache = array();
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $relative_path = ltrim((string) $relative_path, '/');
     if ($relative_path === '') {
@@ -469,14 +469,14 @@ function captacion_app_media_url($relative_path) {
     }
     if (isset($cache[$relative_path])) {
         return $cache[$relative_path];
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $fallback_url = get_template_directory_uri() . '/' . $relative_path;
     $filename = basename($relative_path);
     if ($filename === '') {
         $cache[$relative_path] = $fallback_url;
         return $fallback_url;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $attachments = get_posts(array(
         'post_type' => 'attachment',
@@ -490,7 +490,7 @@ function captacion_app_media_url($relative_path) {
                 'compare' => 'LIKE',
             ),
         ),
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     foreach ($attachments as $attachment_id) {
         $attached_file = (string) get_post_meta($attachment_id, '_wp_attached_file', true);
@@ -502,18 +502,18 @@ function captacion_app_media_url($relative_path) {
             $cache[$relative_path] = $url;
             return $url;
         }
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $cache[$relative_path] = $fallback_url;
     return $fallback_url;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_output_theme_favicon() {
     $favicon_uri = captacion_app_media_url('media/favicon-compra-captacion.png');
     echo '<link rel="icon" type="image/png" sizes="512x512" href="' . esc_url($favicon_uri) . '">' . "\n";
     echo '<link rel="apple-touch-icon" href="' . esc_url($favicon_uri) . '">' . "\n";
 }
-add_action('wp_head', 'captacion_app_output_theme_favicon', 1);
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_enqueue_assets() {
     wp_enqueue_style(
@@ -523,8 +523,8 @@ function captacion_app_enqueue_assets() {
         '1.5.3'
     );
 }
-add_action('wp_enqueue_scripts', 'captacion_app_enqueue_assets');
-
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
+       'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_mailchimp_datacenter($api_key) {
     if (!is_string($api_key) || strpos($api_key, '-') === false) {
@@ -532,7 +532,7 @@ function captacion_app_mailchimp_datacenter($api_key) {
     }
     $parts = explode('-', $api_key);
     return sanitize_key(end($parts));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_mailchimp_allowed_tags() {
     return array(
@@ -546,8 +546,8 @@ function captacion_app_mailchimp_allowed_tags() {
         'interes-herramientas-profesionales',
         'reporte-denuncia',
     );
-}
-
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
+       'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_mailchimp_event_category($source, $tags = array()) {
     $source = sanitize_key((string) $source);
@@ -568,12 +568,12 @@ function captacion_app_mailchimp_event_category($source, $tags = array()) {
         return 'ofrecer_captacion';
     }
     return 'general';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_events_table_name() {
     global $wpdb;
     return $wpdb->prefix . 'captacion_mail_events';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_install_mail_events_table() {
     global $wpdb;
@@ -608,13 +608,13 @@ function captacion_app_maybe_install_mail_events_table() {
         captacion_app_install_mail_events_table();
     }
 }
-add_action('admin_init', 'captacion_app_maybe_install_mail_events_table');
-
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
+       'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_records_table_name() {
     global $wpdb;
     return $wpdb->prefix . 'captacion_app_records';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_install_records_table() {
     global $wpdb;
@@ -660,14 +660,14 @@ function captacion_app_install_records_table() {
     dbDelta($sql);
     update_option('captacion_app_records_table_version', '20260627');
 }
-add_action('after_switch_theme', 'captacion_app_install_records_table');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_maybe_install_records_table() {
     if (get_option('captacion_app_records_table_version') !== '20260627') {
         captacion_app_install_records_table();
     }
 }
-add_action('admin_init', 'captacion_app_maybe_install_records_table');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_migrate_existing_records_ownership() {
     if (get_option('captacion_app_records_data_migration') === '20260627') return;
@@ -678,7 +678,7 @@ function captacion_app_migrate_existing_records_ownership() {
     $wpdb->query("UPDATE {$table} SET privacy_scope = 'private_user' WHERE privacy_scope = ''");
     update_option('captacion_app_records_data_migration', '20260627');
 }
-add_action('admin_init', 'captacion_app_migrate_existing_records_ownership');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_soft_delete_legacy_seed_records() {
     if (get_option('captacion_app_legacy_seed_cleanup') === '20260627-production') return;
@@ -703,12 +703,12 @@ function captacion_app_soft_delete_legacy_seed_records() {
     ));
     update_option('captacion_app_legacy_seed_cleanup', '20260627-production');
 }
-add_action('admin_init', 'captacion_app_soft_delete_legacy_seed_records');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_import_batches_table_name() {
     global $wpdb;
     return $wpdb->prefix . 'captacion_import_batches';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_install_import_batches_table() {
     global $wpdb;
@@ -745,14 +745,14 @@ function captacion_app_install_import_batches_table() {
     dbDelta($sql);
     update_option('captacion_import_batches_table_version', '20260627');
 }
-add_action('after_switch_theme', 'captacion_app_install_import_batches_table');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_maybe_install_import_batches_table() {
     if (get_option('captacion_import_batches_table_version') !== '20260627') {
         captacion_app_install_import_batches_table();
     }
 }
-add_action('admin_init', 'captacion_app_maybe_install_import_batches_table');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_allowed_record_types() {
     return array(
@@ -768,11 +768,11 @@ function captacion_app_allowed_record_types() {
         'task',
         'generated_pdf',
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_generate_import_batch_id() {
     return 'batch_' . bin2hex(random_bytes(12));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_create_import_batch($data) {
     global $wpdb;
@@ -803,7 +803,7 @@ function captacion_app_create_import_batch($data) {
         return new WP_Error('captacion_batch_create_failed', 'No se pudo registrar el XML importado: ' . $wpdb->last_error, array('status' => 500));
     }
     return absint($wpdb->insert_id);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_update_import_batch_status($batch_id, $status, $extra = array()) {
     global $wpdb;
@@ -815,15 +815,15 @@ function captacion_app_update_import_batch_status($batch_id, $status, $extra = a
     if (isset($extra['source_hash'])) $data['source_hash'] = sanitize_text_field($extra['source_hash']);
     if (isset($extra['summary_json'])) $data['summary_json'] = wp_json_encode($extra['summary_json']);
     return $wpdb->update($table, $data, array('import_batch_id' => $batch_id));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_visible_import_batch_statuses() {
     return array('active', 'error');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_hidden_import_batch_statuses() {
     return array('paused', 'pending_deletion', 'deleted');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_is_terminal_workflow_status($status) {
     $status = strtolower(remove_accents(sanitize_text_field((string) $status)));
@@ -833,14 +833,14 @@ function captacion_app_is_terminal_workflow_status($status) {
         if (strpos($status, $needle) !== false) return true;
     }
     return false;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_get_import_batch($batch_id) {
     global $wpdb;
     $table = captacion_app_import_batches_table_name();
     $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$table} WHERE import_batch_id = %s", $batch_id), ARRAY_A);
     return $row;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_get_import_batch_by_source($owner_user_id, $data_origin, $source_file_name) {
     global $wpdb;
@@ -850,14 +850,14 @@ function captacion_app_get_import_batch_by_source($owner_user_id, $data_origin, 
         absint($owner_user_id), sanitize_key($data_origin), sanitize_text_field($source_file_name)
     ), ARRAY_A);
     return $row;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_user_can_manage_import_batch($batch) {
     if (!$batch || !is_array($batch)) return false;
     if (current_user_can('manage_options')) return true;
     $user_id = get_current_user_id();
     return absint($batch['owner_user_id']) === $user_id;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_get_import_batch_pending_blockers($batch_id) {
     global $wpdb;
@@ -888,11 +888,11 @@ function captacion_app_get_import_batch_pending_blockers($batch_id) {
                 if ($value !== '') $property_ids[$value] = true;
             }
         }
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (empty($property_ids)) {
         return array('count' => 0, 'items' => array());
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $blockers = array();
     $candidate_rows = $wpdb->get_results(
@@ -920,10 +920,10 @@ function captacion_app_get_import_batch_pending_blockers($batch_id) {
                 break;
             }
         }
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return array('count' => count($blockers), 'items' => array_slice($blockers, 0, 10));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_hard_delete_import_batch_records($batch_id) {
     global $wpdb;
@@ -942,7 +942,7 @@ function captacion_app_hard_delete_import_batch_records($batch_id) {
         ));
     }
     return $deleted;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_hard_delete_import_batch($batch_id) {
     global $wpdb;
@@ -951,7 +951,7 @@ function captacion_app_hard_delete_import_batch($batch_id) {
         "DELETE FROM {$batches_table} WHERE import_batch_id = %s",
         $batch_id
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_complete_pending_feed_deletions($owner_user_id = 0) {
     global $wpdb;
@@ -980,7 +980,7 @@ function captacion_app_complete_pending_feed_deletions($owner_user_id = 0) {
         $completed[] = $batch_id;
     }
     return $completed;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_resource_catalog_defaults() {
     return array(
@@ -991,13 +991,13 @@ function captacion_app_resource_catalog_defaults() {
         'demand-sheet' => array('resource_id'=>'demand-sheet','title'=>'Ficha de demanda activa','description'=>'Documento para registrar una búsqueda profesional y sus criterios.','static_pdf_attachment_id'=>0,'static_pdf_url'=>'https://lightblue-salamander-627943.hostingersite.com/wp-content/uploads/2026/06/05_Ficha_demanda_activa.pdf','docx_template_attachment_id'=>0,'docx_template_url'=>'','plan_access'=>'basic','editable_fields_schema'=>array('professional_name','company','email','phone','date','reference','notes')),
         'safe-collaboration-guide' => array('resource_id'=>'safe-collaboration-guide','title'=>'Guía de colaboración segura','description'=>'Guía práctica para compartir información y avanzar operaciones con trazabilidad.','static_pdf_attachment_id'=>0,'static_pdf_url'=>'https://lightblue-salamander-627943.hostingersite.com/wp-content/uploads/2026/06/06_Guia_colaboracion_segura.pdf','docx_template_attachment_id'=>0,'docx_template_url'=>'','plan_access'=>'basic','editable_fields_schema'=>array('professional_name','company','email','phone','date','reference','notes')),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_resource_catalog() {
     static $catalog_cache = null;
     if ($catalog_cache !== null) {
         return $catalog_cache;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $catalog = captacion_app_resource_catalog_defaults();
     $saved = get_option('captacion_app_resource_settings', array());
@@ -1025,7 +1025,7 @@ function captacion_app_resource_catalog() {
     unset($resource);
     $catalog_cache = $catalog;
     return $catalog_cache;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_resource_local_pdf_path($resource_id) {
     $map = array(
@@ -1035,7 +1035,7 @@ function captacion_app_resource_local_pdf_path($resource_id) {
     if (empty($map[$resource_id])) return '';
     $path = trailingslashit(get_template_directory()) . $map[$resource_id];
     return file_exists($path) ? $path : '';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_resource_template_pdf_url($resource_id) {
     $resource_id = sanitize_key($resource_id);
@@ -1043,14 +1043,14 @@ function captacion_app_resource_template_pdf_url($resource_id) {
         admin_url('admin-post.php?action=captacion_resource_template_pdf_download&resource=' . rawurlencode($resource_id)),
         'captacion_resource_template_' . $resource_id
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_download_resource_template_pdf() {
     $resource_id = sanitize_key($_GET['resource'] ?? '');
     if (!$resource_id) wp_die('Recurso no encontrado.', 'Compra Captación', array('response' => 404));
     check_admin_referer('captacion_resource_template_' . $resource_id);
     $resource = captacion_app_resource_access_check($resource_id, false);
-    if (is_wp_error($resource)) wp_die(esc_html($resource->get_error_message()), 'Compra Captación', array('response' => $resource->get_error_data()['status'] ?? 403));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $local_path = captacion_app_resource_local_pdf_path($resource_id);
     if ($local_path) {
@@ -1071,12 +1071,12 @@ function captacion_app_download_resource_template_pdf() {
     echo $pdf;
     exit;
 }
-add_action('admin_post_captacion_resource_template_pdf_download', 'captacion_app_download_resource_template_pdf');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_resource_events_table_name() {
     global $wpdb;
     return $wpdb->prefix . 'captacion_resource_events';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_install_resource_events_table() {
     global $wpdb;
@@ -1108,7 +1108,7 @@ add_action('after_switch_theme', 'captacion_app_install_resource_events_table');
 function captacion_app_maybe_install_resource_events_table() {
     if (get_option('captacion_resource_events_table_version') !== '20260620') captacion_app_install_resource_events_table();
 }
-add_action('admin_init', 'captacion_app_maybe_install_resource_events_table');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_log_resource_event($resource, $action_type, $data = array()) {
     global $wpdb;
@@ -1129,7 +1129,7 @@ function captacion_app_log_resource_event($resource, $action_type, $data = array
         'user_agent'=>substr(sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255),
         'created_at'=>current_time('mysql'),
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 class Captacion_PDF_Generator {
     public static function generate($title, $fields) {
@@ -1178,7 +1178,7 @@ class Captacion_PDF_Generator {
         $pdf .= "trailer\n<< /Size " . (count($objects) + 1) . " /Root 1 0 R >>\nstartxref\n{$xref}\n%%EOF";
         return $pdf;
     }
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_resource_access_check($resource_id, $require_create = false) {
     $catalog = captacion_app_resource_catalog();
@@ -1190,7 +1190,7 @@ function captacion_app_resource_access_check($resource_id, $require_create = fal
     $minimum_plan = $catalog[$resource_id]['plan_access'] ?? 'basic';
     if (($levels[$state['plan_type']] ?? 0) < ($levels[$minimum_plan] ?? 0)) return new WP_Error('captacion_resource_plan', 'Tu plan no incluye este recurso.', array('status'=>403));
     return $catalog[$resource_id];
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_generate_resource_pdf(WP_REST_Request $request) {
     if (!captacion_app_rest_rate_limit('generate_pdf_' . get_current_user_id(), 10, HOUR_IN_SECONDS)) return new WP_Error('captacion_pdf_rate', 'Limite temporal de generacion alcanzado.', array('status'=>429));
@@ -1223,7 +1223,7 @@ function captacion_app_rest_generate_resource_pdf(WP_REST_Request $request) {
     $preview_url = wp_nonce_url(admin_url('admin-post.php?action=captacion_generated_pdf_download&preview=1&file_id=' . absint($record_id)), 'captacion_generated_pdf_' . absint($record_id));
     captacion_app_log_resource_event($resource, 'generate_pdf', array('generated_file_id'=>$record_id,'generated_file_url'=>$download_url,'form_data'=>$fields));
     return rest_ensure_response(array('ok'=>true,'downloadUrl'=>$download_url,'previewUrl'=>$preview_url));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_render_create_pdf_page() {
     $path = trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
@@ -1241,7 +1241,7 @@ function captacion_app_render_create_pdf_page() {
     $nonce = wp_create_nonce('wp_rest');
     ?><!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?php echo esc_html($resource['title']); ?></title><style>body{font-family:Arial,sans-serif;background:#f1f5f9;color:#10233c;margin:0}.wrap{max-width:760px;margin:40px auto;padding:24px}.panel{background:#fff;border:1px solid #dbe5ef;padding:28px;border-radius:8px}label{display:block;font-size:13px;font-weight:700;margin-top:15px}input,textarea{width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1px solid #cbd5e1;border-radius:7px}button,a.button{display:inline-block;margin-top:18px;padding:12px 18px;border:0;border-radius:7px;background:#1b67d6;color:#fff;text-decoration:none;font-weight:700;cursor:pointer}.secondary{background:#10233c}.note{font-size:12px;color:#64748b;margin-top:18px}.error{color:#b91c1c;font-size:13px}</style></head><body><main class="wrap"><a href="<?php echo esc_url(home_url('/#/recursos')); ?>">Volver a recursos</a><div class="panel"><h1><?php echo esc_html($resource['title']); ?></h1><p><?php echo esc_html($resource['description']); ?></p><form id="pdf-form"><label>Nombre profesional *<input name="professional_name" required value="<?php echo esc_attr($user->display_name); ?>"></label><label>Agencia/empresa opcional<input name="company"></label><label>NIF/CIF opcional<input name="tax_id"></label><label>Email *<input name="email" type="email" required value="<?php echo esc_attr($user->user_email); ?>"></label><label>Teléfono<input name="phone" value="<?php echo esc_attr(get_user_meta($user->ID, 'captacion_phone', true)); ?>"></label><label>Fecha<input name="date" type="date" value="<?php echo esc_attr(current_time('Y-m-d')); ?>"></label><label>Referencia interna<input name="reference"></label><label>Observaciones<textarea name="notes" rows="5"></textarea></label><button type="button" class="secondary" onclick="preview()">Vista previa</button> <button type="submit">Generar PDF</button><div id="result"></div></form><p class="note">Documento orientativo generado por el usuario. Revisar antes de firmar o utilizar.</p></div></main><script>const form=document.getElementById('pdf-form'),result=document.getElementById('result');function preview(){const d=new FormData(form);result.innerHTML='<div class="note"><strong>Vista previa</strong><br>'+[...d.entries()].map(x=>x[0]+': '+String(x[1]).replace(/[<>&]/g,'')).join('<br>')+'</div>'}form.addEventListener('submit',async e=>{e.preventDefault();result.textContent='Generando...';const payload=Object.fromEntries(new FormData(form));payload.resource_id=<?php echo wp_json_encode($resource_id); ?>;try{const r=await fetch(<?php echo wp_json_encode($endpoint); ?>,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-WP-Nonce':<?php echo wp_json_encode($nonce); ?>},body:JSON.stringify(payload)});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'No se pudo generar');result.innerHTML='<a class="button" href="'+d.downloadUrl+'">Descargar PDF</a>'}catch(err){result.innerHTML='<p class="error">'+err.message+'</p>'}});</script></body></html><?php
     exit;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_resource_field_labels() {
     return array(
@@ -1254,11 +1254,11 @@ function captacion_app_resource_field_labels() {
         'reference' => array('label' => 'Referencia interna', 'required' => false, 'type' => 'text', 'placeholder' => 'Ej.: REF-001234'),
         'notes' => array('label' => 'Observaciones o cláusulas adicionales', 'required' => false, 'type' => 'textarea', 'placeholder' => 'Añade condiciones, contexto o notas internas relevantes.'),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_render_create_pdf_page_v2() {
     $path = trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
-    if ($path !== 'recursos/crear-pdf') return;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $resource_id = sanitize_key($_GET['resource'] ?? '');
     $resource = captacion_app_resource_access_check($resource_id, true);
@@ -1266,7 +1266,7 @@ function captacion_app_render_create_pdf_page_v2() {
         if (!is_user_logged_in()) wp_safe_redirect(home_url('/#/inicio'));
         else wp_die(esc_html($resource->get_error_message()), 'Compra Captación', array('response' => $resource->get_error_data()['status'] ?? 403));
         exit;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     captacion_app_log_resource_event($resource, 'open_create_pdf');
     $user = wp_get_current_user();
@@ -1373,7 +1373,7 @@ function captacion_app_render_create_pdf_page_v2() {
     </html><?php
     exit;
 }
-add_action('template_redirect', 'captacion_app_render_create_pdf_page_v2', 1);
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_download_generated_pdf() {
     global $wpdb;
@@ -1395,12 +1395,12 @@ function captacion_app_download_generated_pdf() {
     readfile($path);
     exit;
 }
-add_action('admin_post_captacion_generated_pdf_download', 'captacion_app_download_generated_pdf');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_access_log_table_name() {
     global $wpdb;
     return $wpdb->prefix . 'captacion_marketplace_access_log';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_install_access_log_table() {
     global $wpdb;
@@ -1424,12 +1424,12 @@ function captacion_app_install_access_log_table() {
     dbDelta($sql);
     update_option('captacion_access_log_table_version', '20260620');
 }
-add_action('after_switch_theme', 'captacion_app_install_access_log_table');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_maybe_install_access_log_table() {
     if (get_option('captacion_access_log_table_version') !== '20260620') captacion_app_install_access_log_table();
 }
-add_action('admin_init', 'captacion_app_maybe_install_access_log_table');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_plan_config($plan_type) {
     $plans = array(
@@ -1438,14 +1438,14 @@ function captacion_app_plan_config($plan_type) {
         'premium' => array('included' => 30, 'extra_pack' => 15, 'extra_price' => 5, 'checkout_key' => 'stripe_marketplace_premium_pack_link'),
     );
     return $plans[$plan_type] ?? $plans['basic'];
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_normalize_user_plan($plan_type) {
     $plan_type = sanitize_key((string) $plan_type);
     $legacy = array('initial' => 'basic', 'professional' => 'professional_plus', 'agency' => 'premium');
     $plan_type = $legacy[$plan_type] ?? $plan_type;
     return in_array($plan_type, array('basic', 'professional_plus', 'premium'), true) ? $plan_type : 'basic';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_is_saas_admin($user_id = 0) {
     $user_id = absint($user_id ?: get_current_user_id());
@@ -1454,7 +1454,7 @@ function captacion_app_is_saas_admin($user_id = 0) {
     if (!$user || empty($user->user_email)) return false;
     $admin_email = strtolower(sanitize_email(captacion_app_setting('saas_admin_email')));
     return $admin_email && strtolower((string) $user->user_email) === $admin_email;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ensure_user_access_meta($user_id) {
     $user_id = absint($user_id);
@@ -1479,7 +1479,7 @@ function captacion_app_ensure_user_access_meta($user_id) {
     if (get_user_meta($user_id, 'captacion_extra_marketplace_accesses', true) === '') update_user_meta($user_id, 'captacion_extra_marketplace_accesses', 0);
     if (get_user_meta($user_id, 'captacion_credits_purchased', true) === '') update_user_meta($user_id, 'captacion_credits_purchased', 0);
     if (get_user_meta($user_id, 'captacion_subscription_status', true) === '') update_user_meta($user_id, 'captacion_subscription_status', $plan_type === 'basic' ? 'active' : 'pending');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_get_user_access_state($user_id) {
     $user_id = absint($user_id);
@@ -1523,7 +1523,7 @@ function captacion_app_get_user_access_state($user_id) {
         'last_reset_at' => sanitize_text_field((string) get_user_meta($user_id, 'captacion_last_reset_at', true)),
         'subscription_status' => sanitize_key((string) get_user_meta($user_id, 'captacion_subscription_status', true)),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_get_access_history($user_id, $limit = 50) {
     global $wpdb;
@@ -1534,7 +1534,7 @@ function captacion_app_get_access_history($user_id, $limit = 50) {
     $remaining = captacion_app_get_user_access_state($user_id)['remaining_marketplace_accesses'];
     foreach ($rows as $index => &$row) $row['balance_remaining'] = $remaining + $index;
     return $rows;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_grant_marketplace_accesses($user_id, $plan_type, $quantity, $payment_reference = '') {
     // Webhook integration point: call only after the payment provider confirms the charge server-side.
@@ -1549,7 +1549,7 @@ function captacion_app_grant_marketplace_accesses($user_id, $plan_type, $quantit
     update_user_meta($user_id, 'captacion_credits_purchased', $purchased + $quantity);
     if ($payment_reference) update_user_meta($user_id, 'captacion_credit_payment_' . sanitize_key($payment_reference), current_time('mysql'));
     return true;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_set_user_plan_from_webhook($user_id, $plan_type, $subscription_status, $payment_reference = '') {
     // Webhook integration point. Never call from browser-controlled input.
@@ -1566,7 +1566,7 @@ function captacion_app_set_user_plan_from_webhook($user_id, $plan_type, $subscri
     update_user_meta($user_id, 'captacion_last_reset_at', current_time('mysql'));
     if ($payment_reference) update_user_meta($user_id, 'captacion_plan_payment_' . sanitize_key($payment_reference), current_time('mysql'));
     return true;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_confirm_single_marketplace_access($user_id, $opportunity_id, $amount_paid = 10, $payment_reference = '') {
     // Webhook integration point for the Basic single-access checkout.
@@ -1580,7 +1580,7 @@ function captacion_app_confirm_single_marketplace_access($user_id, $opportunity_
     if ($inserted && $payment_reference) update_user_meta($user_id, 'captacion_single_payment_' . sanitize_key($payment_reference), current_time('mysql'));
     if ($inserted) captacion_app_mark_access_requests_for_opportunity($opportunity_id, 'approved');
     return (bool) $inserted;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_mark_access_requests_for_opportunity($opportunity_id, $status) {
     global $wpdb;
@@ -1596,26 +1596,26 @@ function captacion_app_mark_access_requests_for_opportunity($opportunity_id, $st
     ));
     captacion_app_complete_pending_feed_deletions();
     return absint($updated);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_public_nonce_permission(WP_REST_Request $request) {
     $nonce = $request->get_header('X-WP-Nonce');
     if ($nonce && wp_verify_nonce($nonce, 'wp_rest')) {
         return true;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $site_host = wp_parse_url(home_url('/'), PHP_URL_HOST);
     $origin = get_http_origin();
     $referer = wp_get_referer();
     $origin_host = $origin ? wp_parse_url($origin, PHP_URL_HOST) : '';
-    $referer_host = $referer ? wp_parse_url($referer, PHP_URL_HOST) : '';
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($site_host && ($origin_host === $site_host || $referer_host === $site_host)) {
         return true;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return new WP_Error('captacion_invalid_nonce', 'La sesion del formulario ha caducado. Recarga la pagina.', array('status'=>403));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_private_permission(WP_REST_Request $request) {
     $nonce = $request->get_header('X-WP-Nonce');
@@ -1637,7 +1637,7 @@ function captacion_app_rest_private_permission(WP_REST_Request $request) {
     if (!current_user_can('read')) return new WP_Error('captacion_permission_required', 'Tu cuenta no tiene permisos para esta accion.', array('status'=>403));
     if (!captacion_app_is_email_verified(get_current_user_id())) return new WP_Error('captacion_email_unverified', 'Confirma tu correo electronico para acceder.', array('status'=>403));
     return true;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ajax_rest_nonce() {
     if (!is_user_logged_in()) {
@@ -1645,7 +1645,7 @@ function captacion_app_ajax_rest_nonce() {
     }
     wp_send_json_success(array('nonce' => wp_create_nonce('wp_rest')));
 }
-add_action('wp_ajax_captacion_rest_nonce', 'captacion_app_ajax_rest_nonce');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_rate_limit($scope, $limit = 10, $ttl = 600) {
     $remote_address = sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? 'unknown');
@@ -1654,12 +1654,12 @@ function captacion_app_rest_rate_limit($scope, $limit = 10, $ttl = 600) {
     if ($count >= $limit) return false;
     set_transient($key, $count + 1, $ttl);
     return true;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_is_email_verified($user_id) {
     $value = get_user_meta(absint($user_id), 'captacion_email_verified', true);
     return $value === '' || $value === '1';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_send_verification_email($user_id) {
     $user = get_userdata(absint($user_id));
@@ -1673,7 +1673,7 @@ function captacion_app_send_verification_email($user_id) {
     return wp_mail($user->user_email, $subject, $body, array('Content-Type: text/plain; charset=UTF-8'))
         ? true
         : new WP_Error('captacion_verify_mail', 'No se pudo enviar el correo de confirmacion.', array('status'=>500));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_handle_email_verification() {
     if (empty($_GET['captacion_verify_email'])) return;
@@ -1691,26 +1691,26 @@ function captacion_app_handle_email_verification() {
     wp_safe_redirect(add_query_arg('email_verification', $ok ? 'success' : 'invalid', home_url('/')) . '#/inicio');
     exit;
 }
-add_action('template_redirect', 'captacion_app_handle_email_verification', 1);
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_register_professional(WP_REST_Request $request) {
     if (!captacion_app_rest_rate_limit('register', 6, 15 * MINUTE_IN_SECONDS)) {
         return new WP_Error('captacion_register_rate_limit', 'Demasiados intentos de registro. Espera unos minutos.', array('status'=>429));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $name = sanitize_text_field((string) $request->get_param('name'));
     $email = sanitize_email((string) $request->get_param('email'));
     $phone = preg_replace('/[^0-9+]/', '', (string) $request->get_param('phone'));
     $password = (string) $request->get_param('password');
     $privacy = filter_var($request->get_param('privacyAccepted'), FILTER_VALIDATE_BOOLEAN);
-    $commercial_consent = filter_var($request->get_param('commercialConsent'), FILTER_VALIDATE_BOOLEAN);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (!is_email($email)) return new WP_Error('captacion_register_email', 'Introduce un correo electronico valido.', array('status'=>422));
     if (email_exists($email)) return new WP_Error('captacion_register_exists', 'Ya existe una cuenta con este correo.', array('status'=>409));
     if (strlen($name) < 3) $name = sanitize_text_field(strstr($email, '@', true) ?: 'Profesional');
     if ($phone !== '' && !preg_match('/^\+[1-9][0-9]{7,14}$/', $phone)) return new WP_Error('captacion_register_phone', 'Introduce un numero de contacto en formato internacional.', array('status'=>422));
     if (strlen($password) < 8) return new WP_Error('captacion_register_password', 'La contrasena debe tener al menos 8 caracteres.', array('status'=>422));
-    if (!$privacy) return new WP_Error('captacion_register_privacy', 'Debes aceptar la politica de privacidad.', array('status'=>422));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $base_username = sanitize_user(strstr($email, '@', true), true) ?: 'profesional';
     $username = $base_username;
@@ -1724,7 +1724,7 @@ function captacion_app_rest_register_professional(WP_REST_Request $request) {
         'user_pass'=>$password,
         'role'=>$role,
     ));
-    if (is_wp_error($user_id)) return $user_id;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     update_user_meta($user_id, 'captacion_phone', $phone);
     update_user_meta($user_id, 'captacion_profile_complete', '0');
@@ -1745,14 +1745,14 @@ function captacion_app_rest_register_professional(WP_REST_Request $request) {
         require_once ABSPATH . 'wp-admin/includes/user.php';
         wp_delete_user($user_id);
         return $mail_result;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     captacion_app_log_mail_event(array(
         'category'=>'registro','source'=>'registro-profesional','email'=>$email,'name'=>$name,'phone'=>$phone,
         'message'=>'Alta profesional con perfil pendiente de completar.','tags'=>array('registro-inicio'),
         'payload'=>array('user_id'=>$user_id,'profile_complete'=>false),
     ));
-    captacion_app_notify_internal_mail_event(array('category'=>'registro','source'=>'registro-profesional','email'=>$email,'name'=>$name,'phone'=>$phone));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'ok'=>true,
@@ -1764,13 +1764,13 @@ function captacion_app_rest_register_professional(WP_REST_Request $request) {
         'emailVerified'=>false,
         'message'=>'Te hemos enviado un correo electronico para confirmar tu registro. Revisa tu bandeja de entrada y valida tu cuenta para acceder.',
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_professional_role() {
     if (!get_role('captacion_agent')) add_role('captacion_agent', 'Profesional Compra Captación', array('read' => true, 'upload_files' => true));
 }
 add_action('after_switch_theme', 'captacion_app_register_professional_role');
-add_action('admin_init', 'captacion_app_register_professional_role');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_login(WP_REST_Request $request) {
     if (!captacion_app_rest_rate_limit('login', 10, 15 * MINUTE_IN_SECONDS)) return new WP_Error('captacion_login_rate_limit', 'Demasiados intentos. Espera unos minutos.', array('status'=>429));
@@ -1796,7 +1796,7 @@ function captacion_app_rest_login(WP_REST_Request $request) {
         'emailVerified'=>true,
         'nonce'=>wp_create_nonce('wp_rest'),
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_resend_verification(WP_REST_Request $request) {
     if (!captacion_app_rest_rate_limit('resend_verification', 3, HOUR_IN_SECONDS)) {
@@ -1810,12 +1810,12 @@ function captacion_app_rest_resend_verification(WP_REST_Request $request) {
     $result = captacion_app_send_verification_email($user->ID);
     if (is_wp_error($result)) return $result;
     return rest_ensure_response(array('ok'=>true,'message'=>'Correo de verificacion reenviado.'));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_logout() {
     wp_logout();
     return rest_ensure_response(array('ok'=>true));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_access_status(WP_REST_Request $request) {
     $opportunity_id = sanitize_text_field((string) $request->get_param('opportunity_id'));
@@ -1825,7 +1825,7 @@ function captacion_app_rest_access_status(WP_REST_Request $request) {
         'accessHistory'=>captacion_app_get_access_history(get_current_user_id()),
         'opportunityUnlocked'=>$opportunity_id ? captacion_app_user_has_opportunity_access(get_current_user_id(), $opportunity_id) : false,
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_submit_report(WP_REST_Request $request) {
     $user = wp_get_current_user();
@@ -1842,13 +1842,13 @@ function captacion_app_rest_submit_report(WP_REST_Request $request) {
     captacion_app_notify_internal_mail_event(array('category'=>'reporte_denuncia','source'=>'canal-denuncias','email'=>$email,'name'=>$name,'phone'=>$phone,'reference'=>$key,'message'=>$comment,'payload'=>array('url'=>$url)));
     wp_mail($email, 'Hemos recibido tu reporte', "Hola {$name},\n\nTu reporte {$key} está en trámite y será revisado. Recibirás una respuesta en breve.\n\nCompra Captación");
     return rest_ensure_response(array('ok'=>true,'id'=>$record_id,'reference'=>$key,'message'=>'Reporte enviado correctamente. Recibirás una confirmación por correo.'));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_user_has_opportunity_access($user_id, $opportunity_id) {
     global $wpdb;
     $table = captacion_app_access_log_table_name();
     return (bool) $wpdb->get_var($wpdb->prepare("SELECT id FROM {$table} WHERE user_id = %d AND opportunity_id = %s", absint($user_id), sanitize_text_field($opportunity_id)));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_consume_access(WP_REST_Request $request) {
     global $wpdb;
@@ -1885,7 +1885,7 @@ function captacion_app_rest_consume_access(WP_REST_Request $request) {
     ), array('%d','%s','%s','%s','%f','%s'));
     captacion_app_mark_access_requests_for_opportunity($opportunity_id, 'approved');
     return rest_ensure_response(array('ok'=>true, 'already_unlocked'=>false, 'access_type'=>$access_type, 'accessState'=>captacion_app_get_user_access_state($user_id)));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_purchase_intent(WP_REST_Request $request) {
     $user_id = get_current_user_id();
@@ -1909,7 +1909,7 @@ function captacion_app_rest_purchase_intent(WP_REST_Request $request) {
         'checkoutUrl'=>$checkout_url,
         'message'=>$checkout_url ? 'Continua al checkout. Los accesos se concederan solo tras confirmacion del webhook.' : 'Checkout no disponible temporalmente. Revisa la configuracion de pago antes de activar nuevas compras.',
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_save_task(WP_REST_Request $request) {
     $title = sanitize_text_field((string) $request->get_param('title'));
@@ -1932,7 +1932,7 @@ function captacion_app_rest_save_task(WP_REST_Request $request) {
     $result = captacion_app_upsert_record(array('record_type'=>'task','record_key'=>$task['id'],'user_id'=>get_current_user_id(),'user_email'=>wp_get_current_user()->user_email,'title'=>$title,'status'=>'pending','related_id'=>$related_id,'payload'=>$task));
     if (is_wp_error($result)) return $result;
     return rest_ensure_response(array('ok'=>true,'task'=>$task,'message'=>'Tarea guardada. Las notificaciones externas quedan pendientes de infraestructura real.'));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_list_tasks() {
     global $wpdb;
@@ -1941,7 +1941,7 @@ function captacion_app_rest_list_tasks() {
     $rows = $wpdb->get_results($wpdb->prepare("SELECT record_key, title, status, related_id, payload, created_at, updated_at FROM {$table} WHERE record_type = 'task' AND owner_user_id = %d AND deleted_at IS NULL ORDER BY updated_at DESC LIMIT 200", get_current_user_id()), ARRAY_A);
     foreach ($rows as &$row) $row['payload'] = json_decode($row['payload'] ?: '{}', true);
     return rest_ensure_response(array('ok'=>true,'tasks'=>$rows));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_contact(WP_REST_Request $request) {
     if (!captacion_app_rest_rate_limit('contact', 8, 15 * MINUTE_IN_SECONDS)) {
@@ -1960,7 +1960,7 @@ function captacion_app_rest_contact(WP_REST_Request $request) {
     if (!$privacy) return new WP_Error('captacion_contact_privacy', 'Debes aceptar la politica de privacidad.', array('status'=>422));
     if (in_array($preference, array('call','whatsapp'), true) && !preg_match('/^\+?[0-9][0-9\s().-]{7,19}$/', $phone)) {
         return new WP_Error('captacion_contact_phone', 'El telefono es obligatorio para llamada o WhatsApp.', array('status'=>422));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $settings = captacion_app_settings();
     $recipient = sanitize_email($settings['contact_email'] ?? get_option('admin_email')) ?: get_option('admin_email');
@@ -1968,11 +1968,11 @@ function captacion_app_rest_contact(WP_REST_Request $request) {
     $sent = wp_mail($recipient, 'Nuevo mensaje de contacto en Compra Captación', $body, array('Content-Type: text/plain; charset=UTF-8','Reply-To: ' . $name . ' <' . $email . '>'));
     captacion_app_log_mail_event(array('category'=>'contacto','source'=>'contacto','email'=>$email,'name'=>$name,'phone'=>$phone,'message'=>$message,'tags'=>array('contacto'),'payload'=>array('preference'=>$preference,'sent'=>(bool)$sent)));
     return rest_ensure_response(array('ok'=>(bool)$sent,'message'=>$sent ? 'Mensaje enviado correctamente.' : 'El mensaje se ha registrado, pero el correo no pudo enviarse.'));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_property_types() {
     return array('Piso', 'Casa / chalet', 'Ático', 'Dúplex', 'Apartamento', 'Estudio', 'Finca rústica con vivienda', 'Edificio residencial', 'Local comercial', 'Nave', 'Oficina', 'Terreno / solar', 'Garaje', 'Trastero');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_normalize_property_type($value) {
     $value = sanitize_text_field((string) $value);
@@ -2003,31 +2003,31 @@ function captacion_app_normalize_property_type($value) {
         'Suelo / Terreno' => 'Terreno / solar',
     );
     return $legacy[$value] ?? $value;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_property_conditions() {
     return array('Lista para entrar / operar', 'Buen estado', 'De origen', 'Sin reforma necesaria', 'Necesita actualización', 'Reforma menor', 'Reforma mayor', 'Reforma integral', 'En obras', 'Obra nueva', 'No califica');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_offer_mandates() {
     return array('Sí, con exclusividad', 'Encargo de agente único', 'Exclusiva compartida', 'No, nota de encargo abierta', 'Sin exclusiva formalizada', 'Pendiente de confirmar');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_need_mandates() {
     return array('Con exclusividad', 'Encargo de agente único', 'Exclusiva compartida', 'Nota de encargo abierta', 'Sin exclusiva formalizada', 'Pendiente de confirmar', 'Cualquiera');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_urgencies() {
     return array('Alta', 'Media', 'Baja', 'Sin urgencia definida');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_documentation_levels() {
     return array('Nota simple únicamente', 'Nota simple + planos', 'Nota simple + certificado energético', 'Nota simple + planos + certificado energético', 'Expediente jurídico completo', 'Tasación disponible', 'Expediente jurídico completo + tasación', 'No califica');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_residential_types() {
     return array('Piso', 'Casa / chalet', 'Ático', 'Dúplex', 'Apartamento', 'Estudio', 'Finca rústica con vivienda', 'Edificio residencial');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_conditions_for_type($type) {
     if (in_array($type, captacion_app_residential_types(), true)) return captacion_app_property_conditions();
@@ -2035,7 +2035,7 @@ function captacion_app_conditions_for_type($type) {
     if ($type === 'Terreno / solar') return array('No califica');
     if (in_array($type, array('Garaje', 'Trastero'), true)) return array('Buen estado', 'Necesita actualización', 'No califica');
     return array('No califica');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_enum_value($value, $allowed, $field_label) {
     $value = sanitize_text_field((string) $value);
@@ -2043,7 +2043,7 @@ function captacion_app_enum_value($value, $allowed, $field_label) {
         return new WP_Error('captacion_invalid_enum', sprintf('El valor de %s no es válido.', $field_label), array('status' => 422));
     }
     return $value;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_enum_list($values, $allowed, $field_label) {
     $values = is_array($values) ? array_values(array_unique(array_map('sanitize_text_field', $values))) : array();
@@ -2056,7 +2056,7 @@ function captacion_app_enum_list($values, $allowed, $field_label) {
         }
     }
     return $values;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_positive_number($value, $field_label) {
     $number = is_numeric($value) ? (float) $value : 0;
@@ -2064,34 +2064,34 @@ function captacion_app_positive_number($value, $field_label) {
         return new WP_Error('captacion_invalid_number', sprintf('%s debe ser mayor que cero.', $field_label), array('status' => 422));
     }
     return $number;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_sanitize_real_estate_payload($record_type, $payload) {
     $payload = is_array($payload) ? $payload : array();
     $type = captacion_app_normalize_property_type($payload['property_type'] ?? $payload['type'] ?? '');
     $type = captacion_app_enum_value($type, captacion_app_property_types(), 'tipo de inmueble');
-    if (is_wp_error($type)) return $type;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $title = sanitize_text_field((string) ($payload['title'] ?? ''));
     $description = sanitize_textarea_field((string) ($payload['description'] ?? ''));
     if (strlen($title) < 8) return new WP_Error('captacion_short_title', 'El título debe tener al menos 8 caracteres.', array('status' => 422));
-    if (strlen($description) < 30) return new WP_Error('captacion_short_description', 'La descripción debe tener al menos 30 caracteres.', array('status' => 422));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $community_code = sanitize_text_field((string) ($payload['community_code'] ?? $payload['autonomous_community_id'] ?? ''));
     $province_code = sanitize_text_field((string) ($payload['province_code'] ?? $payload['province_id'] ?? ''));
     $municipality_code = sanitize_text_field((string) ($payload['municipality_code'] ?? $payload['municipality_ine_code'] ?? $payload['municipality_id'] ?? ''));
     if (!$community_code || !$province_code || !$municipality_code) {
         return new WP_Error('captacion_required_territory', 'Comunidad autónoma, provincia y municipio son obligatorios.', array('status' => 422));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $is_property = $record_type === 'property';
     $area = captacion_app_positive_number($is_property ? ($payload['total_area_m2'] ?? $payload['superficie_construida'] ?? $payload['surface'] ?? 0) : ($payload['desired_area_min_m2'] ?? $payload['surface'] ?? 0), $is_property ? 'La superficie total' : 'La superficie mínima');
     $amount = captacion_app_positive_number($is_property ? ($payload['indicative_price'] ?? $payload['price'] ?? 0) : ($payload['max_budget'] ?? $payload['budget'] ?? 0), $is_property ? 'El precio orientativo' : 'El presupuesto máximo');
     if (is_wp_error($area)) return $area;
-    if (is_wp_error($amount)) return $amount;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $commission = sanitize_text_field((string) ($is_property ? ($payload['offered_commission'] ?? $payload['fee'] ?? '') : ($payload['accepted_commission'] ?? $payload['feeSplit'] ?? '')));
-    if (!$commission || strlen($commission) > 60) return new WP_Error('captacion_invalid_commission', 'Indica una comisión o colaboración válida.', array('status' => 422));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $residential = in_array($type, captacion_app_residential_types(), true);
     $bathrooms_apply = $residential || in_array($type, array('Local comercial', 'Nave', 'Oficina'), true);
@@ -2100,12 +2100,12 @@ function captacion_app_sanitize_real_estate_payload($record_type, $payload) {
     if ($residential && $type !== 'Estudio' && $rooms < 1) return new WP_Error('captacion_required_rooms', 'El número de habitaciones es obligatorio para vivienda.', array('status' => 422));
     if ($bathrooms_apply && $bathrooms < 1) return new WP_Error('captacion_required_bathrooms', 'El número de baños es obligatorio para este tipo de inmueble.', array('status' => 422));
     if (!$residential) $rooms = 0;
-    if (!$bathrooms_apply) $bathrooms = 0;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $urgency = captacion_app_enum_value($is_property ? ($payload['sale_urgency'] ?? $payload['urgency'] ?? '') : ($payload['search_urgency'] ?? $payload['urgency'] ?? ''), captacion_app_urgencies(), $is_property ? 'urgencia de venta' : 'urgencia de búsqueda');
     $docs = captacion_app_enum_value($is_property ? ($payload['documentation_level'] ?? $payload['docs'] ?? '') : ($payload['required_documentation_level'] ?? ''), captacion_app_documentation_levels(), 'nivel de documentación');
     if (is_wp_error($urgency)) return $urgency;
-    if (is_wp_error($docs)) return $docs;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $clean = array();
     foreach ($payload as $key => $value) {
@@ -2122,7 +2122,7 @@ function captacion_app_sanitize_real_estate_payload($record_type, $payload) {
     $clean['municipality_code'] = $municipality_code;
     $clean['rooms'] = $rooms;
     $clean['bedrooms'] = $rooms;
-    $clean['bathrooms'] = $bathrooms;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($is_property) {
         $legacy_rehab = filter_var($payload['necesita_reforma_integral'] ?? $payload['rehab'] ?? false, FILTER_VALIDATE_BOOLEAN);
@@ -2164,7 +2164,7 @@ function captacion_app_sanitize_real_estate_payload($record_type, $payload) {
         $clean['required_documentation_level'] = $docs;
     }
     return $clean;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_upsert_record($data) {
     global $wpdb;
@@ -2217,7 +2217,7 @@ function captacion_app_upsert_record($data) {
         captacion_app_complete_pending_feed_deletions(absint($row['owner_user_id']));
     }
     return absint($wpdb->insert_id);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_save_record(WP_REST_Request $request) {
     $payload = $request->get_json_params();
@@ -2251,7 +2251,7 @@ function captacion_app_rest_save_record(WP_REST_Request $request) {
         return $result;
     }
     return rest_ensure_response(array('ok' => true, 'id' => $result));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_list_records(WP_REST_Request $request) {
     global $wpdb;
@@ -2286,11 +2286,11 @@ function captacion_app_rest_list_records(WP_REST_Request $request) {
         $row['payload'] = json_decode($row['payload'] ?: '{}', true);
     }
     return rest_ensure_response(array('ok' => true, 'records' => $rows));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 define('CAPTACION_XML_MAX_SIZE', 10 * 1024 * 1024);
 define('CAPTACION_XML_MAX_RECORDS', 1000);
-define('CAPTACION_DEMO_OWNER_USER_ID', 1);
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_import_upload_dir_filter($dirs) {
     $subdir = '/captacion-imports';
@@ -2301,7 +2301,7 @@ function captacion_app_import_upload_dir_filter($dirs) {
         $dirs['error'] = 'No se pudo crear el directorio seguro de importaciones.';
     }
     return $dirs;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_import_field_aliases() {
     return array(
@@ -2324,7 +2324,7 @@ function captacion_app_import_field_aliases() {
         'image' => array('image','images','gallery','galeria','imagenes','photos','photo','pictures','picture','url_image','image_url','image_urls','foto','fotos'),
         'status' => array('status','estado','state'),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_import_value_by_alias($row, $field, $default = '') {
     $aliases = captacion_app_import_field_aliases();
@@ -2333,7 +2333,7 @@ function captacion_app_import_value_by_alias($row, $field, $default = '') {
         if (isset($row[$key]) && trim((string) $row[$key]) !== '') return trim((string) $row[$key]);
     }
     return $default;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_normalize_import_property_row($row, $source_name, $index, $prefix) {
     $external_id = captacion_app_import_value_by_alias($row, 'external_id', $prefix . '-' . ($index + 1));
@@ -2381,7 +2381,7 @@ function captacion_app_normalize_import_property_row($row, $source_name, $index,
     $status = sanitize_text_field(captacion_app_import_value_by_alias($row, 'status', 'active'));
     $record_key = $prefix . '-' . substr(hash('sha256', $source_name . '|' . $external_id), 0, 18);
     return array('record_type' => 'property', 'record_key' => $record_key, 'title' => $title, 'status' => $status, 'related_id' => sanitize_text_field($external_id), 'payload' => $payload);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_validate_import_xml($raw_xml) {
     if (empty($raw_xml) || strlen(trim($raw_xml)) === 0) {
@@ -2453,7 +2453,7 @@ function captacion_app_validate_import_xml($raw_xml) {
         'records' => $records,
         'total' => count($records),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_generate_xml_summary($records, $imported, $rejected) {
     $types = array_count_values(array_column($records, 'record_type'));
@@ -2463,7 +2463,7 @@ function captacion_app_generate_xml_summary($records, $imported, $rejected) {
         'recordsRejected' => $rejected,
         'byType' => $types,
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_property_marketplace_missing_fields($payload) {
     $payload = is_array($payload) ? $payload : array();
@@ -2496,7 +2496,7 @@ function captacion_app_property_marketplace_missing_fields($payload) {
     $has_codes = (trim((string) ($payload['province_code'] ?? '')) !== '' && trim((string) ($payload['municipality_code'] ?? '')) !== '');
     if (!$has_province_city && !$has_codes && !in_array('location', $missing, true)) $missing[] = 'location';
     return array_values(array_unique($missing));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_prepare_imported_property_payload($payload, $context) {
     $payload = is_array($payload) ? $payload : array();
@@ -2516,7 +2516,7 @@ function captacion_app_prepare_imported_property_payload($payload, $context) {
     $payload['publication_status'] = empty($missing) ? 'active' : 'pending_review';
     $payload['status'] = empty($missing) ? 'active' : 'pending_review';
     return $payload;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_import_records_from_xml($parsed, $overrides) {
     global $wpdb;
@@ -2618,7 +2618,7 @@ function captacion_app_import_records_from_xml($parsed, $overrides) {
         'errors' => $errors,
         'summary' => captacion_app_generate_xml_summary($parsed['records'], $imported, $rejected),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_download_xml_feed_url($url) {
     $url = esc_url_raw(trim((string) $url));
@@ -2670,7 +2670,7 @@ function captacion_app_download_xml_feed_url($url) {
         return new WP_Error('captacion_xml_url_doctype', 'El XML contiene DOCTYPE o entidades no permitidas.', array('status' => 400));
     }
     return array('url' => $url, 'body' => $body, 'hash' => hash('sha256', $body));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_xml_child_value($node, $names, $default = '') {
     foreach ((array) $names as $name) {
@@ -2681,7 +2681,7 @@ function captacion_app_xml_child_value($node, $names, $default = '') {
         if ($att !== '') return sanitize_text_field($att);
     }
     return $default;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_xml_nested_child_value($node, $paths, $default = '') {
     foreach ((array) $paths as $path) {
@@ -2697,7 +2697,7 @@ function captacion_app_xml_nested_child_value($node, $paths, $default = '') {
         if ($current !== null && trim((string) $current) !== '') return sanitize_text_field((string) $current);
     }
     return $default;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_xml_number_value($value) {
     $value = trim((string) $value);
@@ -2710,7 +2710,7 @@ function captacion_app_xml_number_value($value) {
         $value = str_replace(',', '.', $value);
     }
     return (float) $value;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_xml_operation_value($operation, $price_freq = '') {
     $raw = strtolower(trim((string) ($operation ?: $price_freq)));
@@ -2718,7 +2718,7 @@ function captacion_app_xml_operation_value($operation, $price_freq = '') {
     if (in_array($raw, array('sale', 'sell', 'venta', 'comprar', 'buy', 'compraventa', 'vender', 'vendo'), true)) return 'venta';
     if (in_array($raw, array('transfer', 'traspaso', 'traspass'), true)) return 'traspaso';
     return 'venta';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_xml_first_image($node) {
     $names = array('images', 'image', 'fotos', 'foto', 'photos', 'photo', 'pictures', 'picture', 'galeria', 'gallery', 'media', 'multimedia', 'url', 'URL', 'Url');
@@ -2753,7 +2753,7 @@ function captacion_app_xml_first_image($node) {
         if ($value) return esc_url_raw($value);
     }
     return '';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_xml_desc_value($node) {
     $preferred = array('es', 'en');
@@ -2772,7 +2772,7 @@ function captacion_app_xml_desc_value($node) {
         if ($val !== '') return sanitize_text_field($val);
     }
     return '';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_xml_node_to_array($node) {
     $result = array();
@@ -2793,7 +2793,7 @@ function captacion_app_xml_node_to_array($node) {
         }
     }
     return $result;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_xml_image_urls($node) {
     $urls = array();
@@ -2816,7 +2816,7 @@ function captacion_app_xml_image_urls($node) {
         if ($value) $urls[] = esc_url_raw($value);
     }
     return array_values(array_unique(array_filter($urls)));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_parse_csv_properties($raw_csv, $source_name) {
     if (empty($raw_csv) || strlen(trim($raw_csv)) === 0) return new WP_Error('captacion_csv_empty', 'El CSV esta vacio.', array('status' => 400));
@@ -2849,7 +2849,7 @@ function captacion_app_parse_csv_properties($raw_csv, $source_name) {
     }
     if (empty($headers)) return new WP_Error('captacion_csv_headers', 'El CSV debe incluir una fila de cabeceras.', array('status' => 422));
     return array('schemaVersion' => 'csv-1.0', 'dataOrigin' => 'csv_file', 'privacyScope' => 'private_user', 'records' => $records, 'total' => count($records));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_parse_json_properties($raw_json, $source_name) {
     if (empty($raw_json) || strlen(trim($raw_json)) === 0) return new WP_Error('captacion_json_empty', 'El JSON esta vacio.', array('status' => 400));
@@ -2876,7 +2876,7 @@ function captacion_app_parse_json_properties($raw_json, $source_name) {
         $records[] = $record;
     }
     return array('schemaVersion' => 'json-1.0', 'dataOrigin' => 'json_file', 'privacyScope' => 'private_user', 'records' => $records, 'total' => count($records));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
     libxml_use_internal_errors(true);
@@ -2951,7 +2951,7 @@ function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
         $records[] = array('record_type' => 'property', 'record_key' => $record_key, 'title' => $title, 'status' => 'active', 'related_id' => $external_id, 'payload' => $payload);
     }
     return array('schemaVersion' => 'external-url-1.0', 'dataOrigin' => 'xml_url', 'privacyScope' => 'private_user', 'records' => $records, 'total' => count($records));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_xml_feed_import_url(WP_REST_Request $request) {
     $user_id = get_current_user_id();
@@ -2973,7 +2973,7 @@ function captacion_app_rest_xml_feed_import_url(WP_REST_Request $request) {
     captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_total' => $parsed['total'], 'records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'source_hash' => $download['hash'], 'summary_json' => $summary));
     captacion_app_log_resource_event(array('resource_id' => 'xml_feed_import_url'), 'xml_batch_created', array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'source' => $source_label));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'updated' => $result['updated'], 'pending_review' => $result['pending_review'], 'rejected' => $result['rejected'], 'summary' => $summary));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_parse_file_for_import($raw, $source_name) {
     $extension = strtolower(pathinfo((string) $source_name, PATHINFO_EXTENSION));
@@ -2984,11 +2984,11 @@ function captacion_app_parse_file_for_import($raw, $source_name) {
         if (!is_wp_error($parsed)) return $parsed;
     }
     return captacion_app_parse_external_xml_properties($raw, $source_name);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_parse_xml_file_for_import($raw_xml, $source_name) {
     return captacion_app_parse_file_for_import($raw_xml, $source_name);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_xml_feed_import_file(WP_REST_Request $request) {
     $user_id = get_current_user_id();
@@ -3031,7 +3031,7 @@ function captacion_app_rest_xml_feed_import_file(WP_REST_Request $request) {
         'mimes' => array('xml' => 'text/xml|application/xml|text/plain', 'csv' => 'text/csv|application/csv|application/vnd.ms-excel|text/plain', 'json' => 'application/json|text/json|text/plain'),
     ));
     remove_filter('upload_dir', 'captacion_app_import_upload_dir_filter');
-    if (!empty($upload['error'])) return new WP_Error('captacion_import_store_failed', $upload['error'], array('status' => 500));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $parsed = captacion_app_parse_file_for_import($raw, $filename);
     if (is_wp_error($parsed)) return $parsed;
@@ -3063,7 +3063,7 @@ function captacion_app_rest_xml_feed_import_file(WP_REST_Request $request) {
         'status' => $result['rejected'] > 0 ? 'error' : 'active',
         'summary' => $summary,
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_xml_feed_sync(WP_REST_Request $request) {
     $batch_id = sanitize_text_field($request->get_param('import_batch_id'));
@@ -3084,7 +3084,7 @@ function captacion_app_rest_xml_feed_sync(WP_REST_Request $request) {
     $result = captacion_app_import_records_from_xml($parsed, array('user_id' => absint($batch['owner_user_id']), 'import_batch_id' => $batch_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => absint($batch['owner_user_id']), 'source_file_name' => $batch['source_file_name'], 'source_hash' => $download['hash']));
     captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_total' => $parsed['total'], 'records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'source_hash' => $download['hash'], 'summary_json' => $result['summary']));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'updated' => $result['updated'], 'rejected' => $result['rejected']));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_import_rollback(WP_REST_Request $request) {
     global $wpdb;
@@ -3102,7 +3102,7 @@ function captacion_app_rest_import_rollback(WP_REST_Request $request) {
     captacion_app_update_import_batch_status($batch_id, 'rolled_back', array('summary_json' => $summary));
     captacion_app_log_resource_event(array('resource_id' => 'import_rollback'), 'import_batch_rolled_back', array('import_batch_id' => $batch_id, 'owner_user_id' => absint($batch['owner_user_id']), 'records' => max(0, (int) $affected)));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'rolled_back' => max(0, (int) $affected)));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_import_template() {
     $headers = array('referencia','titulo','tipo','operacion','precio','moneda','provincia','municipio','codigo_postal','superficie','habitaciones','banos','descripcion','imagen');
@@ -3112,14 +3112,14 @@ function captacion_app_rest_import_template() {
     $response->header('Content-Type', 'text/csv; charset=utf-8');
     $response->header('Content-Disposition', 'attachment; filename="captacion-import-template.csv"');
     return $response;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_webhook_permission(WP_REST_Request $request) {
     $expected = (string) captacion_app_setting('webhook_api_key');
     if ($expected === '') return false;
     $provided = (string) $request->get_header('x-captacion-webhook-key');
     return $provided !== '' && hash_equals($expected, $provided);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_webhook_receive(WP_REST_Request $request) {
     $body = (string) $request->get_body();
@@ -3149,7 +3149,7 @@ function captacion_app_rest_webhook_receive(WP_REST_Request $request) {
     $summary = array_merge($result['summary'], array('properties_updated' => $result['updated'], 'properties_pending_review' => $result['pending_review'], 'technical_errors' => array_slice($result['errors'], 0, 10)));
     captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'summary_json' => $summary));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'updated' => $result['updated'], 'pending_review' => $result['pending_review'], 'rejected' => $result['rejected'], 'summary' => $summary));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_xml_demo_import(WP_REST_Request $request) {
     if (!current_user_can('manage_options')) {
@@ -3198,7 +3198,7 @@ function captacion_app_rest_xml_demo_import(WP_REST_Request $request) {
         'rejected' => $result['rejected'],
         'summary' => $result['summary'],
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_xml_user_import(WP_REST_Request $request) {
     $user_id = get_current_user_id();
@@ -3248,7 +3248,7 @@ function captacion_app_rest_xml_user_import(WP_REST_Request $request) {
         'rejected' => $result['rejected'],
         'summary' => $result['summary'],
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_xml_user_export(WP_REST_Request $request) {
     $user_id = get_current_user_id();
@@ -3312,7 +3312,7 @@ function captacion_app_rest_xml_user_export(WP_REST_Request $request) {
         'filename' => 'captacion-app-export-' . $user_id . '.xml',
         'total_records' => count($rows),
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_delete_import_batch(WP_REST_Request $request) {
     $batch_id = sanitize_text_field($request->get_param('import_batch_id') ?: $request->get_param('feed_id'));
@@ -3375,7 +3375,7 @@ function captacion_app_rest_delete_import_batch(WP_REST_Request $request) {
         'status' => 'deleted',
         'message' => 'XML eliminado correctamente',
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_update_import_batch(WP_REST_Request $request) {
     $batch_id = sanitize_text_field($request->get_param('import_batch_id') ?: $request->get_param('feed_id'));
@@ -3398,7 +3398,7 @@ function captacion_app_rest_update_import_batch(WP_REST_Request $request) {
         'owner_user_id' => $batch['owner_user_id'],
     ));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'status' => $status));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_feed_pending_properties(WP_REST_Request $request) {
     $feed_id = sanitize_text_field($request->get_param('feed_id'));
@@ -3430,7 +3430,7 @@ function captacion_app_rest_feed_pending_properties(WP_REST_Request $request) {
         );
     }
     return rest_ensure_response(array('ok' => true, 'feed_id' => $feed_id, 'total' => count($properties), 'properties' => $properties));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_update_pending_property(WP_REST_Request $request) {
     $feed_id = sanitize_text_field($request->get_param('feed_id'));
@@ -3503,18 +3503,18 @@ function captacion_app_rest_update_pending_property(WP_REST_Request $request) {
     if (!empty($payload['title'])) $update_row['title'] = sanitize_text_field($payload['title']);
     $wpdb->update($table, $update_row, array('id' => absint($row['id'])));
     return rest_ensure_response(array('ok' => true, 'record_key' => $record_key, 'status' => $new_status, 'missing_fields' => $missing));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_publish_all_pending(WP_REST_Request $request) {
     $feed_id = sanitize_text_field($request->get_param('feed_id'));
     $body = $request->get_json_params();
-    $keys = is_array($body['keys'] ?? null) ? array_map('sanitize_text_field', $body['keys']) : null;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $batch = captacion_app_get_import_batch($feed_id);
     if (!$batch || !empty($batch['deleted_at'])) return new WP_Error('captacion_feed_not_found', 'Feed no encontrado.', array('status' => 404));
     if (!captacion_app_user_can_manage_import_batch($batch)) return new WP_Error('captacion_forbidden', 'No tienes permiso.', array('status' => 403));
     global $wpdb;
-    $table = captacion_app_records_table_name();
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($keys !== null) {
         if (empty($keys)) {
@@ -3530,7 +3530,7 @@ function captacion_app_rest_publish_all_pending(WP_REST_Request $request) {
             "SELECT id, payload FROM {$table} WHERE import_batch_id = %s AND record_type = 'property' AND status = 'pending_review' AND deleted_at IS NULL",
             $feed_id
         );
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $rows = $wpdb->get_results($sql, ARRAY_A);
     $updated = 0;
@@ -3543,7 +3543,7 @@ function captacion_app_rest_publish_all_pending(WP_REST_Request $request) {
         $updated++;
     }
     return rest_ensure_response(array('ok' => true, 'feed_id' => $feed_id, 'requested_properties' => $requested, 'published_properties' => $updated, 'not_found_properties' => max(0, $requested - $updated)));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
     global $wpdb;
@@ -3656,7 +3656,7 @@ function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
         }
     }
     return rest_ensure_response(array('ok' => true, 'batches' => $rows));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_delete_my_data(WP_REST_Request $request) {
     $user_id = get_current_user_id();
@@ -3699,7 +3699,7 @@ function captacion_app_rest_delete_my_data(WP_REST_Request $request) {
         'owner_user_id' => $user_id,
     ));
     return rest_ensure_response(array('ok' => true, 'message' => 'Todos tus datos privados han sido eliminados.'));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_records_routes() {
     register_rest_route('captacion/v1', '/records', array(
@@ -3873,7 +3873,7 @@ function captacion_app_register_records_routes() {
         'permission_callback' => 'captacion_app_rest_private_permission',
     ));
 }
-add_action('rest_api_init', 'captacion_app_register_records_routes');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_generic_lost_password_error($errors) {
     if (!is_wp_error($errors) || !$errors->has_errors()) return $errors;
@@ -3884,7 +3884,7 @@ function captacion_app_generic_lost_password_error($errors) {
     }
     return $errors;
 }
-add_filter('lostpassword_errors', 'captacion_app_generic_lost_password_error');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_log_mail_event($data) {
     global $wpdb;
@@ -3903,7 +3903,7 @@ function captacion_app_log_mail_event($data) {
         'payload' => wp_json_encode($data['payload'] ?? array()),
         'created_at' => current_time('mysql'),
     ), array('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s'));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_notify_internal_mail_event($data) {
     $admin_email = 'inmobia360@gmail.com';
@@ -3930,8 +3930,8 @@ function captacion_app_notify_internal_mail_event($data) {
         sanitize_textarea_field($data['message'] ?? ''),
     );
     wp_mail($admin_email, $subject, implode("\n", $lines), array('Content-Type: text/plain; charset=UTF-8'));
-}
-
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
+       'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_notification_templates() {
     return array(
@@ -3966,7 +3966,7 @@ function captacion_app_notification_templates() {
             'body' => "Hola {name},\n\nPor ahora no se han detectado coincidencias directas para {reference}. La alerta queda activa y te avisaremos en tu panel privado, seccion Notificaciones, cuando aparezca una compatibilidad real.\n\nEquipo Compra Captación",
         ),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_render_notification_text($template, $data) {
     $name = sanitize_text_field($data['name'] ?? '');
@@ -3977,19 +3977,19 @@ function captacion_app_render_notification_text($template, $data) {
         '{reference}' => $reference ? $reference : 'tu publicacion',
         '{message}' => $message,
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_send_notification_email(WP_REST_Request $request) {
     $email = sanitize_email((string) $request->get_param('email'));
     if (!is_email($email)) {
         return new WP_Error('captacion_notification_invalid_email', 'Email no valido.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $type = sanitize_key((string) $request->get_param('type'));
     $templates = captacion_app_notification_templates();
     if (!isset($templates[$type])) {
         $type = 'no_match_watch';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $name = sanitize_text_field((string) $request->get_param('name'));
     $agency = sanitize_text_field((string) $request->get_param('agency'));
@@ -3997,13 +3997,13 @@ function captacion_app_send_notification_email(WP_REST_Request $request) {
     $message = sanitize_textarea_field((string) $request->get_param('message'));
     $template = $templates[$type];
     $subject = captacion_app_render_notification_text($template['subject'], compact('name', 'reference', 'message'));
-    $body = captacion_app_render_notification_text($template['body'], compact('name', 'reference', 'message'));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $headers = array(
         'Content-Type: text/plain; charset=UTF-8',
         'Bcc: inmobia360@gmail.com',
     );
-    $sent = wp_mail($email, $subject, $body, $headers);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $event_data = array(
         'category' => sanitize_key($template['category'] ?? 'general'),
@@ -4018,14 +4018,14 @@ function captacion_app_send_notification_email(WP_REST_Request $request) {
         'payload' => array('sent' => (bool) $sent, 'subject' => $subject),
     );
     captacion_app_log_mail_event($event_data);
-    captacion_app_notify_internal_mail_event($event_data);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'ok' => (bool) $sent,
         'type' => $type,
         'email' => $email,
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_notification_routes() {
     register_rest_route('captacion/v1', '/notifications/send', array(
@@ -4038,30 +4038,30 @@ function captacion_app_register_notification_routes() {
         ),
     ));
 }
-add_action('rest_api_init', 'captacion_app_register_notification_routes');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_mailchimp_subscribe(WP_REST_Request $request) {
     $settings = captacion_app_settings();
     $api_key = trim((string) ($settings['mailchimp_api_key'] ?? ''));
     $audience_id = trim((string) ($settings['mailchimp_audience_id'] ?? ''));
     $email = sanitize_email((string) $request->get_param('email'));
-    $commercial_consent = filter_var($request->get_param('commercialConsent'), FILTER_VALIDATE_BOOLEAN);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (!$commercial_consent) {
         return new WP_Error('captacion_mailchimp_consent_required', 'Se requiere consentimiento comercial separado para suscribirse.', array('status' => 422));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (!$api_key || !$audience_id) {
         return new WP_Error('captacion_mailchimp_missing_settings', 'Mailchimp no esta configurado.', array('status' => 400));
     }
     if (!is_email($email)) {
         return new WP_Error('captacion_mailchimp_invalid_email', 'Email no valido.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $datacenter = captacion_app_mailchimp_datacenter($api_key);
     if (!$datacenter) {
         return new WP_Error('captacion_mailchimp_invalid_key', 'API Key de Mailchimp no valida.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $allowed_tags = captacion_app_mailchimp_allowed_tags();
     $raw_tags = $request->get_param('tags');
@@ -4069,7 +4069,7 @@ function captacion_app_mailchimp_subscribe(WP_REST_Request $request) {
     $tags = array_values(array_intersect($allowed_tags, array_map('sanitize_key', array_filter($raw_tags))));
     if (!$tags) {
         $tags = array('contacto');
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $name = sanitize_text_field((string) $request->get_param('name'));
     $agency = sanitize_text_field((string) $request->get_param('agency'));
@@ -4081,11 +4081,11 @@ function captacion_app_mailchimp_subscribe(WP_REST_Request $request) {
     if (!$source) {
         $source = $tags[0];
         $category = captacion_app_mailchimp_event_category($source, $tags);
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $member_hash = md5(strtolower($email));
     $url = sprintf('https://%s.api.mailchimp.com/3.0/lists/%s/members/%s', $datacenter, rawurlencode($audience_id), $member_hash);
-    $status = !empty($settings['mailchimp_double_optin']) && $settings['mailchimp_double_optin'] === '1' ? 'pending' : 'subscribed';
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $body = array(
         'email_address' => $email,
@@ -4095,7 +4095,7 @@ function captacion_app_mailchimp_subscribe(WP_REST_Request $request) {
             'FNAME' => $name,
         )),
         'tags' => $tags,
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $response = wp_remote_request($url, array(
         'method' => 'PUT',
@@ -4105,18 +4105,18 @@ function captacion_app_mailchimp_subscribe(WP_REST_Request $request) {
         ),
         'body' => wp_json_encode($body),
         'timeout' => 12,
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (is_wp_error($response)) {
         return new WP_Error('captacion_mailchimp_request_failed', $response->get_error_message(), array('status' => 502));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $code = wp_remote_retrieve_response_code($response);
     $payload = json_decode(wp_remote_retrieve_body($response), true);
     if ($code < 200 || $code >= 300) {
         $api_message = is_array($payload) && !empty($payload['detail']) ? $payload['detail'] : 'Mailchimp no pudo guardar el contacto.';
         return new WP_Error('captacion_mailchimp_api_error', $api_message, array('status' => $code ?: 502));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $note_parts = array_filter(array(
         $agency ? 'Agencia: ' . $agency : '',
@@ -4134,7 +4134,7 @@ function captacion_app_mailchimp_subscribe(WP_REST_Request $request) {
             'body' => wp_json_encode(array('note' => implode(' | ', $note_parts))),
             'timeout' => 8,
         ));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $event_data = array(
         'category' => $category,
@@ -4152,7 +4152,7 @@ function captacion_app_mailchimp_subscribe(WP_REST_Request $request) {
         ),
     );
     captacion_app_log_mail_event($event_data);
-    captacion_app_notify_internal_mail_event($event_data);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'ok' => true,
@@ -4160,7 +4160,7 @@ function captacion_app_mailchimp_subscribe(WP_REST_Request $request) {
         'tags' => $tags,
         'mailchimp_id' => is_array($payload) && isset($payload['id']) ? $payload['id'] : '',
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_mailchimp_routes() {
     register_rest_route('captacion/v1', '/mailchimp/subscribe', array(
@@ -4172,17 +4172,17 @@ function captacion_app_register_mailchimp_routes() {
         ),
     ));
 }
-add_action('rest_api_init', 'captacion_app_register_mailchimp_routes');
-
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
+       'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_is_demo_environment() {
     if (defined('CAPTACION_APP_STAGING') && CAPTACION_APP_STAGING) {
         return true;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $environment = function_exists('wp_get_environment_type') ? wp_get_environment_type() : 'production';
     return in_array($environment, array('local', 'development', 'staging'), true);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_wp_robots($robots) {
     if (captacion_app_is_demo_environment()) {
@@ -4192,18 +4192,18 @@ function captacion_app_wp_robots($robots) {
         $robots['max-image-preview'] = 'none';
         $robots['max-snippet'] = -1;
         $robots['max-video-preview'] = -1;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return $robots;
 }
-add_filter('wp_robots', 'captacion_app_wp_robots');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_send_demo_headers() {
     if (captacion_app_is_demo_environment()) {
         header('X-Robots-Tag: noindex, nofollow, noarchive', true);
     }
 }
-add_action('send_headers', 'captacion_app_send_demo_headers');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_page_meta_descriptions() {
     return array(
@@ -4223,30 +4223,30 @@ function captacion_app_page_meta_descriptions() {
         'condiciones-de-contratacion' => 'Condiciones de contratacion de Compra Captación para planes, servicios, pagos, activacion, obligaciones y uso profesional de la plataforma.',
         'canal-de-denuncias' => 'Canal de denuncias de Compra Captación para comunicar incumplimientos, irregularidades o riesgos con confidencialidad y proteccion.',
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_output_meta_description() {
     if (defined('RANK_MATH_VERSION')) {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (!is_page()) {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $post = get_queried_object();
     if (!$post || empty($post->post_name)) {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $descriptions = captacion_app_page_meta_descriptions();
     if (!isset($descriptions[$post->post_name])) {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     echo '<meta name="description" content="' . esc_attr($descriptions[$post->post_name]) . '">' . "\n";
 }
-add_action('wp_head', 'captacion_app_output_meta_description', 1);
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_output_cookie_banner_visibility_fix() {
     ?>
@@ -4258,13 +4258,13 @@ function captacion_app_output_cookie_banner_visibility_fix() {
         .cmplz-soft-cookiewall {
             z-index: 2147483646 !important;
             pointer-events: auto !important;
-        }
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         .cmplz-cookiebanner,
         .cmplz-modal,
         .cmplz-soft-cookiewall {
             max-width: min(100vw - 24px, 760px) !important;
-        }
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         body .cmplz-cookiebanner,
         body .cmplz-cookiebanner *,
@@ -4275,7 +4275,7 @@ function captacion_app_output_cookie_banner_visibility_fix() {
     </style>
     <?php
 }
-add_action('wp_head', 'captacion_app_output_cookie_banner_visibility_fix', 999);
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_seed_content_map() {
     $content_map = array(
@@ -4524,24 +4524,24 @@ HTML,
 <!-- wp:heading {"level":3} --><h3>6. Estado actual</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>En esta URL provisional el canal se mantiene como referencia estructural. Antes del lanzamiento deberá definirse la persona responsable del sistema, la herramienta utilizada, el procedimiento de gestión y la política específica asociada.</p><!-- /wp:paragraph -->
 HTML,
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $media_replacements = array(
         '/wp-content/themes/captacion-app/media/logo-compra-captacion.png' => captacion_app_media_url('media/logo-compra-captacion.png'),
         '/wp-content/themes/captacion-app/media/property-defaults/edificio-default.jpg' => captacion_app_media_url('media/property-defaults/edificio-default.jpg'),
         '/wp-content/themes/captacion-app/media/property-defaults/piso-default.jpg' => captacion_app_media_url('media/property-defaults/piso-default.jpg'),
         '/wp-content/themes/captacion-app/media/property-defaults/casa-chalet-default.jpg' => captacion_app_media_url('media/property-defaults/casa-chalet-default.jpg'),
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     foreach ($content_map as $slug => $content) {
         $content_map[$slug] = str_replace(array_keys($media_replacements), array_values($media_replacements), $content);
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return $content_map;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_seed_pages() {
-    $content_map = captacion_app_seed_content_map();
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return array(
         array('slug' => 'inicio', 'title' => 'Captaciones inmobiliarias', 'content' => $content_map['inicio']),
@@ -4560,7 +4560,7 @@ function captacion_app_seed_pages() {
         array('slug' => 'condiciones-de-contratacion', 'title' => 'Condiciones de contratacion', 'content' => $content_map['condiciones-de-contratacion']),
         array('slug' => 'canal-de-denuncias', 'title' => 'Canal de denuncias', 'content' => $content_map['canal-de-denuncias']),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rank_math_seo_map() {
     return array(
@@ -4640,28 +4640,28 @@ function captacion_app_rank_math_seo_map() {
             'description' => 'Canal de denuncias de Compra Captación para comunicar incumplimientos, irregularidades o riesgos con confidencialidad y proteccion.',
         ),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_apply_rank_math_meta($post_id, $slug) {
     $seo_map = captacion_app_rank_math_seo_map();
     if (!isset($seo_map[$slug])) {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $seo = $seo_map[$slug];
     update_post_meta($post_id, 'rank_math_focus_keyword', $seo['focus_keyword']);
     update_post_meta($post_id, 'rank_math_title', $seo['title']);
     update_post_meta($post_id, 'rank_math_description', $seo['description']);
     update_post_meta($post_id, 'rank_math_pillar_content', 'off');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_create_editable_pages() {
     if (!current_user_can('manage_options') || !check_admin_referer('captacion_app_create_pages')) {
         wp_die('No autorizado');
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $created = 0;
-    $updated = 0;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     foreach (captacion_app_seed_pages() as $page) {
         $existing = get_page_by_path($page['slug'], OBJECT, 'page');
@@ -4671,7 +4671,7 @@ function captacion_app_create_editable_pages() {
             'post_content' => $page['content'],
             'post_status' => 'publish',
             'post_type' => 'page',
-        );
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         if ($existing) {
             $data['ID'] = $existing->ID;
@@ -4680,12 +4680,12 @@ function captacion_app_create_editable_pages() {
         } else {
             $post_id = wp_insert_post($data);
             $created++;
-        }
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         if (!is_wp_error($post_id) && $post_id) {
             captacion_app_apply_rank_math_meta((int) $post_id, $page['slug']);
         }
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     wp_safe_redirect(add_query_arg(array(
         'page' => 'captacion-app-settings',
@@ -4694,20 +4694,20 @@ function captacion_app_create_editable_pages() {
     ), admin_url('admin.php')));
     exit;
 }
-add_action('admin_post_captacion_app_create_pages', 'captacion_app_create_editable_pages');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_prepare_production_cleanup() {
     if (!current_user_can('manage_options') || !check_admin_referer('captacion_app_prepare_production')) {
         wp_die('No autorizado');
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     captacion_app_maybe_install_records_table();
-    captacion_app_maybe_install_import_batches_table();
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     global $wpdb;
     $now = current_time('mysql');
     $records_table = captacion_app_records_table_name();
-    $batches_table = captacion_app_import_batches_table_name();
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $records_updated = $wpdb->query($wpdb->prepare(
         "UPDATE {$records_table}
@@ -4715,7 +4715,7 @@ function captacion_app_prepare_production_cleanup() {
          WHERE deleted_at IS NULL
            AND (is_demo = 1 OR privacy_scope = 'global_demo' OR data_origin IN ('seed_demo','synthetic_demo','demo'))",
         $now
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $batches_updated = $wpdb->query($wpdb->prepare(
         "UPDATE {$batches_table}
@@ -4724,7 +4724,7 @@ function captacion_app_prepare_production_cleanup() {
            AND (is_demo = 1 OR privacy_scope = 'global_demo' OR data_origin IN ('seed_demo','synthetic_demo','demo'))",
         $now,
         $now
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     wp_safe_redirect(add_query_arg(array(
         'page' => 'captacion-app-settings',
@@ -4733,29 +4733,29 @@ function captacion_app_prepare_production_cleanup() {
     ), admin_url('admin.php')));
     exit;
 }
-add_action('admin_post_captacion_app_prepare_production', 'captacion_app_prepare_production_cleanup');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_reset_day_one() {
     if (!current_user_can('manage_options') || !check_admin_referer('captacion_app_reset_day_one')) {
         wp_die('No autorizado');
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $confirm = sanitize_text_field(wp_unslash($_POST['captacion_reset_confirm'] ?? ''));
     $password = (string) wp_unslash($_POST['captacion_reset_admin_password'] ?? '');
-    $admin_email = sanitize_email(captacion_app_setting('saas_admin_email')) ?: 'inmobia360@gmail.com';
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($confirm !== 'RESET') {
         wp_die('Debes escribir RESET para ejecutar esta accion.');
     }
     if (strlen($password) < 8) {
         wp_die('La contrasena del administrador SaaS debe tener al menos 8 caracteres.');
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     captacion_app_maybe_install_mail_events_table();
     captacion_app_maybe_install_records_table();
     captacion_app_maybe_install_import_batches_table();
     captacion_app_maybe_install_resource_events_table();
-    captacion_app_maybe_install_access_log_table();
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     global $wpdb;
     $tables = array(
@@ -4764,7 +4764,7 @@ function captacion_app_reset_day_one() {
         captacion_app_access_log_table_name(),
         captacion_app_events_table_name(),
         captacion_app_resource_events_table_name(),
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $tables_reset = 0;
     foreach ($tables as $table) {
@@ -4773,7 +4773,7 @@ function captacion_app_reset_day_one() {
             $wpdb->query("TRUNCATE TABLE {$table}");
             $tables_reset++;
         }
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     require_once ABSPATH . 'wp-admin/includes/user.php';
     $current_user_id = get_current_user_id();
@@ -4785,9 +4785,9 @@ function captacion_app_reset_day_one() {
         $user_id = absint($user_id);
         if (!$user_id || $user_id === $current_user_id || ($admin_user_id && $user_id === $admin_user_id)) continue;
         if (wp_delete_user($user_id, $current_user_id)) $users_deleted++;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
-    $wpdb->query("DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE 'captacion\_%'");
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($admin_user_id) {
         wp_update_user(array('ID' => $admin_user_id, 'user_email' => $admin_email, 'display_name' => 'Administrador SaaS'));
@@ -4806,7 +4806,7 @@ function captacion_app_reset_day_one() {
             wp_die($admin_user_id->get_error_message());
         }
         $admin_user_id = absint($admin_user_id);
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     update_user_meta($admin_user_id, 'captacion_email_verified', '1');
     update_user_meta($admin_user_id, 'captacion_plan_type', 'premium');
@@ -4815,7 +4815,7 @@ function captacion_app_reset_day_one() {
     update_user_meta($admin_user_id, 'captacion_used_marketplace_accesses', 0);
     update_user_meta($admin_user_id, 'captacion_extra_marketplace_accesses', 0);
     update_user_meta($admin_user_id, 'captacion_commercial_consent', '1');
-    update_user_meta($admin_user_id, 'captacion_last_reset_at', current_time('mysql'));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     wp_safe_redirect(add_query_arg(array(
         'page' => 'captacion-app-settings',
@@ -4826,13 +4826,13 @@ function captacion_app_reset_day_one() {
     ), admin_url('admin.php')));
     exit;
 }
-add_action('admin_post_captacion_app_reset_day_one', 'captacion_app_reset_day_one');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_is_configured_stripe_link($url) {
     return is_string($url)
         && preg_match('#^https://(buy|checkout)\.stripe\.com/#', $url)
         && strpos($url, 'REEMPLAZA_') === false;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_stripe_link_for_plan($plan) {
     $settings = captacion_app_settings();
@@ -4844,13 +4844,13 @@ function captacion_app_stripe_link_for_plan($plan) {
     );
     $key = $map[$plan] ?? '';
     return $key ? ($settings[$key] ?? '') : '';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_stripe_plan_button($plan, $label) {
     $url = captacion_app_stripe_link_for_plan($plan);
     if (captacion_app_is_configured_stripe_link($url)) {
         return '<a class="captacion-stripe-button" href="' . esc_url($url) . '" target="_blank" rel="noopener noreferrer">' . esc_html($label) . '</a>';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $contact_email = captacion_app_setting('contact_email');
     $subjects = array(
@@ -4862,15 +4862,15 @@ function captacion_app_stripe_plan_button($plan, $label) {
         'initial' => 'Solicitar acceso',
         'professional' => 'Solicitar acceso comercial',
         'agency' => 'Hablar con ventas',
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($contact_email) {
         $mailto = 'mailto:' . rawurlencode($contact_email) . '?subject=' . rawurlencode($subjects[$plan] ?? 'Consulta sobre Compra Captación');
         return '<a class="captacion-stripe-button" href="' . esc_url($mailto) . '">' . esc_html($fallback_label[$plan] ?? 'Solicitar informacion') . '</a>';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return '<a class="captacion-stripe-button" href="' . esc_url(home_url('/contacto/')) . '">' . esc_html($fallback_label[$plan] ?? 'Solicitar informacion') . '</a>';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_stripe_plans_shortcode() {
     ob_start();
@@ -4901,7 +4901,7 @@ function captacion_app_stripe_plans_shortcode() {
     <?php
     return ob_get_clean();
 }
-add_shortcode('captacion_stripe_plans', 'captacion_app_stripe_plans_shortcode');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_providers() {
     return array(
@@ -4942,100 +4942,100 @@ function captacion_app_ai_providers() {
             'endpoint' => '',
         ),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_user_meta_key() {
     return 'captacion_app_ai_connection_v1';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_encrypt_secret($secret) {
     $secret = (string) $secret;
     if ($secret === '') {
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $key = hash('sha256', wp_salt('secure_auth'), true);
     $iv_length = openssl_cipher_iv_length('aes-256-cbc');
     if (!$iv_length) {
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $iv = random_bytes($iv_length);
     $ciphertext = openssl_encrypt($secret, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
     if ($ciphertext === false) {
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return base64_encode($iv . $ciphertext);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_decrypt_secret($payload) {
     $payload = (string) $payload;
     if ($payload === '') {
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $raw = base64_decode($payload, true);
     if ($raw === false) {
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $key = hash('sha256', wp_salt('secure_auth'), true);
     $iv_length = openssl_cipher_iv_length('aes-256-cbc');
     if (!$iv_length || strlen($raw) <= $iv_length) {
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $iv = substr($raw, 0, $iv_length);
     $ciphertext = substr($raw, $iv_length);
-    $plaintext = openssl_decrypt($ciphertext, 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return $plaintext === false ? '' : $plaintext;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_secret_fingerprint($secret) {
     $secret = trim((string) $secret);
     if ($secret === '') {
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $suffix = substr($secret, -4);
     return '•••• ' . $suffix;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_sanitize_connection_payload($input, $existing = array()) {
     $providers = captacion_app_ai_providers();
     $provider = sanitize_key($input['provider'] ?? ($existing['provider'] ?? 'openai'));
     if (!isset($providers[$provider])) {
         return new WP_Error('captacion_ai_invalid_provider', 'Proveedor de IA no válido.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $alias = sanitize_text_field(wp_unslash($input['alias'] ?? ($existing['alias'] ?? '')));
     if ($alias === '') {
         $alias = $providers[$provider]['label'];
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $profile = sanitize_key($input['profile'] ?? ($existing['profile'] ?? 'general'));
     $allowed_profiles = array('general', 'copywriting', 'matching', 'documentos', 'automatizacion');
     if (!in_array($profile, $allowed_profiles, true)) {
         $profile = 'general';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $model = sanitize_text_field(wp_unslash($input['model'] ?? ($existing['model'] ?? $providers[$provider]['default_model'])));
     if ($model === '') {
         $model = $providers[$provider]['default_model'];
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $endpoint = esc_url_raw(wp_unslash($input['endpoint'] ?? ($existing['endpoint'] ?? '')));
     if ($provider !== 'compatible') {
         $endpoint = $providers[$provider]['endpoint'];
     } elseif ($endpoint === '') {
         return new WP_Error('captacion_ai_missing_endpoint', 'Debes indicar un endpoint compatible con OpenAI.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $secret = isset($input['api_key']) ? trim((string) wp_unslash($input['api_key'])) : '';
     $encrypted_secret = $existing['encrypted_secret'] ?? '';
-    $fingerprint = $existing['fingerprint'] ?? '';
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($secret !== '') {
         $encrypted_secret = captacion_app_ai_encrypt_secret($secret);
@@ -5045,7 +5045,7 @@ function captacion_app_ai_sanitize_connection_payload($input, $existing = array(
         $fingerprint = captacion_app_ai_secret_fingerprint($secret);
     } elseif (empty($encrypted_secret)) {
         return new WP_Error('captacion_ai_missing_secret', 'Debes indicar una API key o credencial válida.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return array(
         'provider' => $provider,
@@ -5064,13 +5064,13 @@ function captacion_app_ai_sanitize_connection_payload($input, $existing = array(
         'created_at' => isset($existing['created_at']) ? absint($existing['created_at']) : time(),
         'updated_at' => time(),
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_get_user_connection($user_id, $with_secret = false) {
     $stored = get_user_meta($user_id, captacion_app_ai_user_meta_key(), true);
     if (!is_array($stored) || empty($stored['provider'])) {
         return null;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $response = array(
         'provider' => sanitize_key($stored['provider']),
@@ -5087,23 +5087,23 @@ function captacion_app_ai_get_user_connection($user_id, $with_secret = false) {
         'last_error' => sanitize_text_field($stored['last_error'] ?? ''),
         'created_at' => absint($stored['created_at'] ?? 0),
         'updated_at' => absint($stored['updated_at'] ?? 0),
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($with_secret) {
         $response['encrypted_secret'] = (string) ($stored['encrypted_secret'] ?? '');
         $response['api_key'] = captacion_app_ai_decrypt_secret($response['encrypted_secret']);
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return $response;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_save_user_connection($user_id, $connection) {
     update_user_meta($user_id, captacion_app_ai_user_meta_key(), $connection);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_delete_user_connection($user_id) {
     delete_user_meta($user_id, captacion_app_ai_user_meta_key());
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_log($message, $context = array()) {
     $payload = array();
@@ -5112,33 +5112,33 @@ function captacion_app_ai_log($message, $context = array()) {
             continue;
         }
         $payload[$key] = is_scalar($value) ? $value : wp_json_encode($value, JSON_UNESCAPED_UNICODE);
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     error_log('[Compra Captación AI] ' . $message . ' ' . wp_json_encode($payload, JSON_UNESCAPED_UNICODE));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_normalize_request_context($context) {
     if (is_string($context)) {
         return trim($context);
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (empty($context)) {
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return wp_json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_build_user_prompt($prompt, $context = array()) {
     $prompt = trim((string) $prompt);
-    $context_string = captacion_app_ai_normalize_request_context($context);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($context_string === '') {
         return $prompt;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return $prompt . "\n\nContexto adicional:\n" . $context_string;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_extract_text_from_response($provider, $body) {
     if ($provider === 'anthropic') {
@@ -5152,7 +5152,7 @@ function captacion_app_ai_extract_text_from_response($provider, $body) {
             return trim(implode("\n", $parts));
         }
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($provider === 'google') {
         if (!empty($body['candidates'][0]['content']['parts']) && is_array($body['candidates'][0]['content']['parts'])) {
@@ -5165,18 +5165,18 @@ function captacion_app_ai_extract_text_from_response($provider, $body) {
             return trim(implode("\n", $parts));
         }
         return '';
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (!empty($body['choices'][0]['message']['content'])) {
         return trim((string) $body['choices'][0]['message']['content']);
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (!empty($body['choices'][0]['text'])) {
         return trim((string) $body['choices'][0]['text']);
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return '';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_provider_request($connection, $payload) {
     $provider = $connection['provider'];
@@ -5185,17 +5185,17 @@ function captacion_app_ai_provider_request($connection, $payload) {
     $prompt = trim((string) ($payload['prompt'] ?? ''));
     $context = $payload['context'] ?? array();
     $temperature = isset($payload['temperature']) ? (float) $payload['temperature'] : 0.3;
-    $max_tokens = isset($payload['max_tokens']) ? absint($payload['max_tokens']) : 600;
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($api_key === '') {
         return new WP_Error('captacion_ai_missing_runtime_secret', 'No hay una credencial válida almacenada para este usuario.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $user_prompt = captacion_app_ai_build_user_prompt($prompt, $context);
     $timeout = 35;
     $headers = array();
     $request_body = array();
-    $endpoint = $connection['endpoint'];
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($provider === 'anthropic') {
         $headers = array(
@@ -5262,24 +5262,24 @@ function captacion_app_ai_provider_request($connection, $payload) {
             'temperature' => $temperature,
             'max_tokens' => max(128, $max_tokens),
         );
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $response = wp_remote_post($endpoint, array(
         'timeout' => $timeout,
         'headers' => $headers,
         'body' => wp_json_encode($request_body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (is_wp_error($response)) {
         return new WP_Error('captacion_ai_transport_error', 'No se pudo conectar con el proveedor de IA.', array(
             'status' => 502,
             'provider_message' => $response->get_error_message(),
         ));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $status_code = (int) wp_remote_retrieve_response_code($response);
     $raw_body = wp_remote_retrieve_body($response);
-    $decoded = json_decode($raw_body, true);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($status_code < 200 || $status_code >= 300) {
         $provider_message = '';
@@ -5289,18 +5289,18 @@ function captacion_app_ai_provider_request($connection, $payload) {
             $provider_message = (string) $decoded['message'];
         } elseif (is_string($raw_body) && $raw_body !== '') {
             $provider_message = wp_strip_all_tags($raw_body);
-        }
+        'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
         return new WP_Error('captacion_ai_provider_error', 'El proveedor de IA devolvió un error.', array(
             'status' => $status_code ?: 502,
             'provider_message' => $provider_message,
         ));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $text = captacion_app_ai_extract_text_from_response($provider, is_array($decoded) ? $decoded : array());
     if ($text === '') {
         return new WP_Error('captacion_ai_empty_response', 'La respuesta del proveedor llegó vacía o no se pudo interpretar.', array('status' => 502));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return array(
         'provider' => $provider,
@@ -5308,7 +5308,7 @@ function captacion_app_ai_provider_request($connection, $payload) {
         'text' => $text,
         'raw' => $decoded,
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_test_connection($connection) {
     return captacion_app_ai_provider_request($connection, array(
@@ -5318,11 +5318,11 @@ function captacion_app_ai_test_connection($connection) {
         'temperature' => 0,
         'max_tokens' => 20,
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_permission() {
     return is_user_logged_in();
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_get_config(WP_REST_Request $request) {
     $user_id = get_current_user_id();
@@ -5332,7 +5332,7 @@ function captacion_app_ai_rest_get_config(WP_REST_Request $request) {
         'connection' => $connection,
         'providers' => captacion_app_ai_providers(),
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_save_config(WP_REST_Request $request) {
     $user_id = get_current_user_id();
@@ -5340,47 +5340,47 @@ function captacion_app_ai_rest_save_config(WP_REST_Request $request) {
     $sanitized = captacion_app_ai_sanitize_connection_payload($request->get_json_params(), is_array($existing) ? $existing : array());
     if (is_wp_error($sanitized)) {
         return $sanitized;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     captacion_app_ai_save_user_connection($user_id, $sanitized);
-    captacion_app_ai_log('Configuración IA actualizada.', array('user_id' => $user_id, 'provider' => $sanitized['provider']));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'saved' => true,
         'connection' => captacion_app_ai_get_user_connection($user_id, false),
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_delete_config(WP_REST_Request $request) {
     $user_id = get_current_user_id();
     captacion_app_ai_delete_user_connection($user_id);
     captacion_app_ai_log('Configuración IA eliminada.', array('user_id' => $user_id));
     return rest_ensure_response(array('deleted' => true));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_set_status(WP_REST_Request $request) {
     $user_id = get_current_user_id();
     $existing = captacion_app_ai_get_user_connection($user_id, true);
     if (!$existing) {
         return new WP_Error('captacion_ai_not_configured', 'No hay una conexión IA configurada para este usuario.', array('status' => 404));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $existing['active'] = (bool) $request->get_param('active');
     $existing['updated_at'] = time();
-    captacion_app_ai_save_user_connection($user_id, $existing);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'updated' => true,
         'connection' => captacion_app_ai_get_user_connection($user_id, false),
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_test(WP_REST_Request $request) {
     $user_id = get_current_user_id();
     $existing = captacion_app_ai_get_user_connection($user_id, true);
     if (!$existing) {
         return new WP_Error('captacion_ai_not_configured', 'Primero debes guardar una conexión IA.', array('status' => 404));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $result = captacion_app_ai_test_connection($existing);
     if (is_wp_error($result)) {
@@ -5394,33 +5394,33 @@ function captacion_app_ai_rest_test(WP_REST_Request $request) {
             'error' => $result->get_error_message(),
         ));
         return $result;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $existing['status'] = 'connected';
     $existing['last_error'] = '';
     $existing['last_validated_at'] = time();
     $existing['updated_at'] = time();
-    captacion_app_ai_save_user_connection($user_id, $existing);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'success' => true,
         'message' => 'Conexión validada correctamente.',
         'connection' => captacion_app_ai_get_user_connection($user_id, false),
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_request(WP_REST_Request $request) {
     $user_id = get_current_user_id();
     $connection = captacion_app_ai_get_user_connection($user_id, true);
     if (!$connection || empty($connection['active'])) {
         return new WP_Error('captacion_ai_not_connected', 'No tienes una conexión IA activa. Configúrala en el área privada.', array('status' => 409));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $params = $request->get_json_params();
     $prompt = trim((string) ($params['prompt'] ?? ''));
     if ($prompt === '') {
         return new WP_Error('captacion_ai_missing_prompt', 'La solicitud no incluye un prompt válido.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $payload = array(
         'prompt' => $prompt,
@@ -5428,7 +5428,7 @@ function captacion_app_ai_rest_request(WP_REST_Request $request) {
         'context' => $params['context'] ?? array(),
         'temperature' => $params['temperature'] ?? 0.3,
         'max_tokens' => $params['max_tokens'] ?? 700,
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $result = captacion_app_ai_provider_request($connection, $payload);
     if (is_wp_error($result)) {
@@ -5443,13 +5443,13 @@ function captacion_app_ai_rest_request(WP_REST_Request $request) {
             'error' => $result->get_error_message(),
         ));
         return $result;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $connection['status'] = 'connected';
     $connection['last_error'] = '';
     $connection['last_validated_at'] = time();
     $connection['updated_at'] = time();
-    captacion_app_ai_save_user_connection($user_id, $connection);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'success' => true,
@@ -5457,7 +5457,7 @@ function captacion_app_ai_rest_request(WP_REST_Request $request) {
         'model' => $result['model'],
         'text' => $result['text'],
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_ai_rest_routes() {
     register_rest_route('captacion-app/v1', '/ai/config', array(
@@ -5476,37 +5476,37 @@ function captacion_app_register_ai_rest_routes() {
             'callback' => 'captacion_app_ai_rest_delete_config',
             'permission_callback' => 'captacion_app_ai_rest_permission',
         ),
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     register_rest_route('captacion-app/v1', '/ai/config/status', array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'captacion_app_ai_rest_set_status',
         'permission_callback' => 'captacion_app_ai_rest_permission',
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     register_rest_route('captacion-app/v1', '/ai/test', array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'captacion_app_ai_rest_test',
         'permission_callback' => 'captacion_app_ai_rest_permission',
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     register_rest_route('captacion-app/v1', '/ai/request', array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'captacion_app_ai_rest_request',
         'permission_callback' => 'captacion_app_ai_rest_permission',
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     register_rest_route('captacion-app/v1', '/ai/admin-request', array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'captacion_app_ai_rest_admin_request',
         'permission_callback' => 'captacion_app_ai_rest_permission',
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     register_rest_route('captacion-app/v1', '/ai/match-explanation', array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'captacion_app_ai_rest_match_explanation',
         'permission_callback' => 'captacion_app_ai_rest_permission',
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     register_rest_route('captacion-app/v1', '/ai/enhance-listing', array(
         'methods' => WP_REST_Server::CREATABLE,
@@ -5514,30 +5514,30 @@ function captacion_app_register_ai_rest_routes() {
         'permission_callback' => 'captacion_app_ai_rest_permission',
     ));
 }
-add_action('rest_api_init', 'captacion_app_register_ai_rest_routes');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_admin_is_configured() {
     $settings = captacion_app_settings();
     return !empty($settings['ai_admin_provider']) && !empty($settings['ai_admin_api_key']);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_admin_get_connection() {
     if (!captacion_app_ai_admin_is_configured()) {
         return null;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $settings = captacion_app_settings();
     $providers = captacion_app_ai_providers();
-    $provider = sanitize_key($settings['ai_admin_provider']);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (!isset($providers[$provider])) {
         return null;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $model = sanitize_text_field($settings['ai_admin_model']);
     if ($model === '') {
         $model = $providers[$provider]['default_model'];
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return array(
         'provider' => $provider,
@@ -5548,13 +5548,13 @@ function captacion_app_ai_admin_get_connection() {
         'transport' => $providers[$provider]['transport'],
         'active' => true,
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_admin_request($payload) {
     $connection = captacion_app_ai_admin_get_connection();
     if (!$connection) {
         return new WP_Error('captacion_ai_admin_not_configured', 'La IA centralizada no está configurada. El administrador debe configurar un proveedor en Ajustes de Compra Captación.', array('status' => 412));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $defaults = array(
         'prompt' => '',
@@ -5562,21 +5562,21 @@ function captacion_app_ai_admin_request($payload) {
         'context' => array(),
         'temperature' => 0.3,
         'max_tokens' => 700,
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return captacion_app_ai_provider_request($connection, wp_parse_args($payload, $defaults));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_admin_request(WP_REST_Request $request) {
     if (!captacion_app_ai_admin_is_configured()) {
         return new WP_Error('captacion_ai_admin_not_configured', 'La IA centralizada no está configurada.', array('status' => 412));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $params = $request->get_json_params();
     $prompt = trim((string) ($params['prompt'] ?? ''));
     if ($prompt === '') {
         return new WP_Error('captacion_ai_missing_prompt', 'La solicitud no incluye un prompt válido.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $payload = array(
         'prompt' => $prompt,
@@ -5584,17 +5584,17 @@ function captacion_app_ai_rest_admin_request(WP_REST_Request $request) {
         'context' => $params['context'] ?? array(),
         'temperature' => $params['temperature'] ?? 0.3,
         'max_tokens' => $params['max_tokens'] ?? 700,
-    );
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $result = captacion_app_ai_admin_request($payload);
     if (is_wp_error($result)) {
         return $result;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     captacion_app_ai_log('Solicitud IA centralizada completada.', array(
         'user_id' => get_current_user_id(),
         'provider' => $result['provider'],
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'success' => true,
@@ -5602,20 +5602,20 @@ function captacion_app_ai_rest_admin_request(WP_REST_Request $request) {
         'model' => $result['model'],
         'text' => $result['text'],
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_match_explanation(WP_REST_Request $request) {
     if (!captacion_app_ai_admin_is_configured()) {
         return new WP_Error('captacion_ai_admin_not_configured', 'La IA centralizada no está configurada.', array('status' => 412));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $params = $request->get_json_params();
     $property = $params['property'] ?? array();
-    $need = $params['need'] ?? array();
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (empty($property) || empty($need)) {
         return new WP_Error('captacion_ai_missing_data', 'Debes proporcionar datos de propiedad y demanda.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $propertyTitle = sanitize_text_field($property['title'] ?? $property['property_title'] ?? 'Propiedad');
     $propertyType = sanitize_text_field($property['property_type'] ?? $property['type'] ?? '');
@@ -5625,7 +5625,7 @@ function captacion_app_ai_rest_match_explanation(WP_REST_Request $request) {
     $propertySurface = (float) ($property['total_area_m2'] ?? $property['surface'] ?? 0);
     $propertyProvince = sanitize_text_field($property['province'] ?? $property['location'] ?? '');
     $propertyMunicipality = sanitize_text_field($property['municipality'] ?? '');
-    $propertyPostalCode = sanitize_text_field($property['postalCode'] ?? $property['postal_code'] ?? '');
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $needTitle = sanitize_text_field($need['title'] ?? $need['need_title'] ?? 'Demanda');
     $needType = sanitize_text_field($need['property_type'] ?? $need['type'] ?? '');
@@ -5635,7 +5635,7 @@ function captacion_app_ai_rest_match_explanation(WP_REST_Request $request) {
     $needSurface = (float) ($need['desired_area_min_m2'] ?? $need['surface'] ?? 0);
     $needProvince = sanitize_text_field($need['province'] ?? $need['location'] ?? '');
     $needMunicipality = sanitize_text_field($need['municipality'] ?? '');
-    $needPostalCode = sanitize_text_field($need['postalCode'] ?? $need['postal_code'] ?? '');
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $prompt = "Genera una explicacion breve y profesional (maximo 3 lineas) de por que esta propiedad coincide con esta demanda inmobiliaria.\n\n";
     $prompt .= "PROPIEDAD:\n";
@@ -5653,34 +5653,34 @@ function captacion_app_ai_rest_match_explanation(WP_REST_Request $request) {
     if ($needBedrooms) { $prompt .= "- Habitaciones minimas: {$needBedrooms}\n"; }
     if ($needBathrooms) { $prompt .= "- Banos minimos: {$needBathrooms}\n"; }
     if ($needSurface) { $prompt .= "- Superficie minima: {$needSurface} m2\n"; }
-    $prompt .= "- Ubicacion: " . implode(', ', array_filter(array($needProvince, $needMunicipality, $needPostalCode)));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
-    $systemInstruction = "Eres un consultor inmobiliario experto en analisis de coincidencias oferta-demanda. Responde en espanol profesional, claro y directo. No inventes datos. Limitate a senalar los puntos de compatibilidad reales entre la propiedad y la demanda.";
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $result = captacion_app_ai_admin_request(array(
         'prompt' => $prompt,
         'system_instruction' => $systemInstruction,
         'temperature' => 0.2,
         'max_tokens' => 300,
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (is_wp_error($result)) {
         captacion_app_ai_log('Error generando explicacion de match.', array(
             'error' => $result->get_error_message(),
         ));
         return $result;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'success' => true,
         'explanation' => $result['text'],
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_ai_rest_enhance_listing(WP_REST_Request $request) {
     if (!captacion_app_ai_admin_is_configured()) {
         return new WP_Error('captacion_ai_admin_not_configured', 'La IA centralizada no esta configurada.', array('status' => 412));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $params = $request->get_json_params();
     $current_title = trim((string) ($params['title'] ?? ''));
@@ -5688,11 +5688,11 @@ function captacion_app_ai_rest_enhance_listing(WP_REST_Request $request) {
     $property_type = sanitize_text_field($params['property_type'] ?? $params['type'] ?? 'inmueble');
     $location = sanitize_text_field($params['location'] ?? '');
     $price = isset($params['price']) ? (float) $params['price'] : 0;
-    $features = trim((string) ($params['features'] ?? ''));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($current_title === '' && $current_description === '') {
         return new WP_Error('captacion_ai_missing_content', 'Proporciona al menos un titulo o descripcion actual para mejorar.', array('status' => 400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $prompt = "Eres un copywriter inmobiliario experto en marketing digital B2B.\n\n";
     $prompt .= "Mejora el titulo y la descripcion de este inmueble para hacerlos mas atractivos, profesionales y efectivos en un marketplace B2B entre agentes inmobiliarios.\n\n";
@@ -5703,34 +5703,34 @@ function captacion_app_ai_rest_enhance_listing(WP_REST_Request $request) {
     $prompt .= "\nTITULO ACTUAL: {$current_title}\n";
     $prompt .= "DESCRIPCION ACTUAL: {$current_description}\n\n";
     $prompt .= "Devuelve SOLO el siguiente formato JSON sin explicaciones:\n";
-    $prompt .= '{"title": "nuevo titulo mejorado", "description": "nueva descripcion mejorada"}';
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
-    $systemInstruction = "Eres un asistente inmobiliario especializado en copywriting B2B. Responde en espanol profesional. Responde SOLO con el JSON solicitado, sin explicaciones ni texto adicional. Manten los datos clave del inmueble (precio, ubicacion, tipo) sin alterarlos.";
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $result = captacion_app_ai_admin_request(array(
         'prompt' => $prompt,
         'system_instruction' => $systemInstruction,
         'temperature' => 0.3,
         'max_tokens' => 600,
-    ));
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (is_wp_error($result)) {
         captacion_app_ai_log('Error mejorando listing.', array(
             'error' => $result->get_error_message(),
         ));
         return $result;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $json_text = trim($result['text']);
     $json_text = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $json_text);
-    $parsed = json_decode($json_text, true);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if (!is_array($parsed) || empty($parsed['title'])) {
         $parsed = array(
             'title' => $current_title ?: $property_type . ' en ' . ($location ?: 'venta'),
             'description' => $current_description ?: $json_text,
         );
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return rest_ensure_response(array(
         'success' => true,
@@ -5738,18 +5738,18 @@ function captacion_app_ai_rest_enhance_listing(WP_REST_Request $request) {
         'description' => sanitize_textarea_field($parsed['description'] ?? ''),
         'raw' => $result['text'],
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 /* Official territorial synchronization: INE + CartoCiudad/CNIG. */
 function captacion_app_territory_table_name() {
     global $wpdb;
     return $wpdb->prefix . 'captacion_territories';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_territory_postal_table_name() {
     global $wpdb;
     return $wpdb->prefix . 'captacion_territory_postal_codes';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_install_territory_table() {
     global $wpdb;
@@ -5775,7 +5775,7 @@ function captacion_app_install_territory_table() {
         KEY provincia_codigo (provincia_codigo),
         KEY municipio_nombre (municipio_nombre),
         KEY codigo_postal (codigo_postal)
-    ) {$charset_collate};");
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $legacy_indexes = $wpdb->get_col("SHOW INDEX FROM {$table}", 2);
     foreach (array('level_code','parent_level','name') as $legacy_index) {
@@ -5784,7 +5784,7 @@ function captacion_app_install_territory_table() {
     $legacy_columns = $wpdb->get_col("SHOW COLUMNS FROM {$table}", 0);
     foreach (array('level','code','parent_code','name','ine_code','extra') as $legacy_column) {
         if (in_array($legacy_column, $legacy_columns, true)) $wpdb->query("ALTER TABLE {$table} DROP COLUMN {$legacy_column}");
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     dbDelta("CREATE TABLE {$postal_table} (
         id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -5797,7 +5797,7 @@ function captacion_app_install_territory_table() {
         UNIQUE KEY municipio_postal (municipio_codigo_ine, codigo_postal),
         KEY codigo_postal (codigo_postal),
         KEY municipio_codigo_ine (municipio_codigo_ine)
-    ) {$charset_collate};");
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     update_option('captacion_territory_table_version', '20260620');
 }
@@ -5806,14 +5806,14 @@ function captacion_app_maybe_install_territory_table() {
     if (get_option('captacion_territory_table_version') !== '20260620') {
         captacion_app_install_territory_table();
     }
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_prepare_territory_catalog() {
     captacion_app_maybe_install_territory_table();
     captacion_app_maybe_seed_territories();
 }
 add_action('after_switch_theme', 'captacion_app_prepare_territory_catalog', 20);
-add_action('admin_init', 'captacion_app_prepare_territory_catalog');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_territory_reference_maps() {
     $communities = array(
@@ -5826,12 +5826,12 @@ function captacion_app_territory_reference_maps() {
         '04'=>'01','11'=>'01','14'=>'01','18'=>'01','21'=>'01','23'=>'01','29'=>'01','41'=>'01','22'=>'02','44'=>'02','50'=>'02','33'=>'03','07'=>'04','35'=>'05','38'=>'05','39'=>'06','05'=>'07','09'=>'07','24'=>'07','34'=>'07','37'=>'07','40'=>'07','42'=>'07','47'=>'07','49'=>'07','02'=>'08','13'=>'08','16'=>'08','19'=>'08','45'=>'08','08'=>'09','17'=>'09','25'=>'09','43'=>'09','03'=>'10','12'=>'10','46'=>'10','06'=>'11','10'=>'11','15'=>'12','27'=>'12','32'=>'12','36'=>'12','28'=>'13','30'=>'14','31'=>'15','01'=>'16','20'=>'16','48'=>'16','26'=>'17','51'=>'18','52'=>'19'
     );
     return compact('communities', 'province_names', 'province_to_community');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_territory_normalize_header($value) {
     $value = remove_accents(strtolower(trim((string) $value)));
     return preg_replace('/[^a-z0-9]+/', '_', $value);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_territory_read_csv($path) {
     $handle = fopen($path, 'rb');
@@ -5848,14 +5848,14 @@ function captacion_app_territory_read_csv($path) {
     while (($row = fgetcsv($handle, 0, $delimiter)) !== false) $rows[] = $row;
     fclose($handle);
     return $rows;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_territory_xlsx_column_index($ref) {
     preg_match('/^[A-Z]+/i', (string) $ref, $match);
     $letters = strtoupper($match[0] ?? 'A'); $index = 0;
     for ($i = 0; $i < strlen($letters); $i++) $index = $index * 26 + (ord($letters[$i]) - 64);
     return max(0, $index - 1);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_territory_read_xlsx($path) {
     if (!class_exists('ZipArchive')) return new WP_Error('territory_xlsx_zip', 'ZipArchive no está disponible para leer XLSX.');
@@ -5900,14 +5900,14 @@ function captacion_app_territory_read_xlsx($path) {
     $zip->close();
     if (!$rows) return new WP_Error('territory_xlsx_sheet', 'El XLSX no contiene hojas legibles.');
     return $rows;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_territory_parse_file($path) {
     $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
     if ($extension === 'xlsx') return captacion_app_territory_read_xlsx($path);
     if (in_array($extension, array('csv', 'txt'), true)) return captacion_app_territory_read_csv($path);
     return new WP_Error('territory_file_type', 'Formato no compatible. Usa CSV o XLSX.');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_territory_row_value($row, $headers, $aliases) {
     foreach ($aliases as $alias) {
@@ -5915,7 +5915,7 @@ function captacion_app_territory_row_value($row, $headers, $aliases) {
         if (isset($headers[$key]) && isset($row[$headers[$key]])) return trim((string) $row[$headers[$key]]);
     }
     return '';
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_insert_territory_row($row) {
     global $wpdb;
@@ -5924,7 +5924,7 @@ function captacion_app_insert_territory_row($row) {
     $municipality_code = preg_replace('/\D/', '', (string) ($row['municipio_codigo_ine'] ?? ''));
     if (strlen($municipality_code) !== 5) {
         return false;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     return false !== $wpdb->replace($table, array(
         'comunidad_codigo' => str_pad(substr(preg_replace('/\D/', '', (string) ($row['comunidad_codigo'] ?? '')), 0, 2), 2, '0', STR_PAD_LEFT),
@@ -5938,25 +5938,25 @@ function captacion_app_insert_territory_row($row) {
         'created_at' => $row['created_at'] ?? $now,
         'updated_at' => $now,
     ), array('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s'));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_maybe_seed_territories() {
     global $wpdb;
     $table = captacion_app_territory_table_name();
     if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table)) !== $table) {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table} WHERE municipio_codigo_ine <> ''");
     if ($count >= 8000 || get_option('captacion_territory_seed_version') === 'INE-2026-8132') {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $path = get_template_directory() . '/src/data/territorios-espana.json';
     $catalog = file_exists($path) ? json_decode(file_get_contents($path), true) : array();
     if (!is_array($catalog) || !$catalog) {
         return;
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $wpdb->query("TRUNCATE TABLE {$table}");
     $inserted = 0;
@@ -5976,7 +5976,7 @@ function captacion_app_maybe_seed_territories() {
                 }
             }
         }
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     if ($inserted >= 8000) {
         update_option('captacion_territory_seed_version', 'INE-2026-8132');
@@ -5984,7 +5984,7 @@ function captacion_app_maybe_seed_territories() {
         update_option('captacion_territory_source', 'INE 2026 - 26codmun.xlsx');
         delete_transient('captacion_territory_catalog');
     }
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_import_ine_territories($source, $replace = true) {
     global $wpdb;
@@ -6062,7 +6062,7 @@ function captacion_app_import_ine_territories($source, $replace = true) {
     update_option('captacion_territory_source', sanitize_text_field((string) $source));
     delete_transient('captacion_territory_catalog');
     return $counts;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_get_territory_catalog() {
     global $wpdb;
@@ -6096,9 +6096,9 @@ function captacion_app_get_territory_catalog() {
     foreach ($municipalities as $municipality) { $parent = $municipality['parent']; unset($municipality['parent']); if (isset($provinces[$parent])) $provinces[$parent]['municipalities'][] = $municipality; }
     foreach ($provinces as $province) { $parent = $province['parent']; unset($province['parent']); if (isset($communities[$parent])) $communities[$parent]['provinces'][] = $province; }
     $catalog = array_values($communities); set_transient('captacion_territory_catalog', $catalog, DAY_IN_SECONDS); return $catalog;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
-function captacion_app_get_territory_catalog_json() { return wp_json_encode(captacion_app_get_territory_catalog(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); }
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_get_normalized_territories() {
     $catalog = captacion_app_get_territory_catalog();
@@ -6117,7 +6117,7 @@ function captacion_app_get_normalized_territories() {
         }
     }
     return $normalized;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_export_territory_catalog($destination = '') {
     $destination = $destination ?: get_template_directory() . '/src/data/territorios-espana.json';
@@ -6126,7 +6126,7 @@ function captacion_app_export_territory_catalog($destination = '') {
     $json = wp_json_encode(captacion_app_get_territory_catalog(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     if (file_put_contents($destination, $json . PHP_EOL, LOCK_EX) === false) return new WP_Error('territory_export_write', 'No se pudo escribir el JSON territorial.');
     return wp_normalize_path($destination);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_territories() {
     global $wpdb;
@@ -6140,7 +6140,7 @@ function captacion_app_rest_territories() {
         'catalog'=>captacion_app_get_territory_catalog(),
         'normalized'=>captacion_app_get_normalized_territories(),
     ));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_territory_provinces(WP_REST_Request $request) {
     global $wpdb;
@@ -6151,7 +6151,7 @@ function captacion_app_rest_territory_provinces(WP_REST_Request $request) {
         $community
     ), ARRAY_A);
     return rest_ensure_response(array('ok'=>true,'community'=>$community,'provinces'=>$rows ?: array()));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_territory_municipalities(WP_REST_Request $request) {
     global $wpdb;
@@ -6166,7 +6166,7 @@ function captacion_app_rest_territory_municipalities(WP_REST_Request $request) {
     }
     unset($row);
     return rest_ensure_response(array('ok'=>true,'province'=>$province,'municipalities'=>$rows ?: array()));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_admin_permission(WP_REST_Request $request) {
     if (!current_user_can('manage_options')) {
@@ -6177,14 +6177,14 @@ function captacion_app_rest_admin_permission(WP_REST_Request $request) {
         return new WP_Error('captacion_rest_invalid_nonce', 'Nonce no valido.', array('status'=>403));
     }
     return true;
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_import_territories(WP_REST_Request $request) {
     $source = sanitize_text_field((string) $request->get_param('source'));
     if (!$source) return new WP_Error('territory_source_required', 'Indica una fuente INE CSV o XLSX.', array('status'=>400));
     $result = captacion_app_import_ine_territories($source, true);
     return is_wp_error($result) ? $result : rest_ensure_response(array('ok'=>true,'counts'=>$result));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_parse_jsonp($body) {
     $body = trim((string) $body);
@@ -6193,14 +6193,14 @@ function captacion_app_parse_jsonp($body) {
     else { $start = $start_array; $end = strrpos($body, ']'); }
     if ($start === false || $end === false) return null;
     return json_decode(substr($body, $start, $end - $start + 1), true);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_rest_validate_cartociudad(WP_REST_Request $request) {
     $params = $request->get_json_params(); $params = is_array($params) ? $params : array();
     $postal_code = preg_replace('/\D/', '', (string) ($params['postalCode'] ?? ''));
     if ($postal_code !== '' && !preg_match('/^[0-9]{5}$/', $postal_code)) {
         return new WP_Error('territory_invalid_postal_code', 'El codigo postal debe contener exactamente 5 digitos.', array('status'=>400));
-    }
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $remote_address = sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? 'unknown');
     $rate_key = 'captacion_address_rate_' . substr(hash('sha256', $remote_address), 0, 24);
@@ -6208,7 +6208,7 @@ function captacion_app_rest_validate_cartociudad(WP_REST_Request $request) {
     if ($rate >= 12) {
         return new WP_Error('territory_address_rate_limit', 'Demasiadas validaciones. Espera unos minutos.', array('status'=>429));
     }
-    set_transient($rate_key, $rate + 1, 10 * MINUTE_IN_SECONDS);
+    'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
     $query = sanitize_text_field(implode(' ', array_filter(array($params['address'] ?? '', $params['postalCode'] ?? '', $params['municipality'] ?? '', $params['province'] ?? ''))));
     if (strlen($query) < 3) return new WP_Error('territory_address_query', 'Indica dirección, código postal o municipio.', array('status'=>400));
@@ -6218,11 +6218,11 @@ function captacion_app_rest_validate_cartociudad(WP_REST_Request $request) {
     $data = captacion_app_parse_jsonp(wp_remote_retrieve_body($response));
     if (!is_array($data)) return new WP_Error('territory_cartociudad_parse', 'CartoCiudad no devolvió una respuesta válida.', array('status'=>502));
     return rest_ensure_response(array('ok'=>true,'provider'=>'CartoCiudad/CNIG','query'=>$query,'results'=>array_slice(array_values($data),0,5)));
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_validate_two_digit_code($value) {
     return (bool) preg_match('/^[0-9]{1,2}$/', (string) $value);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_territory_routes() {
     register_rest_route('captacion/v1', '/territories', array('methods'=>WP_REST_Server::READABLE,'callback'=>'captacion_app_rest_territories','permission_callback'=>'__return_true'));
@@ -6242,7 +6242,7 @@ function captacion_app_register_territory_routes() {
     register_rest_route('captacion/v1', '/territories/validate-address', array('methods'=>WP_REST_Server::CREATABLE,'callback'=>'captacion_app_rest_validate_cartociudad','permission_callback'=>'captacion_app_rest_public_nonce_permission'));
     register_rest_route('captacion/v1', '/territories/import', array('methods'=>WP_REST_Server::CREATABLE,'callback'=>'captacion_app_rest_import_territories','permission_callback'=>'captacion_app_rest_admin_permission'));
 }
-add_action('rest_api_init', 'captacion_app_register_territory_routes');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_privacy_exporter($email, $page = 1) {
     global $wpdb;
@@ -6287,7 +6287,7 @@ function captacion_app_privacy_exporter($email, $page = 1) {
     }
     $done = ($offset + $limit) >= $total;
     return array('data' => $export_items, 'done' => $done);
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_privacy_exporter($exporters) {
     $exporters['captacion-app-records'] = array(
@@ -6296,7 +6296,7 @@ function captacion_app_register_privacy_exporter($exporters) {
     );
     return $exporters;
 }
-add_filter('wp_privacy_personal_data_exporters', 'captacion_app_register_privacy_exporter');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_privacy_eraser($email, $page = 1) {
     global $wpdb;
@@ -6323,7 +6323,7 @@ function captacion_app_privacy_eraser($email, $page = 1) {
         'messages' => array(sprintf('Se han marcado %d registros como eliminados.', $records_updated)),
         'done' => true,
     );
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 function captacion_app_register_privacy_eraser($erasers) {
     $erasers['captacion-app-records'] = array(
@@ -6332,7 +6332,7 @@ function captacion_app_register_privacy_eraser($erasers) {
     );
     return $erasers;
 }
-add_filter('wp_privacy_personal_data_erasers', 'captacion_app_register_privacy_eraser');
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
 
 if (defined('WP_CLI') && WP_CLI) {
     class Captacion_App_Territory_CLI_Command {
@@ -6357,4 +6357,4 @@ if (defined('WP_CLI') && WP_CLI) {
         }
     }
     WP_CLI::add_command('captacion territory', 'Captacion_App_Territory_CLI_Command');
-}
+'hero_title' => 'Compra, vende y comparte <span class="text-blue">captaciones</span> entre profesionales',
