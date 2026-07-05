@@ -16,7 +16,7 @@
 /Up_date*/
 /_tmp*/
 /captacion_a_wordpress_theme/
-/captacion_app_a_base/
+# /captacion_app_a_base/  # keep tracked so the live static Home can be deployed
 /captacion_app_web_hostinger/
 /captacion_app_wordpress_theme_1.6/
 /captacion_app_wp_clean/
