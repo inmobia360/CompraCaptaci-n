@@ -1,4 +1,4 @@
-# Captacion.app 1.5.1
+# Compra Captación 1.5.1
 
 - Resumen ejecutivo completamente navegable mediante tarjetas, donut, embudo, listados y métricas inferiores.
 - CTAs visibles, estados hover/focus, navegación por teclado y etiquetas accesibles.

@@ -1,4 +1,4 @@
-# Actualizacion Captacion.app 1.1.0
+# Actualizacion Compra Captación 1.1.0
 
 Base utilizada: `captacion-app-ine-2026-wordpress-corregido.zip` del 19/06/2026.
 El archivo de referencia original no se modifica.

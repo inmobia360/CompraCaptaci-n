@@ -1,6 +1,6 @@
 ﻿<?php
 /**
- * Importador territorial INE para Captacion.app.
+ * Importador territorial INE para Compra Captación.
  *
  * Uso recomendado:
  *   wp eval-file wp-content/themes/captacion-app/tools/import-ine-territories.php -- path/al/archivo.csv

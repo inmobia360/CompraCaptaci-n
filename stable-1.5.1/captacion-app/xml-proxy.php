@@ -1,6 +1,6 @@
 <?php
 /**
- * Proxy XML seguro y mínimo para Captacion.app.
+ * Proxy XML seguro y mínimo para Compra Captación.
  * Subir este fichero al mismo directorio que el HTML.
  * Uso: ./xml-proxy.php?url=https%3A%2F%2Fdominio.es%2Ffeed.xml
  */
@@ -57,7 +57,7 @@ if (function_exists('curl_init')) {
         CURLOPT_MAXREDIRS => 0,
         CURLOPT_CONNECTTIMEOUT => 8,
         CURLOPT_TIMEOUT => 18,
-        CURLOPT_USERAGENT => 'Captacion.app XML Importer/1.0',
+        CURLOPT_USERAGENT => 'Compra Captación XML Importer/1.0',
         CURLOPT_HTTPHEADER => ['Accept: application/xml,text/xml,application/rss+xml,*/*;q=0.5'],
         CURLOPT_RETURNTRANSFER => false,
         CURLOPT_HEADER => false,
@@ -86,7 +86,7 @@ if (function_exists('curl_init')) {
         'http' => [
             'method' => 'GET',
             'timeout' => 18,
-            'header' => "User-Agent: Captacion.app XML Importer/1.0\r\nAccept: application/xml,text/xml,application/rss+xml,*/*;q=0.5\r\n",
+            'header' => "User-Agent: Compra Captación XML Importer/1.0\r\nAccept: application/xml,text/xml,application/rss+xml,*/*;q=0.5\r\n",
             'follow_location' => 0,
             'max_redirects' => 0,
         ],
@@ -107,6 +107,11 @@ if ($body === '') {
 }
 if (strlen($body) > $maxBytes) {
     fail_response(413, 'El XML supera el tamaño máximo permitido de 5 MB.');
+}
+
+$preview = strtolower(substr(trim($body), 0, 500));
+if (preg_match('/^<!doctype\s+html/i', $body) || preg_match('/^<html\b/i', $body) || preg_match('/<body\b/i', $body) || preg_match('/ha fallado la comprobaci[oó]n de la cookie|cookie|consent|login|iniciar sesi[oó]n|acceso restringido/i', $preview)) {
+    fail_response(422, 'La URL remota devuelve HTML o una pantalla intermedia de cookies/login, no XML válido.');
 }
 
 libxml_use_internal_errors(true);

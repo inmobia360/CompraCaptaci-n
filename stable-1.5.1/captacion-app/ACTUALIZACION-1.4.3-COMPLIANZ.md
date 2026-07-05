@@ -1,4 +1,4 @@
-# Captacion.app 1.4.3 — Complianz, RGPD y consentimiento
+# Compra Captación 1.4.3 — Complianz, RGPD y consentimiento
 
 ## Cambios funcionales
 

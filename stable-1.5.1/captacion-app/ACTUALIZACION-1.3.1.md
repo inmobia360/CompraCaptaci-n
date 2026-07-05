@@ -1,4 +1,4 @@
-# Captacion.app 1.3.1
+# Compra Captación 1.3.1
 
 Fecha: 20 de junio de 2026.
 

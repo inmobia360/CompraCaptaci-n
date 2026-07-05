@@ -5,30 +5,43 @@ if (!defined('ABSPATH')) {
 
 function captacion_app_defaults() {
     return array(
-        'brand_name' => 'Captacion.app',
+        'brand_name' => 'Compra Captación',
         'site_title' => 'Captaciones inmobiliarias | Compra, vende y colabora entre profesionales',
-        'meta_description' => 'Compra Captacion es un marketplace B2B de captaciones inmobiliarias para profesionales. Publica oportunidades, busca demandas activas y colabora con acceso protegido.',
+        'meta_description' => 'Compra Captación es un marketplace B2B de captaciones inmobiliarias para profesionales. Publica oportunidades, busca demandas activas y colabora con acceso protegido.',
         'hero_kicker' => 'Red privada B2B para profesionales inmobiliarios',
         'hero_title' => 'Portal de <span class="text-blue">captaciones inmobiliarias</span> para profesionales',
-        'hero_description' => 'Compra Captacion ayuda a agentes, agencias e inversores a publicar captaciones, cruzar demandas activas y colaborar con acceso protegido, trazabilidad comercial y mejor contexto de operacion.',
+        'hero_description' => 'Compra Captación ayuda a agentes, agencias e inversores a publicar captaciones, cruzar demandas activas y colaborar con acceso protegido, trazabilidad comercial y mejor contexto de operacion.',
         'primary_cta' => 'Entender el recorrido',
         'secondary_cta' => 'Ver el producto en accion',
-        'contact_email' => 'contacto@captacion.app',
+        'contact_email' => 'info@compracaptacion.com',
         'stripe_payment_link' => '',
         'stripe_membership_initial_link' => '',
+        'stripe_membership_initial_annual_link' => '',
         'stripe_membership_professional_link' => '',
+        'stripe_membership_professional_annual_link' => '',
         'stripe_membership_agency_link' => '',
+        'stripe_membership_agency_annual_link' => '',
         'stripe_marketplace_single_link' => '',
         'stripe_marketplace_plus_pack_link' => '',
         'stripe_marketplace_premium_pack_link' => '',
         'mailchimp_api_key' => '',
         'mailchimp_audience_id' => '',
         'mailchimp_double_optin' => '0',
+        'social_login_enabled' => '0',
+        'webhook_api_key' => '',
+        'ai_admin_provider' => '',
+        'ai_admin_api_key' => '',
+        'ai_admin_model' => '',
         'saas_admin_email' => 'inmobia360@gmail.com',
     );
 }
 
 function captacion_app_settings() {
+    static $settings_cache = null;
+    if ($settings_cache !== null) {
+        return $settings_cache;
+    }
+
     $saved = get_option('captacion_app_settings', array());
     $defaults = captacion_app_defaults();
     $settings = wp_parse_args(is_array($saved) ? $saved : array(), $defaults);
@@ -39,7 +52,8 @@ function captacion_app_settings() {
         }
     }
 
-    return $settings;
+    $settings_cache = $settings;
+    return $settings_cache;
 }
 
 function captacion_app_setting($key) {
@@ -65,9 +79,9 @@ function captacion_app_sanitize_settings($input) {
             $output[$key] = sanitize_email($value);
         } elseif ($key === 'saas_admin_email') {
             $output[$key] = sanitize_email($value);
-        } elseif ($key === 'mailchimp_api_key' || $key === 'mailchimp_audience_id') {
+        } elseif ($key === 'mailchimp_api_key' || $key === 'mailchimp_audience_id' || $key === 'webhook_api_key' || $key === 'ai_admin_provider' || $key === 'ai_admin_api_key' || $key === 'ai_admin_model') {
             $output[$key] = sanitize_text_field($value);
-        } elseif ($key === 'mailchimp_double_optin') {
+        } elseif ($key === 'mailchimp_double_optin' || $key === 'social_login_enabled') {
             $output[$key] = !empty($value) ? '1' : '0';
         } else {
             $output[$key] = sanitize_text_field($value);
@@ -79,8 +93,8 @@ function captacion_app_sanitize_settings($input) {
 
 function captacion_app_admin_menu() {
     add_menu_page(
-        'Captacion.app',
-        'Captacion.app',
+        'Compra Captación',
+        'Compra Captación',
         'manage_options',
         'captacion-app-settings',
         'captacion_app_render_settings_page',
@@ -182,7 +196,7 @@ function captacion_app_render_settings_page() {
     $settings = captacion_app_settings();
     ?>
     <div class="wrap">
-        <h1>Captacion.app</h1>
+        <h1>Compra Captación</h1>
         <p>Edita los textos principales y la pasarela Stripe de la web.</p>
         <?php if (isset($_GET['captacion_pages_created']) || isset($_GET['captacion_pages_updated'])) : ?>
             <div class="notice notice-success is-dismissible">
@@ -212,7 +226,7 @@ function captacion_app_render_settings_page() {
 
         <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px;">
             <h2>Restaurar paginas editables</h2>
-            <p>Crea o actualiza la estructura base de paginas de Captacion.app para devolverlas al contenido original del tema.</p>
+            <p>Crea o actualiza la estructura base de paginas de Compra Captación para devolverlas al contenido original del tema.</p>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('captacion_app_create_pages'); ?>
                 <input type="hidden" name="action" value="captacion_app_create_pages">
@@ -232,7 +246,7 @@ function captacion_app_render_settings_page() {
 
         <div class="card" style="max-width: 900px; margin-top: 16px; padding: 18px; border-left:4px solid #b32d2e;">
             <h2>Reset SaaS dia 1</h2>
-            <p><strong>Accion irreversible.</strong> Vacia los repositorios propios de Captacion.app, elimina usuarios SaaS detectados por metadatos de la app y prepara el administrador SaaS configurado. No guarda la contrasena en codigo.</p>
+            <p><strong>Accion irreversible.</strong> Vacia los repositorios propios de Compra Captación, elimina usuarios SaaS detectados por metadatos de la app y prepara el administrador SaaS configurado. No guarda la contrasena en codigo.</p>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" autocomplete="off">
                 <?php wp_nonce_field('captacion_app_reset_day_one'); ?>
                 <input type="hidden" name="action" value="captacion_app_reset_day_one">
@@ -307,24 +321,45 @@ function captacion_app_render_settings_page() {
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="captacion_stripe_membership_initial_link">Stripe Starter</label></th>
+                    <th scope="row"><label for="captacion_stripe_membership_initial_link">Stripe Starter mensual</label></th>
                     <td>
                         <input id="captacion_stripe_membership_initial_link" class="large-text" type="url" name="captacion_app_settings[stripe_membership_initial_link]" value="<?php echo esc_attr($settings['stripe_membership_initial_link']); ?>">
-                        <p class="description">Opcional. Si lo dejas vacio, Starter se mantiene como registro gratuito.</p>
+                        <p class="description">Payment Link de 19 EUR/mes para Starter. Los 3 primeros meses se gestionan via trial interno.</p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="captacion_stripe_membership_professional_link">Stripe Plan Profesional</label></th>
+                    <th scope="row"><label for="captacion_stripe_membership_initial_annual_link">Stripe Starter anual</label></th>
+                    <td>
+                        <input id="captacion_stripe_membership_initial_annual_link" class="large-text" type="url" name="captacion_app_settings[stripe_membership_initial_annual_link]" value="<?php echo esc_attr($settings['stripe_membership_initial_annual_link']); ?>">
+                        <p class="description">Payment Link anual de 190 EUR/año para Starter. Si se deja vacio, se usara el enlace mensual.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="captacion_stripe_membership_professional_link">Stripe Plan Profesional mensual</label></th>
                     <td>
                         <input id="captacion_stripe_membership_professional_link" class="large-text" type="url" name="captacion_app_settings[stripe_membership_professional_link]" value="<?php echo esc_attr($settings['stripe_membership_professional_link']); ?>">
-                        <p class="description">Payment Link de Stripe para la membresia Professional mensual.</p>
+                        <p class="description">Payment Link de 29 EUR/mes para Profesional.</p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="captacion_stripe_membership_agency_link">Stripe Plan Premium</label></th>
+                    <th scope="row"><label for="captacion_stripe_membership_professional_annual_link">Stripe Plan Profesional anual</label></th>
+                    <td>
+                        <input id="captacion_stripe_membership_professional_annual_link" class="large-text" type="url" name="captacion_app_settings[stripe_membership_professional_annual_link]" value="<?php echo esc_attr($settings['stripe_membership_professional_annual_link']); ?>">
+                        <p class="description">Payment Link anual de 290 EUR/año para Profesional. Si se deja vacio, se usara el enlace mensual.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="captacion_stripe_membership_agency_link">Stripe Plan Premium mensual</label></th>
                     <td>
                         <input id="captacion_stripe_membership_agency_link" class="large-text" type="url" name="captacion_app_settings[stripe_membership_agency_link]" value="<?php echo esc_attr($settings['stripe_membership_agency_link']); ?>">
-                        <p class="description">Payment Link de Stripe para la membresia Premium mensual.</p>
+                        <p class="description">Payment Link de 49 EUR/mes para Premium.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="captacion_stripe_membership_agency_annual_link">Stripe Plan Premium anual</label></th>
+                    <td>
+                        <input id="captacion_stripe_membership_agency_annual_link" class="large-text" type="url" name="captacion_app_settings[stripe_membership_agency_annual_link]" value="<?php echo esc_attr($settings['stripe_membership_agency_annual_link']); ?>">
+                        <p class="description">Payment Link anual de 490 EUR/año para Premium. Si se deja vacio, se usara el enlace mensual.</p>
                     </td>
                 </tr>
                 <tr>
@@ -335,17 +370,17 @@ function captacion_app_render_settings_page() {
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="captacion_stripe_marketplace_plus_pack_link">Stripe pack Professional</label></th>
+                    <th scope="row"><label for="captacion_stripe_marketplace_plus_pack_link">Stripe pack Profesional</label></th>
                     <td>
                         <input id="captacion_stripe_marketplace_plus_pack_link" class="large-text" type="url" name="captacion_app_settings[stripe_marketplace_plus_pack_link]" value="<?php echo esc_attr($settings['stripe_marketplace_plus_pack_link']); ?>">
-                        <p class="description">Payment Link de 5 EUR para 15 accesos extra.</p>
+                        <p class="description">Payment Link de 5 EUR para 10 accesos extra.</p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row"><label for="captacion_stripe_marketplace_premium_pack_link">Stripe pack Premium</label></th>
                     <td>
                         <input id="captacion_stripe_marketplace_premium_pack_link" class="large-text" type="url" name="captacion_app_settings[stripe_marketplace_premium_pack_link]" value="<?php echo esc_attr($settings['stripe_marketplace_premium_pack_link']); ?>">
-                        <p class="description">Payment Link de 5 EUR para 30 accesos extra.</p>
+                        <p class="description">Payment Link de 5 EUR para 15 accesos extra.</p>
                     </td>
                 </tr>
                 <tr>
@@ -360,6 +395,49 @@ function captacion_app_render_settings_page() {
                     <td>
                         <input id="captacion_mailchimp_audience_id" class="regular-text" name="captacion_app_settings[mailchimp_audience_id]" value="<?php echo esc_attr($settings['mailchimp_audience_id']); ?>">
                         <p class="description">ID de la audiencia/lista donde se guardaran los contactos.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Login social</th>
+                    <td>
+                        <label><input type="checkbox" name="captacion_app_settings[social_login_enabled]" value="1" <?php checked($settings['social_login_enabled'], '1'); ?>> Mostrar botones Google/Apple en registro y acceso</label>
+                        <p class="description">Activalo solo despues de instalar y configurar un plugin compatible, por ejemplo Sign In With Socials.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="captacion_webhook_api_key">API Key para webhooks</label></th>
+                    <td>
+                        <input id="captacion_webhook_api_key" class="regular-text" type="password" autocomplete="off" name="captacion_app_settings[webhook_api_key]" value="<?php echo esc_attr($settings['webhook_api_key']); ?>">
+                        <p class="description">Clave compartida para integraciones externas. Debe enviarse en el header X-Captacion-Webhook-Key. No uses claves de Stripe ni contrasenas reales.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th colspan="2" style="padding-bottom:0;"><h2 style="margin:16px 0 4px;font-size:1.15em;font-weight:700;">Inteligencia Artificial (centralizada)</h2><p class="description" style="margin-bottom:8px;">Configura un proveedor de IA para uso interno: explicaciones de match, mejora de titulos/descripciones y el asistente Match IA. Los usuarios avanzados pueden traer su propia API key desde el panel privado.</p></th>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="captacion_ai_admin_provider">Proveedor de IA</label></th>
+                    <td>
+                        <select id="captacion_ai_admin_provider" name="captacion_app_settings[ai_admin_provider]">
+                            <option value="">— Seleccionar —</option>
+                            <?php foreach (captacion_app_ai_providers() as $provider_key => $provider_info) : ?>
+                                <option value="<?php echo esc_attr($provider_key); ?>" <?php selected($settings['ai_admin_provider'], $provider_key); ?>><?php echo esc_html($provider_info['label']); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description">Selecciona el proveedor para la IA centralizada de la plataforma.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="captacion_ai_admin_api_key">API Key</label></th>
+                    <td>
+                        <input id="captacion_ai_admin_api_key" class="large-text" type="password" autocomplete="off" name="captacion_app_settings[ai_admin_api_key]" value="<?php echo esc_attr($settings['ai_admin_api_key']); ?>">
+                        <p class="description">Clave de API del proveedor seleccionado. Se almacena en la base de datos de WordPress.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="captacion_ai_admin_model">Modelo (opcional)</label></th>
+                    <td>
+                        <input id="captacion_ai_admin_model" class="regular-text" name="captacion_app_settings[ai_admin_model]" value="<?php echo esc_attr($settings['ai_admin_model']); ?>" placeholder="Ej: gpt-4o-mini">
+                        <p class="description">Si se deja vacio, se usara el modelo por defecto del proveedor.</p>
                     </td>
                 </tr>
                 <tr>
@@ -382,8 +460,56 @@ function captacion_app_setup() {
 }
 add_action('after_setup_theme', 'captacion_app_setup');
 
+function captacion_app_media_url($relative_path) {
+    static $cache = array();
+
+    $relative_path = ltrim((string) $relative_path, '/');
+    if ($relative_path === '') {
+        return get_template_directory_uri();
+    }
+    if (isset($cache[$relative_path])) {
+        return $cache[$relative_path];
+    }
+
+    $fallback_url = get_template_directory_uri() . '/' . $relative_path;
+    $filename = basename($relative_path);
+    if ($filename === '') {
+        $cache[$relative_path] = $fallback_url;
+        return $fallback_url;
+    }
+
+    $attachments = get_posts(array(
+        'post_type' => 'attachment',
+        'post_status' => 'inherit',
+        'posts_per_page' => 20,
+        'fields' => 'ids',
+        'meta_query' => array(
+            array(
+                'key' => '_wp_attached_file',
+                'value' => $filename,
+                'compare' => 'LIKE',
+            ),
+        ),
+    ));
+
+    foreach ($attachments as $attachment_id) {
+        $attached_file = (string) get_post_meta($attachment_id, '_wp_attached_file', true);
+        if (basename($attached_file) !== $filename) {
+            continue;
+        }
+        $url = wp_get_attachment_url($attachment_id);
+        if ($url) {
+            $cache[$relative_path] = $url;
+            return $url;
+        }
+    }
+
+    $cache[$relative_path] = $fallback_url;
+    return $fallback_url;
+}
+
 function captacion_app_output_theme_favicon() {
-    $favicon_uri = get_template_directory_uri() . '/media/favicon-compra-captacion.png';
+    $favicon_uri = captacion_app_media_url('media/favicon-compra-captacion.png');
     echo '<link rel="icon" type="image/png" sizes="512x512" href="' . esc_url($favicon_uri) . '">' . "\n";
     echo '<link rel="apple-touch-icon" href="' . esc_url($favicon_uri) . '">' . "\n";
 }
@@ -483,7 +609,6 @@ function captacion_app_maybe_install_mail_events_table() {
     }
 }
 add_action('admin_init', 'captacion_app_maybe_install_mail_events_table');
-add_action('init', 'captacion_app_maybe_install_mail_events_table');
 
 
 function captacion_app_records_table_name() {
@@ -543,7 +668,6 @@ function captacion_app_maybe_install_records_table() {
     }
 }
 add_action('admin_init', 'captacion_app_maybe_install_records_table');
-add_action('init', 'captacion_app_maybe_install_records_table');
 
 function captacion_app_migrate_existing_records_ownership() {
     if (get_option('captacion_app_records_data_migration') === '20260627') return;
@@ -580,7 +704,6 @@ function captacion_app_soft_delete_legacy_seed_records() {
     update_option('captacion_app_legacy_seed_cleanup', '20260627-production');
 }
 add_action('admin_init', 'captacion_app_soft_delete_legacy_seed_records');
-add_action('init', 'captacion_app_soft_delete_legacy_seed_records');
 
 function captacion_app_import_batches_table_name() {
     global $wpdb;
@@ -630,7 +753,6 @@ function captacion_app_maybe_install_import_batches_table() {
     }
 }
 add_action('admin_init', 'captacion_app_maybe_install_import_batches_table');
-add_action('init', 'captacion_app_maybe_install_import_batches_table');
 
 function captacion_app_allowed_record_types() {
     return array(
@@ -676,7 +798,10 @@ function captacion_app_create_import_batch($data) {
         'created_at' => $now,
         'updated_at' => $now,
     );
-    $wpdb->insert($table, $row);
+    $inserted = $wpdb->insert($table, $row);
+    if ($inserted === false) {
+        return new WP_Error('captacion_batch_create_failed', 'No se pudo registrar el XML importado: ' . $wpdb->last_error, array('status' => 500));
+    }
     return absint($wpdb->insert_id);
 }
 
@@ -684,8 +809,10 @@ function captacion_app_update_import_batch_status($batch_id, $status, $extra = a
     global $wpdb;
     $table = captacion_app_import_batches_table_name();
     $data = array('status' => sanitize_key($status), 'updated_at' => current_time('mysql'));
+    if (isset($extra['records_total'])) $data['records_total'] = absint($extra['records_total']);
     if (isset($extra['records_imported'])) $data['records_imported'] = absint($extra['records_imported']);
     if (isset($extra['records_rejected'])) $data['records_rejected'] = absint($extra['records_rejected']);
+    if (isset($extra['source_hash'])) $data['source_hash'] = sanitize_text_field($extra['source_hash']);
     if (isset($extra['summary_json'])) $data['summary_json'] = wp_json_encode($extra['summary_json']);
     return $wpdb->update($table, $data, array('import_batch_id' => $batch_id));
 }
@@ -715,6 +842,16 @@ function captacion_app_get_import_batch($batch_id) {
     return $row;
 }
 
+function captacion_app_get_import_batch_by_source($owner_user_id, $data_origin, $source_file_name) {
+    global $wpdb;
+    $table = captacion_app_import_batches_table_name();
+    $row = $wpdb->get_row($wpdb->prepare(
+        "SELECT * FROM {$table} WHERE owner_user_id = %d AND data_origin = %s AND source_file_name = %s AND deleted_at IS NULL AND (status IS NULL OR status != 'deleted') ORDER BY created_at DESC LIMIT 1",
+        absint($owner_user_id), sanitize_key($data_origin), sanitize_text_field($source_file_name)
+    ), ARRAY_A);
+    return $row;
+}
+
 function captacion_app_user_can_manage_import_batch($batch) {
     if (!$batch || !is_array($batch)) return false;
     if (current_user_can('manage_options')) return true;
@@ -729,6 +866,15 @@ function captacion_app_get_import_batch_pending_blockers($batch_id) {
         "SELECT record_key, related_id, payload FROM {$records_table} WHERE import_batch_id = %s AND record_type = 'property' AND deleted_at IS NULL LIMIT 1000",
         $batch_id
     ), ARRAY_A);
+    if (empty($properties)) {
+        $batch = captacion_app_get_import_batch($batch_id);
+        if ($batch && !empty($batch['source_file_name'])) {
+            $properties = $wpdb->get_results($wpdb->prepare(
+                "SELECT record_key, related_id, payload FROM {$records_table} WHERE owner_user_id = %d AND data_origin = %s AND source_file_name = %s AND record_type = 'property' AND deleted_at IS NULL LIMIT 1000",
+                absint($batch['owner_user_id']), sanitize_key($batch['data_origin']), sanitize_text_field($batch['source_file_name'])
+            ), ARRAY_A);
+        }
+    }
     $property_ids = array();
     foreach ($properties as $property) {
         foreach (array($property['record_key'] ?? '', $property['related_id'] ?? '') as $value) {
@@ -779,25 +925,30 @@ function captacion_app_get_import_batch_pending_blockers($batch_id) {
     return array('count' => count($blockers), 'items' => array_slice($blockers, 0, 10));
 }
 
-function captacion_app_soft_delete_import_batch_records($batch_id, $now = '') {
+function captacion_app_hard_delete_import_batch_records($batch_id) {
     global $wpdb;
-    $now = $now ?: current_time('mysql');
     $records_table = captacion_app_records_table_name();
-    return $wpdb->query($wpdb->prepare(
-        "UPDATE {$records_table} SET deleted_at = %s WHERE import_batch_id = %s AND deleted_at IS NULL",
-        $now,
+    $deleted = $wpdb->query($wpdb->prepare(
+        "DELETE FROM {$records_table} WHERE import_batch_id = %s",
         $batch_id
     ));
+    $batch = captacion_app_get_import_batch($batch_id);
+    if ($batch && !empty($batch['source_file_name'])) {
+        $deleted += $wpdb->query($wpdb->prepare(
+            "DELETE FROM {$records_table} WHERE owner_user_id = %d AND data_origin = %s AND source_file_name = %s",
+            absint($batch['owner_user_id']),
+            sanitize_key($batch['data_origin']),
+            sanitize_text_field($batch['source_file_name'])
+        ));
+    }
+    return $deleted;
 }
 
-function captacion_app_mark_import_batch_deleted($batch_id, $now = '') {
+function captacion_app_hard_delete_import_batch($batch_id) {
     global $wpdb;
-    $now = $now ?: current_time('mysql');
     $batches_table = captacion_app_import_batches_table_name();
     return $wpdb->query($wpdb->prepare(
-        "UPDATE {$batches_table} SET deleted_at = %s, status = 'deleted', updated_at = %s WHERE import_batch_id = %s",
-        $now,
-        $now,
+        "DELETE FROM {$batches_table} WHERE import_batch_id = %s",
         $batch_id
     ));
 }
@@ -820,9 +971,8 @@ function captacion_app_complete_pending_feed_deletions($owner_user_id = 0) {
         $batch_id = $batch['import_batch_id'];
         $blockers = captacion_app_get_import_batch_pending_blockers($batch_id);
         if (!empty($blockers['count'])) continue;
-        $now = current_time('mysql');
-        captacion_app_soft_delete_import_batch_records($batch_id, $now);
-        captacion_app_mark_import_batch_deleted($batch_id, $now);
+        captacion_app_hard_delete_import_batch_records($batch_id);
+        captacion_app_hard_delete_import_batch($batch_id);
         captacion_app_log_resource_event(array('resource_id' => 'import_batch_delete'), 'xml_batch_deletion_completed', array(
             'import_batch_id' => $batch_id,
             'owner_user_id' => $batch['owner_user_id'],
@@ -844,6 +994,11 @@ function captacion_app_resource_catalog_defaults() {
 }
 
 function captacion_app_resource_catalog() {
+    static $catalog_cache = null;
+    if ($catalog_cache !== null) {
+        return $catalog_cache;
+    }
+
     $catalog = captacion_app_resource_catalog_defaults();
     $saved = get_option('captacion_app_resource_settings', array());
     foreach ($catalog as $resource_id => &$resource) {
@@ -868,8 +1023,55 @@ function captacion_app_resource_catalog() {
         }
     }
     unset($resource);
-    return $catalog;
+    $catalog_cache = $catalog;
+    return $catalog_cache;
 }
+
+function captacion_app_resource_local_pdf_path($resource_id) {
+    $map = array(
+        'nda' => 'recursos/plantilla-nda-confidencialidad-captacion-app.pdf',
+        'collaboration' => 'recursos/plantilla-acuerdo-colaboracion-honorarios-captacion-app.pdf',
+    );
+    if (empty($map[$resource_id])) return '';
+    $path = trailingslashit(get_template_directory()) . $map[$resource_id];
+    return file_exists($path) ? $path : '';
+}
+
+function captacion_app_resource_template_pdf_url($resource_id) {
+    $resource_id = sanitize_key($resource_id);
+    return wp_nonce_url(
+        admin_url('admin-post.php?action=captacion_resource_template_pdf_download&resource=' . rawurlencode($resource_id)),
+        'captacion_resource_template_' . $resource_id
+    );
+}
+
+function captacion_app_download_resource_template_pdf() {
+    $resource_id = sanitize_key($_GET['resource'] ?? '');
+    if (!$resource_id) wp_die('Recurso no encontrado.', 'Compra Captación', array('response' => 404));
+    check_admin_referer('captacion_resource_template_' . $resource_id);
+    $resource = captacion_app_resource_access_check($resource_id, false);
+    if (is_wp_error($resource)) wp_die(esc_html($resource->get_error_message()), 'Compra Captación', array('response' => $resource->get_error_data()['status'] ?? 403));
+
+    $local_path = captacion_app_resource_local_pdf_path($resource_id);
+    if ($local_path) {
+        $pdf = file_get_contents($local_path);
+    } else {
+        $pdf = Captacion_PDF_Generator::generate($resource['title'], array(
+            'Tipo de documento' => 'Plantilla base',
+            'Uso' => 'Documento orientativo para adaptar con datos profesionales.',
+            'Nota' => 'Revisión jurídica recomendada antes de uso contractual definitivo.',
+        ));
+    }
+    if (!$pdf) wp_die('No se pudo preparar el PDF.', 'Compra Captación', array('response' => 500));
+    captacion_app_log_resource_event($resource, 'download_generated_pdf');
+    nocache_headers();
+    header('Content-Type: application/pdf');
+    header('Content-Disposition: attachment; filename="' . sanitize_file_name($resource['title']) . '.pdf"');
+    header('Content-Length: ' . strlen($pdf));
+    echo $pdf;
+    exit;
+}
+add_action('admin_post_captacion_resource_template_pdf_download', 'captacion_app_download_resource_template_pdf');
 
 function captacion_app_resource_events_table_name() {
     global $wpdb;
@@ -906,7 +1108,7 @@ add_action('after_switch_theme', 'captacion_app_install_resource_events_table');
 function captacion_app_maybe_install_resource_events_table() {
     if (get_option('captacion_resource_events_table_version') !== '20260620') captacion_app_install_resource_events_table();
 }
-add_action('init', 'captacion_app_maybe_install_resource_events_table');
+add_action('admin_init', 'captacion_app_maybe_install_resource_events_table');
 
 function captacion_app_log_resource_event($resource, $action_type, $data = array()) {
     global $wpdb;
@@ -931,8 +1133,24 @@ function captacion_app_log_resource_event($resource, $action_type, $data = array
 
 class Captacion_PDF_Generator {
     public static function generate($title, $fields) {
-        $lines = array($title, '', 'Documento orientativo generado por el usuario.', 'Revisar antes de firmar o utilizar.', '');
-        foreach ($fields as $label => $value) if ($value !== '') $lines[] = $label . ': ' . $value;
+        $lines = array(
+            'COMPRA CAPTACIÓN',
+            strtoupper((string) $title),
+            '',
+            'Documento personalizado generado por el usuario.',
+            'Plantilla base: recurso profesional descargable de Compra Captación.',
+            'Revision juridica recomendada antes de uso contractual definitivo.',
+            '',
+            'DATOS COMPLETADOS',
+            ''
+        );
+        foreach ($fields as $label => $value) {
+            if ($value !== '') $lines[] = $label . ': ' . $value;
+        }
+        $lines[] = '';
+        $lines[] = 'TRAZABILIDAD';
+        $lines[] = 'Generado: ' . current_time('mysql');
+        $lines[] = 'Uso previsto: revision operativa, descarga y envio por el usuario.';
         $text = implode("\n", $lines);
         if (function_exists('iconv')) {
             $converted = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
@@ -971,7 +1189,6 @@ function captacion_app_resource_access_check($resource_id, $require_create = fal
     $levels = array('basic'=>0, 'professional_plus'=>1, 'premium'=>2);
     $minimum_plan = $catalog[$resource_id]['plan_access'] ?? 'basic';
     if (($levels[$state['plan_type']] ?? 0) < ($levels[$minimum_plan] ?? 0)) return new WP_Error('captacion_resource_plan', 'Tu plan no incluye este recurso.', array('status'=>403));
-    if ($require_create && !in_array($state['plan_type'], array('professional_plus','premium'), true)) return new WP_Error('captacion_resource_plan', 'Crear PDF requiere Professional Plus o Premium.', array('status'=>403));
     return $catalog[$resource_id];
 }
 
@@ -1001,9 +1218,11 @@ function captacion_app_rest_generate_resource_pdf(WP_REST_Request $request) {
     $path = trailingslashit($directory) . $filename;
     if (file_put_contents($path, Captacion_PDF_Generator::generate($resource['title'], $fields)) === false) return new WP_Error('captacion_pdf_write', 'No se pudo generar el PDF.', array('status'=>500));
     $record_id = captacion_app_upsert_record(array('record_type'=>'generated_pdf','record_key'=>'generated-' . get_current_user_id() . '-' . wp_generate_uuid4(),'user_id'=>get_current_user_id(),'user_email'=>wp_get_current_user()->user_email,'title'=>$resource['title'],'status'=>'generated','related_id'=>$resource_id,'payload'=>array('resource_id'=>$resource_id,'path'=>$path,'filename'=>$filename)));
+    if (is_wp_error($record_id) || !absint($record_id)) return new WP_Error('captacion_pdf_record', 'El PDF se genero, pero no se pudo registrar la descarga.', array('status'=>500));
     $download_url = wp_nonce_url(admin_url('admin-post.php?action=captacion_generated_pdf_download&file_id=' . absint($record_id)), 'captacion_generated_pdf_' . absint($record_id));
+    $preview_url = wp_nonce_url(admin_url('admin-post.php?action=captacion_generated_pdf_download&preview=1&file_id=' . absint($record_id)), 'captacion_generated_pdf_' . absint($record_id));
     captacion_app_log_resource_event($resource, 'generate_pdf', array('generated_file_id'=>$record_id,'generated_file_url'=>$download_url,'form_data'=>$fields));
-    return rest_ensure_response(array('ok'=>true,'downloadUrl'=>$download_url));
+    return rest_ensure_response(array('ok'=>true,'downloadUrl'=>$download_url,'previewUrl'=>$preview_url));
 }
 
 function captacion_app_render_create_pdf_page() {
@@ -1013,7 +1232,7 @@ function captacion_app_render_create_pdf_page() {
     $resource = captacion_app_resource_access_check($resource_id, true);
     if (is_wp_error($resource)) {
         if (!is_user_logged_in()) wp_safe_redirect(home_url('/#/inicio'));
-        else wp_die(esc_html($resource->get_error_message()), 'Captacion.app', array('response'=>$resource->get_error_data()['status'] ?? 403));
+        else wp_die(esc_html($resource->get_error_message()), 'Compra Captación', array('response'=>$resource->get_error_data()['status'] ?? 403));
         exit;
     }
     captacion_app_log_resource_event($resource, 'open_create_pdf');
@@ -1023,7 +1242,138 @@ function captacion_app_render_create_pdf_page() {
     ?><!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?php echo esc_html($resource['title']); ?></title><style>body{font-family:Arial,sans-serif;background:#f1f5f9;color:#10233c;margin:0}.wrap{max-width:760px;margin:40px auto;padding:24px}.panel{background:#fff;border:1px solid #dbe5ef;padding:28px;border-radius:8px}label{display:block;font-size:13px;font-weight:700;margin-top:15px}input,textarea{width:100%;box-sizing:border-box;margin-top:6px;padding:12px;border:1px solid #cbd5e1;border-radius:7px}button,a.button{display:inline-block;margin-top:18px;padding:12px 18px;border:0;border-radius:7px;background:#1b67d6;color:#fff;text-decoration:none;font-weight:700;cursor:pointer}.secondary{background:#10233c}.note{font-size:12px;color:#64748b;margin-top:18px}.error{color:#b91c1c;font-size:13px}</style></head><body><main class="wrap"><a href="<?php echo esc_url(home_url('/#/recursos')); ?>">Volver a recursos</a><div class="panel"><h1><?php echo esc_html($resource['title']); ?></h1><p><?php echo esc_html($resource['description']); ?></p><form id="pdf-form"><label>Nombre profesional *<input name="professional_name" required value="<?php echo esc_attr($user->display_name); ?>"></label><label>Agencia/empresa opcional<input name="company"></label><label>NIF/CIF opcional<input name="tax_id"></label><label>Email *<input name="email" type="email" required value="<?php echo esc_attr($user->user_email); ?>"></label><label>Teléfono<input name="phone" value="<?php echo esc_attr(get_user_meta($user->ID, 'captacion_phone', true)); ?>"></label><label>Fecha<input name="date" type="date" value="<?php echo esc_attr(current_time('Y-m-d')); ?>"></label><label>Referencia interna<input name="reference"></label><label>Observaciones<textarea name="notes" rows="5"></textarea></label><button type="button" class="secondary" onclick="preview()">Vista previa</button> <button type="submit">Generar PDF</button><div id="result"></div></form><p class="note">Documento orientativo generado por el usuario. Revisar antes de firmar o utilizar.</p></div></main><script>const form=document.getElementById('pdf-form'),result=document.getElementById('result');function preview(){const d=new FormData(form);result.innerHTML='<div class="note"><strong>Vista previa</strong><br>'+[...d.entries()].map(x=>x[0]+': '+String(x[1]).replace(/[<>&]/g,'')).join('<br>')+'</div>'}form.addEventListener('submit',async e=>{e.preventDefault();result.textContent='Generando...';const payload=Object.fromEntries(new FormData(form));payload.resource_id=<?php echo wp_json_encode($resource_id); ?>;try{const r=await fetch(<?php echo wp_json_encode($endpoint); ?>,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-WP-Nonce':<?php echo wp_json_encode($nonce); ?>},body:JSON.stringify(payload)});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.message||'No se pudo generar');result.innerHTML='<a class="button" href="'+d.downloadUrl+'">Descargar PDF</a>'}catch(err){result.innerHTML='<p class="error">'+err.message+'</p>'}});</script></body></html><?php
     exit;
 }
-add_action('template_redirect', 'captacion_app_render_create_pdf_page', 2);
+
+function captacion_app_resource_field_labels() {
+    return array(
+        'professional_name' => array('label' => 'Nombre profesional', 'required' => true, 'type' => 'text', 'placeholder' => 'Nombre y apellidos'),
+        'company' => array('label' => 'Agencia o empresa', 'required' => false, 'type' => 'text', 'placeholder' => 'Nombre comercial o razón social'),
+        'tax_id' => array('label' => 'NIF/CIF', 'required' => false, 'type' => 'text', 'placeholder' => 'Dato fiscal si procede'),
+        'email' => array('label' => 'Email profesional', 'required' => true, 'type' => 'email', 'placeholder' => 'correo@agencia.es'),
+        'phone' => array('label' => 'Teléfono', 'required' => false, 'type' => 'tel', 'placeholder' => '+34 600 000 000'),
+        'date' => array('label' => 'Fecha del documento', 'required' => false, 'type' => 'date', 'placeholder' => ''),
+        'reference' => array('label' => 'Referencia interna', 'required' => false, 'type' => 'text', 'placeholder' => 'Ej.: REF-001234'),
+        'notes' => array('label' => 'Observaciones o cláusulas adicionales', 'required' => false, 'type' => 'textarea', 'placeholder' => 'Añade condiciones, contexto o notas internas relevantes.'),
+    );
+}
+
+function captacion_app_render_create_pdf_page_v2() {
+    $path = trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/');
+    if ($path !== 'recursos/crear-pdf') return;
+
+    $resource_id = sanitize_key($_GET['resource'] ?? '');
+    $resource = captacion_app_resource_access_check($resource_id, true);
+    if (is_wp_error($resource)) {
+        if (!is_user_logged_in()) wp_safe_redirect(home_url('/#/inicio'));
+        else wp_die(esc_html($resource->get_error_message()), 'Compra Captación', array('response' => $resource->get_error_data()['status'] ?? 403));
+        exit;
+    }
+
+    captacion_app_log_resource_event($resource, 'open_create_pdf');
+    $user = wp_get_current_user();
+    $endpoint = rest_url('captacion/v1/resources/generate');
+    $nonce = wp_create_nonce('wp_rest');
+    $field_meta = captacion_app_resource_field_labels();
+    $schema = is_array($resource['editable_fields_schema'] ?? null) ? $resource['editable_fields_schema'] : array_keys($field_meta);
+    $defaults = array(
+        'professional_name' => $user->display_name,
+        'email' => $user->user_email,
+        'phone' => get_user_meta($user->ID, 'captacion_phone', true),
+        'date' => current_time('Y-m-d'),
+    );
+    $download_template_url = captacion_app_resource_template_pdf_url($resource_id);
+    ?><!doctype html>
+    <html lang="es">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <title><?php echo esc_html($resource['title']); ?> · Personalizar PDF</title>
+      <style>
+        :root{--navy:#10233c;--blue:#1b67d6;--blue-dark:#1554b3;--slate:#64748b;--line:#dbe5ef;--bg:#f5f8fc;--green:#0f9f6e;--amber:#b7791f}*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top left,#eaf3ff 0,#f8fafc 36%,#eef3f8 100%);color:var(--navy)}a{color:inherit}.shell{max-width:1180px;margin:0 auto;padding:28px 18px 48px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}.back{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--slate);font-size:12px;font-weight:800;text-decoration:none}.badge{display:inline-flex;padding:7px 10px;border-radius:999px;background:#dbeafe;color:var(--blue);font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em}.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:22px;align-items:stretch}.panel{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:28px;box-shadow:0 18px 55px rgba(16,35,60,.08);overflow:hidden}.intro{padding:28px}.intro h1{font-size:clamp(28px,4vw,48px);line-height:1.02;margin:14px 0 14px;font-weight:950;letter-spacing:-.04em}.intro p{color:var(--slate);line-height:1.65;font-size:14px;max-width:690px}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:24px}.step{padding:12px;border:1px solid #e2e8f0;border-radius:16px;background:#f8fafc;font-size:11px;color:var(--slate);font-weight:800}.step strong{display:block;color:var(--navy);font-size:12px;margin-bottom:3px}.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}.trust span{border:1px solid #e2e8f0;background:#fff;border-radius:16px;padding:12px;font-size:11px;color:var(--slate);font-weight:750}.form-wrap{padding:22px}.form-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:16px}.form-head h2{margin:0;font-size:19px;letter-spacing:-.02em}.form-head p{margin:5px 0 0;color:var(--slate);font-size:12px;line-height:1.5}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}label{display:block;font-size:12px;font-weight:900;color:#475569}.full{grid-column:1/-1}input,textarea{width:100%;margin-top:7px;padding:13px 14px;border:1px solid #cbd5e1;border-radius:15px;background:#fff;color:var(--navy);font:inherit;font-size:14px;outline:none}textarea{min-height:120px;resize:vertical}input:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(27,103,214,.12)}.req{color:var(--blue)}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.btn{border:0;border-radius:15px;padding:13px 16px;font-size:12px;font-weight:950;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn.primary{background:var(--blue);color:#fff;box-shadow:0 12px 24px rgba(27,103,214,.22)}.btn.primary:hover{background:var(--blue-dark)}.btn.dark{background:var(--navy);color:#fff}.btn.light{background:#fff;border:1px solid var(--line);color:var(--blue)}.btn:disabled{opacity:.55;cursor:not-allowed}.preview{padding:22px;background:#0b1d33;color:#fff;display:flex;flex-direction:column}.paper{background:#fff;color:var(--navy);border-radius:22px;padding:24px;box-shadow:0 18px 45px rgba(0,0,0,.22);min-height:480px}.paper .mini{font-size:10px;letter-spacing:.14em;color:var(--blue);font-weight:950;text-transform:uppercase}.paper h2{font-size:24px;line-height:1.08;margin:10px 0 16px}.paper-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #e2e8f0;padding:9px 0;font-size:12px}.paper-row b{color:#334155}.paper-row span{text-align:right;color:#475569}.result{display:none;margin-top:16px;padding:16px;border-radius:20px;border:1px solid rgba(15,159,110,.25);background:#ecfdf5;color:#065f46}.result.show{display:block}.share-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}.note{margin-top:12px;font-size:11px;line-height:1.55;color:#64748b}.error{display:none;margin-top:12px;padding:12px;border-radius:16px;background:#fef2f2;color:#991b1b;font-size:12px;font-weight:750}.error.show{display:block}@media(max-width:900px){.hero{grid-template-columns:1fr}.steps,.trust{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.preview{order:-1}.paper{min-height:auto}}@media(max-width:560px){.shell{padding:18px 12px 36px}.intro,.form-wrap,.preview{padding:18px}.steps,.trust,.share-grid{grid-template-columns:1fr}.actions .btn{width:100%}}
+      </style>
+      <style>
+        html[data-theme="light"]{--navy:#10233c;--blue:#1b67d6;--blue-dark:#1554b3;--slate:#52657a;--line:#d4deea;--bg:#f5f8fc;--surface:#ffffff;--soft:#f3f7fb;--paper:#ffffff;--paperText:#10233c}html[data-theme="dark"]{--navy:#eaf2ff;--blue:#79b7ff;--blue-dark:#5aa3f5;--slate:#b7c6d8;--line:#33465d;--bg:#091321;--surface:#111f31;--soft:#16263a;--paper:#f8fafc;--paperText:#10233c}html[data-theme="dark"] body{background:radial-gradient(circle at 18% -10%,rgba(27,103,214,.28),transparent 32%),linear-gradient(145deg,#091321,#0d1c30 58%,#10233c);color:var(--navy)}html[data-theme="dark"] .panel,html[data-theme="dark"] .back,html[data-theme="dark"] .trust span{background:rgba(17,31,49,.94);border-color:var(--line);box-shadow:0 18px 55px rgba(0,0,0,.22)}html[data-theme="dark"] .step{background:#16263a;border-color:#33465d;color:var(--slate)}html[data-theme="dark"] .step strong,html[data-theme="dark"] .form-head h2{color:#edf5ff}html[data-theme="dark"] input,html[data-theme="dark"] textarea{background:#0d1c30;border-color:#33465d;color:#edf5ff}html[data-theme="dark"] .btn.light{background:#16263a;border-color:#45607a;color:#b9dcff}html[data-theme="dark"] .result{background:#123d34;border-color:#1c7e62;color:#bdf4df}.intro h1{font-weight:780;letter-spacing:-.035em}.form-head h2,.paper h2{font-weight:760}.step,.trust span,label,.btn,.badge{font-weight:720}.btn{border-radius:999px;padding:12px 17px;transition:transform .16s ease,box-shadow .16s ease,background-color .16s ease}.btn:hover{transform:translateY(-1px)}.btn.primary{background:linear-gradient(135deg,#1b67d6,#2f7df0);box-shadow:0 10px 22px rgba(27,103,214,.20)}.btn.dark{background:linear-gradient(135deg,#10233c,#1c3554)}.preview-modal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(5,13,25,.72);backdrop-filter:blur(10px)}.preview-modal.show{display:flex}.preview-dialog{width:min(1020px,100%);height:min(88vh,860px);border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.35);overflow:hidden;display:flex;flex-direction:column}.preview-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}.preview-dialog-head strong{font-size:14px;font-weight:760;color:var(--navy)}.preview-dialog iframe{width:100%;height:100%;border:0;background:#fff}.share-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.result strong{font-weight:760}.muted-action{color:var(--slate);background:transparent;border:1px solid var(--line)}@media(max-width:720px){.share-grid{grid-template-columns:1fr}.preview-dialog{height:86vh}}
+      </style>
+      <script>
+        try { document.documentElement.dataset.theme = localStorage.getItem('captacion_theme_v1') || 'dark'; } catch (error) { document.documentElement.dataset.theme = 'dark'; }
+      </script>
+    </head>
+    <body>
+      <main class="shell">
+        <div class="topbar"><a class="back" href="<?php echo esc_url(home_url('/#/recursos')); ?>">← Volver a recursos</a><?php if ($download_template_url) : ?><a class="back" href="<?php echo esc_url($download_template_url); ?>" target="_blank" rel="noopener noreferrer">Descargar plantilla original</a><?php endif; ?></div>
+        <section class="hero">
+          <div class="panel intro">
+            <span class="badge">Documento guiado</span>
+            <h1><?php echo esc_html($resource['title']); ?></h1>
+            <p><?php echo esc_html($resource['description']); ?> Completa los campos necesarios y genera una versión personalizada descargable, lista para adjuntar o compartir con la contraparte.</p>
+            <div class="steps"><div class="step"><strong>1. Datos</strong>Completa lo imprescindible.</div><div class="step"><strong>2. Revisión</strong>Comprueba la vista previa.</div><div class="step"><strong>3. PDF</strong>Genera el documento.</div><div class="step"><strong>4. Comparte</strong>Email, WhatsApp o mensaje.</div></div>
+            <div class="trust"><span>Acceso protegido para usuarios verificados</span><span>Archivo guardado en zona privada</span><span>Revisión jurídica recomendada</span></div>
+          </div>
+          <aside class="panel preview" aria-label="Vista previa del documento">
+            <div class="paper" id="pdf-preview">
+              <span class="mini">Compra Captación · PDF personalizado</span>
+              <h2><?php echo esc_html($resource['title']); ?></h2>
+              <div id="preview-rows"></div>
+              <p class="note">Documento generado con finalidad operativa y orientativa. Revisión jurídica recomendada antes de uso contractual definitivo.</p>
+            </div>
+          </aside>
+        </section>
+        <section class="panel form-wrap" style="margin-top:22px">
+          <div class="form-head"><div><h2>Completa la plantilla</h2><p>Los campos marcados son necesarios para generar el PDF personalizado. Puedes descargar la plantilla original para revisarla antes.</p></div><span class="badge">PDF + personalización</span></div>
+          <form id="pdf-form">
+            <input type="hidden" name="resource_id" value="<?php echo esc_attr($resource_id); ?>">
+            <div class="grid">
+              <?php foreach ($schema as $field_key) : $meta = $field_meta[$field_key] ?? null; if (!$meta) continue; $value = $defaults[$field_key] ?? ''; ?>
+                <label class="<?php echo $field_key === 'notes' ? 'full' : ''; ?>"><?php echo esc_html($meta['label']); ?> <?php if ($meta['required']) : ?><span class="req">*</span><?php endif; ?>
+                  <?php if ($meta['type'] === 'textarea') : ?>
+                    <textarea name="<?php echo esc_attr($field_key); ?>" placeholder="<?php echo esc_attr($meta['placeholder']); ?>"><?php echo esc_textarea($value); ?></textarea>
+                  <?php else : ?>
+                    <input name="<?php echo esc_attr($field_key); ?>" type="<?php echo esc_attr($meta['type']); ?>" <?php echo $meta['required'] ? 'required' : ''; ?> value="<?php echo esc_attr($value); ?>" placeholder="<?php echo esc_attr($meta['placeholder']); ?>">
+                  <?php endif; ?>
+                </label>
+              <?php endforeach; ?>
+            </div>
+            <div class="actions"><button class="btn primary" id="generate-btn" type="submit">Generar PDF personalizado</button><?php if ($download_template_url) : ?><a class="btn light" href="<?php echo esc_url($download_template_url); ?>" target="_blank" rel="noopener noreferrer">Ver plantilla base</a><?php endif; ?></div>
+            <div id="pdf-error" class="error"></div>
+            <div id="pdf-result" class="result"><strong>PDF personalizado listo</strong><p class="note">Revisa la vista previa antes de descargar. Si ves algo que quieras ajustar, vuelve al formulario con “Modificar datos”.</p><div class="share-grid"><button id="preview-generated-pdf" class="btn primary" type="button">Vista previa del PDF</button><button id="edit-generated-pdf" class="btn muted-action" type="button">Modificar datos</button><a id="download-link" class="btn light" href="#">Descargar PDF</a><a id="email-link" class="btn light" href="#">Preparar email</a><a id="whatsapp-link" class="btn light" href="#" target="_blank" rel="noopener noreferrer">WhatsApp</a><button id="copy-share" class="btn dark" type="button">Copiar mensaje</button><button id="native-share" class="btn light" type="button" style="display:none">Compartir</button></div></div>
+          </form>
+        </section>
+        <div id="generated-pdf-preview-modal" class="preview-modal" role="dialog" aria-modal="true" aria-labelledby="generated-pdf-preview-title">
+          <div class="preview-dialog">
+            <div class="preview-dialog-head"><strong id="generated-pdf-preview-title">Vista previa del PDF generado</strong><button type="button" class="btn muted-action" id="close-generated-pdf-preview">Cerrar</button></div>
+            <iframe id="generated-pdf-preview-frame" title="Vista previa del PDF generado"></iframe>
+          </div>
+        </div>
+      </main>
+      <script>
+        const endpoint = <?php echo wp_json_encode($endpoint); ?>;
+        const nonce = <?php echo wp_json_encode($nonce); ?>;
+        const resourceTitle = <?php echo wp_json_encode($resource['title']); ?>;
+        const form = document.getElementById('pdf-form');
+        const previewRows = document.getElementById('preview-rows');
+        const result = document.getElementById('pdf-result');
+        const errorBox = document.getElementById('pdf-error');
+        const generateBtn = document.getElementById('generate-btn');
+        let latestDownloadUrl = '';
+        let latestPreviewUrl = '';
+        function clean(value){return String(value || '').trim();}
+        function fieldLabel(name){const labels = <?php echo wp_json_encode(array_map(static function($item){ return $item['label']; }, $field_meta)); ?>; return labels[name] || name;}
+        function updatePreview(){const data = new FormData(form); const rows = []; for (const [key,value] of data.entries()) { if (key === 'resource_id' || !clean(value)) continue; rows.push(`<div class="paper-row"><b>${fieldLabel(key)}</b><span>${clean(value).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</span></div>`); } previewRows.innerHTML = rows.join('') || '<p class="note">Completa el formulario para ver la vista previa del documento.</p>';}
+        function shareText(){return `He generado el documento "${resourceTitle}" desde Compra Captación. Te envío el PDF personalizado adjunto para revisión.`;}
+        function configureShare(downloadUrl, previewUrl){latestDownloadUrl = downloadUrl; latestPreviewUrl = previewUrl || downloadUrl; document.getElementById('download-link').href = downloadUrl; document.getElementById('email-link').href = `mailto:?subject=${encodeURIComponent(resourceTitle)}&body=${encodeURIComponent(shareText() + '\n\nNota: adjunto el PDF descargado desde mi área privada.')}`; document.getElementById('whatsapp-link').href = `https://wa.me/?text=${encodeURIComponent(shareText() + ' Adjuntaré el PDF descargado para revisión.')}`; const native = document.getElementById('native-share'); if (navigator.share) native.style.display = 'inline-flex';}
+        form.addEventListener('input', updatePreview); updatePreview();
+        document.getElementById('copy-share').addEventListener('click', async () => { try { await navigator.clipboard.writeText(shareText()); document.getElementById('copy-share').textContent = 'Mensaje copiado'; setTimeout(() => document.getElementById('copy-share').textContent = 'Copiar mensaje', 1800); } catch(e) {} });
+        document.getElementById('native-share').addEventListener('click', async () => { if (!navigator.share) return; try { await navigator.share({title:resourceTitle,text:shareText(),url:window.location.href}); } catch(e) {} });
+        document.getElementById('preview-generated-pdf').addEventListener('click', () => { if (!latestPreviewUrl) return; document.getElementById('generated-pdf-preview-frame').src = latestPreviewUrl; document.getElementById('generated-pdf-preview-modal').classList.add('show'); });
+        document.getElementById('close-generated-pdf-preview').addEventListener('click', () => { document.getElementById('generated-pdf-preview-modal').classList.remove('show'); document.getElementById('generated-pdf-preview-frame').src = 'about:blank'; });
+        document.getElementById('generated-pdf-preview-modal').addEventListener('click', event => { if (event.target.id === 'generated-pdf-preview-modal') document.getElementById('close-generated-pdf-preview').click(); });
+        document.getElementById('edit-generated-pdf').addEventListener('click', () => { result.classList.remove('show'); form.scrollIntoView({behavior:'smooth',block:'start'}); const first = form.querySelector('input:not([type="hidden"]), textarea'); if (first) first.focus(); });
+        form.addEventListener('submit', async event => { event.preventDefault(); errorBox.classList.remove('show'); result.classList.remove('show'); generateBtn.disabled = true; generateBtn.textContent = 'Generando...'; try { const payload = Object.fromEntries(new FormData(form).entries()); const response = await fetch(endpoint, {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json','X-WP-Nonce':nonce}, body:JSON.stringify(payload)}); const body = await response.json(); if (!response.ok || !body.ok) throw new Error(body.message || 'No se pudo generar el PDF.'); configureShare(body.downloadUrl, body.previewUrl); result.classList.add('show'); result.scrollIntoView({behavior:'smooth',block:'center'}); } catch(error) { errorBox.textContent = error.message || 'No se pudo generar el PDF.'; errorBox.classList.add('show'); } finally { generateBtn.disabled = false; generateBtn.textContent = 'Generar PDF personalizado'; } });
+      </script>
+    </body>
+    </html><?php
+    exit;
+}
+add_action('template_redirect', 'captacion_app_render_create_pdf_page_v2', 1);
 
 function captacion_app_download_generated_pdf() {
     global $wpdb;
@@ -1038,8 +1388,9 @@ function captacion_app_download_generated_pdf() {
     $resource = captacion_app_resource_catalog()[$payload['resource_id']] ?? array('resource_id'=>'unknown','title'=>$row['title']);
     captacion_app_log_resource_event($resource, 'download_generated_pdf', array('generated_file_id'=>$file_id));
     nocache_headers();
+    $disposition = !empty($_GET['preview']) ? 'inline' : 'attachment';
     header('Content-Type: application/pdf');
-    header('Content-Disposition: attachment; filename="' . sanitize_file_name($row['title']) . '.pdf"');
+    header('Content-Disposition: ' . $disposition . '; filename="' . sanitize_file_name($row['title']) . '.pdf"');
     header('Content-Length: ' . filesize($path));
     readfile($path);
     exit;
@@ -1079,13 +1430,12 @@ function captacion_app_maybe_install_access_log_table() {
     if (get_option('captacion_access_log_table_version') !== '20260620') captacion_app_install_access_log_table();
 }
 add_action('admin_init', 'captacion_app_maybe_install_access_log_table');
-add_action('init', 'captacion_app_maybe_install_access_log_table');
 
 function captacion_app_plan_config($plan_type) {
     $plans = array(
-        'basic' => array('included' => 0, 'extra_pack' => 0, 'extra_price' => 10, 'checkout_key' => 'stripe_marketplace_single_link'),
-        'professional_plus' => array('included' => 30, 'extra_pack' => 15, 'extra_price' => 5, 'checkout_key' => 'stripe_marketplace_plus_pack_link'),
-        'premium' => array('included' => 60, 'extra_pack' => 30, 'extra_price' => 5, 'checkout_key' => 'stripe_marketplace_premium_pack_link'),
+        'basic' => array('included' => 3, 'extra_pack' => 0, 'extra_price' => 10, 'checkout_key' => 'stripe_marketplace_single_link'),
+        'professional_plus' => array('included' => 20, 'extra_pack' => 10, 'extra_price' => 5, 'checkout_key' => 'stripe_marketplace_plus_pack_link'),
+        'premium' => array('included' => 30, 'extra_pack' => 15, 'extra_price' => 5, 'checkout_key' => 'stripe_marketplace_premium_pack_link'),
     );
     return $plans[$plan_type] ?? $plans['basic'];
 }
@@ -1270,6 +1620,17 @@ function captacion_app_rest_public_nonce_permission(WP_REST_Request $request) {
 function captacion_app_rest_private_permission(WP_REST_Request $request) {
     $nonce = $request->get_header('X-WP-Nonce');
     if (!$nonce || !wp_verify_nonce($nonce, 'wp_rest')) {
+        $site_host = wp_parse_url(home_url('/'), PHP_URL_HOST);
+        $origin = get_http_origin();
+        $referer = wp_get_referer();
+        $origin_host = $origin ? wp_parse_url($origin, PHP_URL_HOST) : '';
+        $referer_host = $referer ? wp_parse_url($referer, PHP_URL_HOST) : '';
+        $same_origin = $site_host && ($origin_host === $site_host || $referer_host === $site_host);
+        if ($same_origin && is_user_logged_in()) {
+            if (!current_user_can('read')) return new WP_Error('captacion_permission_required', 'Tu cuenta no tiene permisos para esta accion.', array('status'=>403));
+            if (!captacion_app_is_email_verified(get_current_user_id())) return new WP_Error('captacion_email_unverified', 'Confirma tu correo electronico para acceder.', array('status'=>403));
+            return true;
+        }
         return new WP_Error('captacion_invalid_nonce', 'La sesion del formulario ha caducado. Recarga la pagina.', array('status'=>403));
     }
     if (!is_user_logged_in()) return new WP_Error('captacion_auth_required', 'Debes iniciar sesion.', array('status'=>401));
@@ -1277,6 +1638,14 @@ function captacion_app_rest_private_permission(WP_REST_Request $request) {
     if (!captacion_app_is_email_verified(get_current_user_id())) return new WP_Error('captacion_email_unverified', 'Confirma tu correo electronico para acceder.', array('status'=>403));
     return true;
 }
+
+function captacion_app_ajax_rest_nonce() {
+    if (!is_user_logged_in()) {
+        wp_send_json_error(array('message' => 'Debes iniciar sesion.'), 401);
+    }
+    wp_send_json_success(array('nonce' => wp_create_nonce('wp_rest')));
+}
+add_action('wp_ajax_captacion_rest_nonce', 'captacion_app_ajax_rest_nonce');
 
 function captacion_app_rest_rate_limit($scope, $limit = 10, $ttl = 600) {
     $remote_address = sanitize_text_field($_SERVER['REMOTE_ADDR'] ?? 'unknown');
@@ -1299,7 +1668,7 @@ function captacion_app_send_verification_email($user_id) {
     update_user_meta($user->ID, 'captacion_email_verification_hash', hash('sha256', $token));
     update_user_meta($user->ID, 'captacion_email_verification_expires', time() + DAY_IN_SECONDS);
     $url = add_query_arg(array('captacion_verify_email'=>'1','uid'=>$user->ID,'token'=>$token), home_url('/'));
-    $subject = 'Confirma tu registro en Captacion.app';
+    $subject = 'Confirma tu registro en Compra Captación';
     $body = "Hola {$user->display_name},\n\nConfirma tu registro durante las proximas 24 horas:\n{$url}\n\nSi no solicitaste esta cuenta, ignora este mensaje.";
     return wp_mail($user->user_email, $subject, $body, array('Content-Type: text/plain; charset=UTF-8'))
         ? true
@@ -1336,10 +1705,10 @@ function captacion_app_rest_register_professional(WP_REST_Request $request) {
     $privacy = filter_var($request->get_param('privacyAccepted'), FILTER_VALIDATE_BOOLEAN);
     $commercial_consent = filter_var($request->get_param('commercialConsent'), FILTER_VALIDATE_BOOLEAN);
 
-    if (strlen($name) < 3) return new WP_Error('captacion_register_name', 'Indica nombre y apellidos.', array('status'=>422));
     if (!is_email($email)) return new WP_Error('captacion_register_email', 'Introduce un correo electronico valido.', array('status'=>422));
     if (email_exists($email)) return new WP_Error('captacion_register_exists', 'Ya existe una cuenta con este correo.', array('status'=>409));
-    if (!preg_match('/^\+[1-9][0-9]{7,14}$/', $phone)) return new WP_Error('captacion_register_phone', 'Introduce un numero de contacto en formato internacional.', array('status'=>422));
+    if (strlen($name) < 3) $name = sanitize_text_field(strstr($email, '@', true) ?: 'Profesional');
+    if ($phone !== '' && !preg_match('/^\+[1-9][0-9]{7,14}$/', $phone)) return new WP_Error('captacion_register_phone', 'Introduce un numero de contacto en formato internacional.', array('status'=>422));
     if (strlen($password) < 8) return new WP_Error('captacion_register_password', 'La contrasena debe tener al menos 8 caracteres.', array('status'=>422));
     if (!$privacy) return new WP_Error('captacion_register_privacy', 'Debes aceptar la politica de privacidad.', array('status'=>422));
 
@@ -1398,9 +1767,10 @@ function captacion_app_rest_register_professional(WP_REST_Request $request) {
 }
 
 function captacion_app_register_professional_role() {
-    if (!get_role('captacion_agent')) add_role('captacion_agent', 'Profesional Captacion.app', array('read' => true, 'upload_files' => true));
+    if (!get_role('captacion_agent')) add_role('captacion_agent', 'Profesional Compra Captación', array('read' => true, 'upload_files' => true));
 }
-add_action('init', 'captacion_app_register_professional_role');
+add_action('after_switch_theme', 'captacion_app_register_professional_role');
+add_action('admin_init', 'captacion_app_register_professional_role');
 
 function captacion_app_rest_login(WP_REST_Request $request) {
     if (!captacion_app_rest_rate_limit('login', 10, 15 * MINUTE_IN_SECONDS)) return new WP_Error('captacion_login_rate_limit', 'Demasiados intentos. Espera unos minutos.', array('status'=>429));
@@ -1470,7 +1840,7 @@ function captacion_app_rest_submit_report(WP_REST_Request $request) {
     $key = 'REPORT-' . strtoupper(wp_generate_password(10, false, false));
     $record_id = captacion_app_upsert_record(array('record_type'=>'report','record_key'=>$key,'user_id'=>$user->ID,'user_email'=>$email,'title'=>'Reporte de contenido','status'=>'pendiente_revision','related_id'=>$url,'payload'=>array('name'=>$name,'email'=>$email,'phone'=>$phone,'comment'=>$comment,'url'=>$url)));
     captacion_app_notify_internal_mail_event(array('category'=>'reporte_denuncia','source'=>'canal-denuncias','email'=>$email,'name'=>$name,'phone'=>$phone,'reference'=>$key,'message'=>$comment,'payload'=>array('url'=>$url)));
-    wp_mail($email, 'Hemos recibido tu reporte', "Hola {$name},\n\nTu reporte {$key} está en trámite y será revisado. Recibirás una respuesta en breve.\n\nCaptacion.app");
+    wp_mail($email, 'Hemos recibido tu reporte', "Hola {$name},\n\nTu reporte {$key} está en trámite y será revisado. Recibirás una respuesta en breve.\n\nCompra Captación");
     return rest_ensure_response(array('ok'=>true,'id'=>$record_id,'reference'=>$key,'message'=>'Reporte enviado correctamente. Recibirás una confirmación por correo.'));
 }
 
@@ -1595,7 +1965,7 @@ function captacion_app_rest_contact(WP_REST_Request $request) {
     $settings = captacion_app_settings();
     $recipient = sanitize_email($settings['contact_email'] ?? get_option('admin_email')) ?: get_option('admin_email');
     $body = "Nombre: {$name}\nEmail: {$email}\nTelefono: {$phone}\nPreferencia: {$preference}\n\nMensaje:\n{$message}";
-    $sent = wp_mail($recipient, 'Nuevo mensaje de contacto en Captacion.app', $body, array('Content-Type: text/plain; charset=UTF-8','Reply-To: ' . $name . ' <' . $email . '>'));
+    $sent = wp_mail($recipient, 'Nuevo mensaje de contacto en Compra Captación', $body, array('Content-Type: text/plain; charset=UTF-8','Reply-To: ' . $name . ' <' . $email . '>'));
     captacion_app_log_mail_event(array('category'=>'contacto','source'=>'contacto','email'=>$email,'name'=>$name,'phone'=>$phone,'message'=>$message,'tags'=>array('contacto'),'payload'=>array('preference'=>$preference,'sent'=>(bool)$sent)));
     return rest_ensure_response(array('ok'=>(bool)$sent,'message'=>$sent ? 'Mensaje enviado correctamente.' : 'El mensaje se ha registrado, pero el correo no pudo enviarse.'));
 }
@@ -1922,6 +2292,97 @@ define('CAPTACION_XML_MAX_SIZE', 10 * 1024 * 1024);
 define('CAPTACION_XML_MAX_RECORDS', 1000);
 define('CAPTACION_DEMO_OWNER_USER_ID', 1);
 
+function captacion_app_import_upload_dir_filter($dirs) {
+    $subdir = '/captacion-imports';
+    $dirs['path'] = $dirs['basedir'] . $subdir;
+    $dirs['url'] = $dirs['baseurl'] . $subdir;
+    $dirs['subdir'] = $subdir;
+    if (!wp_mkdir_p($dirs['path'])) {
+        $dirs['error'] = 'No se pudo crear el directorio seguro de importaciones.';
+    }
+    return $dirs;
+}
+
+function captacion_app_import_field_aliases() {
+    return array(
+        'external_id' => array('id','reference','ref','codigo','cod','external_id','mls_id','referencia'),
+        'title' => array('title','titulo','name','nombre','headline','subject'),
+        'description' => array('description','descripcion','desc','remarks','text','observations','observaciones'),
+        'property_type' => array('type','tipo','property_type','tipologia','category','categoria'),
+        'operation' => array('operation','operacion','transaction','offer_type','tipo_operacion'),
+        'price' => array('price','precio','amount','value','preu','pvp','importe'),
+        'currency' => array('currency','moneda'),
+        'province' => array('province','provincia','region','state'),
+        'municipality' => array('city','municipio','municipality','ciudad','town','poblacion','localidad'),
+        'postal_code' => array('postal_code','zip','codigo_postal','cp','postcode'),
+        'address_approx' => array('address','direccion','street','calle','location_detail'),
+        'surface' => array('surface','superficie','area','built_area','size','m2','metros','total_area'),
+        'rooms' => array('rooms','habitaciones','dormitorios','bedrooms','beds'),
+        'bathrooms' => array('bathrooms','banos','baños','baths','toilets'),
+        'latitude' => array('latitude','lat','latitud'),
+        'longitude' => array('longitude','lng','lon','longitud'),
+        'image' => array('image','images','gallery','galeria','imagenes','photos','photo','pictures','picture','url_image','image_url','image_urls','foto','fotos'),
+        'status' => array('status','estado','state'),
+    );
+}
+
+function captacion_app_import_value_by_alias($row, $field, $default = '') {
+    $aliases = captacion_app_import_field_aliases();
+    foreach (($aliases[$field] ?? array($field)) as $alias) {
+        $key = sanitize_key(remove_accents($alias));
+        if (isset($row[$key]) && trim((string) $row[$key]) !== '') return trim((string) $row[$key]);
+    }
+    return $default;
+}
+
+function captacion_app_normalize_import_property_row($row, $source_name, $index, $prefix) {
+    $external_id = captacion_app_import_value_by_alias($row, 'external_id', $prefix . '-' . ($index + 1));
+    $type = captacion_app_normalize_property_type(captacion_app_import_value_by_alias($row, 'property_type', 'Piso'));
+    if (!in_array($type, captacion_app_property_types(), true)) $type = 'Piso';
+    $price = captacion_app_xml_number_value(captacion_app_import_value_by_alias($row, 'price', '0'));
+    $surface = captacion_app_xml_number_value(captacion_app_import_value_by_alias($row, 'surface', '0'));
+    $municipality = sanitize_text_field(captacion_app_import_value_by_alias($row, 'municipality'));
+    $province = sanitize_text_field(captacion_app_import_value_by_alias($row, 'province'));
+    $description = sanitize_textarea_field(captacion_app_import_value_by_alias($row, 'description', 'Propiedad importada.'));
+    $title = sanitize_text_field(captacion_app_import_value_by_alias($row, 'title'));
+    if (!$title) $title = trim($type . ($municipality ? ' en ' . $municipality : '') . ($external_id ? ' - Ref. ' . $external_id : ''));
+    if (!$title) $title = 'Propiedad importada';
+    $operation = captacion_app_xml_operation_value(captacion_app_import_value_by_alias($row, 'operation'), '');
+    $rooms = absint(captacion_app_import_value_by_alias($row, 'rooms', '0'));
+    $bathrooms = absint(captacion_app_import_value_by_alias($row, 'bathrooms', '0'));
+    $payload = array(
+        'id' => sanitize_text_field($external_id),
+        'external_id' => sanitize_text_field($external_id),
+        'title' => $title,
+        'description' => $description,
+        'property_type' => $type,
+        'type' => $type,
+        'operation' => $operation,
+        'price' => $price,
+        'indicative_price' => $price,
+        'currency' => sanitize_text_field(captacion_app_import_value_by_alias($row, 'currency', 'EUR')),
+        'province' => $province,
+        'municipality' => $municipality,
+        'postal_code' => sanitize_text_field(captacion_app_import_value_by_alias($row, 'postal_code')),
+        'address_approx' => sanitize_text_field(captacion_app_import_value_by_alias($row, 'address_approx')),
+        'surface' => $surface,
+        'total_area_m2' => $surface,
+        'rooms' => $rooms,
+        'bedrooms' => $rooms,
+        'bathrooms' => $bathrooms,
+        'latitude' => sanitize_text_field(captacion_app_import_value_by_alias($row, 'latitude')),
+        'longitude' => sanitize_text_field(captacion_app_import_value_by_alias($row, 'longitude')),
+        'image' => esc_url_raw(captacion_app_import_value_by_alias($row, 'image')),
+        'source_file' => sanitize_text_field($source_name),
+        'publication_status' => 'active',
+        'imported_at' => current_time('mysql'),
+        'updated_at' => current_time('mysql'),
+    );
+    $status = sanitize_text_field(captacion_app_import_value_by_alias($row, 'status', 'active'));
+    $record_key = $prefix . '-' . substr(hash('sha256', $source_name . '|' . $external_id), 0, 18);
+    return array('record_type' => 'property', 'record_key' => $record_key, 'title' => $title, 'status' => $status, 'related_id' => sanitize_text_field($external_id), 'payload' => $payload);
+}
+
 function captacion_app_validate_import_xml($raw_xml) {
     if (empty($raw_xml) || strlen(trim($raw_xml)) === 0) {
         return new WP_Error('captacion_xml_empty', 'El XML está vacío.', array('status' => 400));
@@ -2079,7 +2540,7 @@ function captacion_app_import_records_from_xml($parsed, $overrides) {
         $record_type = sanitize_key($rec['record_type']);
         $record_key = sanitize_text_field($rec['record_key']);
         $payload_raw = is_array($rec['payload']) ? $rec['payload'] : array();
-        if (!in_array($data_origin, array('xml_url', 'xml_file'), true) && in_array($record_type, array('property', 'need'), true)) {
+        if (!in_array($data_origin, array('xml_url', 'xml_file', 'csv_file', 'json_file', 'webhook'), true) && in_array($record_type, array('property', 'need'), true)) {
             $sanitized = captacion_app_sanitize_real_estate_payload($record_type, $payload_raw);
             if (is_wp_error($sanitized)) {
                 $rejected++;
@@ -2088,7 +2549,7 @@ function captacion_app_import_records_from_xml($parsed, $overrides) {
             }
             $payload_raw = $sanitized;
         }
-        if ($record_type === 'property' && in_array($data_origin, array('xml_url', 'xml_file'), true)) {
+        if ($record_type === 'property' && in_array($data_origin, array('xml_url', 'xml_file', 'csv_file', 'json_file', 'webhook'), true)) {
             $payload_raw = captacion_app_prepare_imported_property_payload($payload_raw, array(
                 'owner_user_id' => $owner_user_id,
                 'user_id' => $user_id,
@@ -2175,7 +2636,7 @@ function captacion_app_download_xml_feed_url($url) {
         'timeout' => 25,
         'redirection' => 3,
         'limit_response_size' => CAPTACION_XML_MAX_SIZE + 1024,
-        'user-agent' => 'Captacion.app XML Feed Importer',
+        'user-agent' => 'Compra Captación XML Feed Importer',
     ));
     if (is_wp_error($response)) {
         return new WP_Error('captacion_xml_url_fetch', 'No se pudo descargar el XML: ' . $response->get_error_message(), array('status' => 400));
@@ -2191,6 +2652,20 @@ function captacion_app_download_xml_feed_url($url) {
     if (strlen($body) > CAPTACION_XML_MAX_SIZE) {
         return new WP_Error('captacion_xml_url_size', 'El XML supera el tamano maximo permitido.', array('status' => 413));
     }
+    $content_type = strtolower(trim((string) wp_remote_retrieve_header($response, 'content-type')));
+    $body_preview = strtolower(substr(trim($body), 0, 500));
+    $looks_like_html = strpos($content_type, 'html') !== false
+        || preg_match('/^<!doctype\s+html/i', $body)
+        || preg_match('/^<html\b/i', $body)
+        || preg_match('/<body\b/i', $body)
+        || preg_match('/ha fallado la comprobaci[oó]n de la cookie|cookie|consent|login|iniciar sesi[oó]n|acceso restringido/i', $body_preview);
+    if ($looks_like_html) {
+        return new WP_Error(
+            'captacion_xml_url_cookie_or_html',
+            'La URL no devuelve XML: parece una pagina HTML, de login o de comprobacion de cookies.',
+            array('status' => 422)
+        );
+    }
     if (stripos($body, '<!DOCTYPE') !== false || stripos($body, '<!ENTITY') !== false) {
         return new WP_Error('captacion_xml_url_doctype', 'El XML contiene DOCTYPE o entidades no permitidas.', array('status' => 400));
     }
@@ -2201,25 +2676,206 @@ function captacion_app_xml_child_value($node, $names, $default = '') {
     foreach ((array) $names as $name) {
         if (isset($node->{$name}) && trim((string) $node->{$name}) !== '') return sanitize_text_field((string) $node->{$name});
     }
+    foreach ((array) $names as $name) {
+        $att = (string) $node[$name];
+        if ($att !== '') return sanitize_text_field($att);
+    }
     return $default;
 }
 
+function captacion_app_xml_nested_child_value($node, $paths, $default = '') {
+    foreach ((array) $paths as $path) {
+        $parts = is_array($path) ? $path : explode('/', (string) $path);
+        $current = $node;
+        foreach ($parts as $part) {
+            if (!isset($current->{$part})) {
+                $current = null;
+                break;
+            }
+            $current = $current->{$part};
+        }
+        if ($current !== null && trim((string) $current) !== '') return sanitize_text_field((string) $current);
+    }
+    return $default;
+}
+
+function captacion_app_xml_number_value($value) {
+    $value = trim((string) $value);
+    if ($value === '') return 0;
+    $value = preg_replace('/[^0-9,.]/', '', $value);
+    if (strpos($value, ',') !== false && strpos($value, '.') !== false && strrpos($value, ',') > strrpos($value, '.')) {
+        $value = str_replace('.', '', $value);
+        $value = str_replace(',', '.', $value);
+    } else {
+        $value = str_replace(',', '.', $value);
+    }
+    return (float) $value;
+}
+
+function captacion_app_xml_operation_value($operation, $price_freq = '') {
+    $raw = strtolower(trim((string) ($operation ?: $price_freq)));
+    if (in_array($raw, array('rent', 'rental', 'alquiler', 'month', 'monthly', 'semana', 'week', 'weekly', 'arrendamiento', 'renting', 'lease'), true)) return 'alquiler';
+    if (in_array($raw, array('sale', 'sell', 'venta', 'comprar', 'buy', 'compraventa', 'vender', 'vendo'), true)) return 'venta';
+    if (in_array($raw, array('transfer', 'traspaso', 'traspass'), true)) return 'traspaso';
+    return 'venta';
+}
+
 function captacion_app_xml_first_image($node) {
-    $names = array('image', 'images', 'photo', 'photos', 'picture', 'url');
+    $names = array('images', 'image', 'fotos', 'foto', 'photos', 'photo', 'pictures', 'picture', 'galeria', 'gallery', 'media', 'multimedia', 'url', 'URL', 'Url');
+    $url_keys = array('url', 'URL', 'Url', 'src', 'href', 'link', 'file', 'archivo', 'ruta', 'path', 'source', 'download');
     foreach ($names as $name) {
         if (!isset($node->{$name})) continue;
         $value = '';
-        if ($node->{$name}->children()->count()) {
-            foreach ($node->{$name}->children() as $child) {
-                $value = trim((string) $child);
+        $el = $node->{$name};
+        if ($el->children()->count()) {
+            foreach ($el->children() as $child) {
+                if ($child->children()->count()) {
+                    $value = captacion_app_xml_nested_child_value($child, $url_keys, '');
+                }
+                if (!$value) {
+                    foreach ($url_keys as $attr) {
+                        $att = (string) $child[$attr];
+                        if ($att) { $value = $att; break; }
+                    }
+                }
+                if (!$value) $value = trim((string) $child);
                 if ($value) break;
             }
         } else {
-            $value = trim((string) $node->{$name});
+            $value = trim((string) $el);
+        }
+        if (!$value) {
+            foreach ($url_keys as $attr) {
+                $att = (string) $el[$attr];
+                if ($att) { $value = $att; break; }
+            }
         }
         if ($value) return esc_url_raw($value);
     }
     return '';
+}
+
+function captacion_app_xml_desc_value($node) {
+    $preferred = array('es', 'en');
+    if (isset($node->desc)) {
+        $desc = $node->desc;
+        if ($desc->children()->count()) {
+            foreach ($preferred as $lang) {
+                if (isset($desc->{$lang}) && trim((string) $desc->{$lang}) !== '') return sanitize_text_field((string) $desc->{$lang});
+            }
+            foreach ($desc->children() as $child) {
+                $val = trim((string) $child);
+                if ($val !== '') return sanitize_text_field($val);
+            }
+        }
+        $val = trim((string) $desc);
+        if ($val !== '') return sanitize_text_field($val);
+    }
+    return '';
+}
+
+function captacion_app_xml_node_to_array($node) {
+    $result = array();
+    if (!$node) return $result;
+    foreach ($node->attributes() as $name => $value) {
+        $result['@' . $name] = sanitize_text_field((string) $value);
+    }
+    foreach ($node->children() as $child) {
+        $name = $child->getName();
+        $value = $child->children()->count() ? captacion_app_xml_node_to_array($child) : trim((string) $child);
+        if (isset($result[$name])) {
+            if (!is_array($result[$name]) || array_keys($result[$name]) !== range(0, count($result[$name]) - 1)) {
+                $result[$name] = array($result[$name]);
+            }
+            $result[$name][] = $value;
+        } else {
+            $result[$name] = $value;
+        }
+    }
+    return $result;
+}
+
+function captacion_app_xml_image_urls($node) {
+    $urls = array();
+    $image_tags = array('image', 'imagen', 'photo', 'foto', 'picture', 'pictures', 'photos');
+    $url_keys = array('url', 'URL', 'Url', 'src', 'href', 'link', 'file', 'archivo', 'ruta', 'path', 'source', 'download');
+    foreach ($node->xpath('.//*') ?: array() as $child) {
+        $tag = strtolower($child->getName());
+        if (!in_array($tag, $image_tags, true)) continue;
+        $value = '';
+        foreach ($url_keys as $key) {
+            if (isset($child->{$key}) && trim((string) $child->{$key}) !== '') { $value = trim((string) $child->{$key}); break; }
+        }
+        if (!$value) {
+            foreach ($url_keys as $attr) {
+                $att = (string) $child[$attr];
+                if ($att !== '') { $value = $att; break; }
+            }
+        }
+        if (!$value) $value = trim((string) $child);
+        if ($value) $urls[] = esc_url_raw($value);
+    }
+    return array_values(array_unique(array_filter($urls)));
+}
+
+function captacion_app_parse_csv_properties($raw_csv, $source_name) {
+    if (empty($raw_csv) || strlen(trim($raw_csv)) === 0) return new WP_Error('captacion_csv_empty', 'El CSV esta vacio.', array('status' => 400));
+    if (strlen($raw_csv) > CAPTACION_XML_MAX_SIZE) return new WP_Error('captacion_csv_too_large', 'El CSV supera el tamano maximo de 10 MB.', array('status' => 413));
+    $raw_csv = preg_replace('/^\xEF\xBB\xBF/', '', (string) $raw_csv);
+    $lines = preg_split('/\r\n|\r|\n/', $raw_csv);
+    $sample = implode("\n", array_slice($lines, 0, 5));
+    $delimiter = substr_count($sample, ';') > substr_count($sample, ',') ? ';' : ',';
+    $headers = null;
+    $records = array();
+    $seen = array();
+    foreach ($lines as $line_index => $line) {
+        if (trim($line) === '') continue;
+        $cells = str_getcsv($line, $delimiter);
+        if ($headers === null) {
+            $headers = array_map(static function ($header) { return sanitize_key(remove_accents(trim((string) $header))); }, $cells);
+            continue;
+        }
+        if (count(array_filter($cells, static function ($cell) { return trim((string) $cell) !== ''; })) === 0) continue;
+        if (count($records) >= CAPTACION_XML_MAX_RECORDS) break;
+        $row = array();
+        foreach ($headers as $index => $header) {
+            if ($header === '') continue;
+            $row[$header] = isset($cells[$index]) ? trim((string) $cells[$index]) : '';
+        }
+        $record = captacion_app_normalize_import_property_row($row, $source_name, $line_index, 'csv');
+        if (isset($seen[$record['record_key']])) continue;
+        $seen[$record['record_key']] = true;
+        $records[] = $record;
+    }
+    if (empty($headers)) return new WP_Error('captacion_csv_headers', 'El CSV debe incluir una fila de cabeceras.', array('status' => 422));
+    return array('schemaVersion' => 'csv-1.0', 'dataOrigin' => 'csv_file', 'privacyScope' => 'private_user', 'records' => $records, 'total' => count($records));
+}
+
+function captacion_app_parse_json_properties($raw_json, $source_name) {
+    if (empty($raw_json) || strlen(trim($raw_json)) === 0) return new WP_Error('captacion_json_empty', 'El JSON esta vacio.', array('status' => 400));
+    if (strlen($raw_json) > CAPTACION_XML_MAX_SIZE) return new WP_Error('captacion_json_too_large', 'El JSON supera el tamano maximo de 10 MB.', array('status' => 413));
+    $decoded = json_decode((string) $raw_json, true);
+    if (!is_array($decoded)) return new WP_Error('captacion_json_parse', 'No se pudo interpretar el JSON.', array('status' => 400));
+    $items = $decoded;
+    foreach (array('properties', 'propiedades', 'listings', 'items', 'data', 'records') as $key) {
+        if (isset($decoded[$key]) && is_array($decoded[$key])) { $items = $decoded[$key]; break; }
+    }
+    if (isset($items['id']) || isset($items['reference']) || isset($items['referencia'])) $items = array($items);
+    $records = array();
+    $seen = array();
+    foreach ($items as $index => $item) {
+        if (!is_array($item) || count($records) >= CAPTACION_XML_MAX_RECORDS) continue;
+        $normalized = array();
+        foreach ($item as $key => $value) {
+            if (is_array($value)) continue;
+            $normalized[sanitize_key(remove_accents((string) $key))] = is_scalar($value) ? (string) $value : '';
+        }
+        $record = captacion_app_normalize_import_property_row($normalized, $source_name, $index, 'json');
+        if (isset($seen[$record['record_key']])) continue;
+        $seen[$record['record_key']] = true;
+        $records[] = $record;
+    }
+    return array('schemaVersion' => 'json-1.0', 'dataOrigin' => 'json_file', 'privacyScope' => 'private_user', 'records' => $records, 'total' => count($records));
 }
 
 function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
@@ -2240,16 +2896,24 @@ function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
     $seen = array();
     foreach ($nodes as $index => $node) {
         if (count($records) >= CAPTACION_XML_MAX_RECORDS) break;
-        $external_id = captacion_app_xml_child_value($node, array('id', 'reference', 'ref', 'external_id', 'mls_id'), 'xml-' . ($index + 1));
+        $external_id = captacion_app_xml_child_value($node, array('id', 'reference', 'ref', 'external_id', 'mls_id', 'codigo', 'cod', 'ID'), 'xml-' . ($index + 1));
         $record_key = 'xmlurl-' . substr(md5($source_url . '|' . $external_id . '|' . $index), 0, 18);
         if (isset($seen[$record_key])) continue;
         $seen[$record_key] = true;
-        $title = captacion_app_xml_child_value($node, array('title', 'name', 'headline'), 'Propiedad importada XML');
-        $description = captacion_app_xml_child_value($node, array('description', 'desc', 'remarks', 'text'), 'Propiedad importada desde feed XML externo.');
-        $type = captacion_app_normalize_property_type(captacion_app_xml_child_value($node, array('property_type', 'type', 'category'), 'Piso'));
+        $title = captacion_app_xml_child_value($node, array('title', 'name', 'headline', 'notes', 'titulo', 'heading', 'subject', 'summary', 'nombre'), '');
+        $description = captacion_app_xml_desc_value($node) ?: captacion_app_xml_child_value($node, array('description', 'desc', 'remarks', 'text', 'notes', 'comment', 'observations', 'notas'), 'Propiedad importada desde feed XML externo.');
+        $type = captacion_app_normalize_property_type(captacion_app_xml_child_value($node, array('property_type', 'type', 'category', 'tipologia', 'tipo'), 'Piso'));
         if (!in_array($type, captacion_app_property_types(), true)) $type = 'Piso';
-        $price = (float) preg_replace('/[^0-9.]/', '', captacion_app_xml_child_value($node, array('price', 'amount', 'value'), '0'));
-        $surface = (float) preg_replace('/[^0-9.]/', '', captacion_app_xml_child_value($node, array('surface', 'area', 'built_area', 'size'), '0'));
+        $price = captacion_app_xml_number_value(captacion_app_xml_child_value($node, array('price', 'amount', 'value', 'precio', 'preu', 'cost', 'importe', 'pvp'), '0'));
+        $surface = captacion_app_xml_number_value(captacion_app_xml_child_value($node, array('surface', 'area', 'built_area', 'size', 'superficie', 'metros', 'm2', 'total_area'), captacion_app_xml_nested_child_value($node, array('surface_area/built', 'surface_area/plot', 'surface_area'), '0')));
+        $municipality = captacion_app_xml_child_value($node, array('city', 'municipality', 'town', 'locality', 'ciudad', 'poblacion', 'localidad', 'municipio'), captacion_app_xml_nested_child_value($node, array('location/town', 'location/city', 'location/locality'), ''));
+        $province = captacion_app_xml_child_value($node, array('province', 'region', 'state', 'provincia'), captacion_app_xml_nested_child_value($node, array('location/province', 'location/region'), ''));
+        if (!$title) $title = trim(($description ? mb_substr(sanitize_text_field($description), 0, 80) : $type) . ($municipality ? ' en ' . $municipality : '') . ($external_id ? ' - Ref. ' . $external_id : ''));
+        if (!$title) $title = 'Propiedad importada XML';
+        $operation = captacion_app_xml_operation_value(captacion_app_xml_child_value($node, array('operation', 'transaction', 'offer_type', 'operacion', 'tipo_operacion', 'transaction_type'), ''), captacion_app_xml_child_value($node, array('price_freq', 'price_period'), ''));
+        $rooms = absint(captacion_app_xml_child_value($node, array('rooms', 'bedrooms', 'beds', 'habitaciones', 'dormitorios', 'room', 'bedroom'), '0'));
+        $bathrooms = absint(captacion_app_xml_child_value($node, array('bathrooms', 'baths', 'banos', 'baños', 'bathroom', 'toilets'), '0'));
+        $images = captacion_app_xml_image_urls($node);
         $payload = array(
             'id' => $external_id,
             'external_id' => $external_id,
@@ -2257,20 +2921,28 @@ function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
             'description' => sanitize_textarea_field($description),
             'property_type' => $type,
             'type' => $type,
-            'operation' => captacion_app_xml_child_value($node, array('operation', 'transaction', 'offer_type'), 'venta'),
+            'operation' => $operation,
             'price' => $price,
             'indicative_price' => $price,
             'currency' => captacion_app_xml_child_value($node, array('currency'), 'EUR'),
-            'country' => captacion_app_xml_child_value($node, array('country'), ''),
-            'province' => captacion_app_xml_child_value($node, array('province', 'region', 'state'), ''),
-            'municipality' => captacion_app_xml_child_value($node, array('city', 'municipality', 'town', 'locality'), ''),
-            'address_approx' => captacion_app_xml_child_value($node, array('address', 'street'), ''),
+            'country' => captacion_app_xml_child_value($node, array('country'), captacion_app_xml_nested_child_value($node, array('location/country'), '')),
+            'province' => $province,
+            'municipality' => $municipality,
+            'address_approx' => captacion_app_xml_child_value($node, array('address', 'street', 'location_detail'), captacion_app_xml_nested_child_value($node, array('location/address'), '')),
             'surface' => $surface,
             'total_area_m2' => $surface,
-            'rooms' => absint(captacion_app_xml_child_value($node, array('rooms', 'bedrooms'), '0')),
-            'bedrooms' => absint(captacion_app_xml_child_value($node, array('rooms', 'bedrooms'), '0')),
-            'bathrooms' => absint(captacion_app_xml_child_value($node, array('bathrooms', 'baths'), '0')),
-            'image' => captacion_app_xml_first_image($node),
+            'rooms' => $rooms,
+            'bedrooms' => $rooms,
+            'bathrooms' => $bathrooms,
+            'latitude' => captacion_app_xml_nested_child_value($node, array('location/latitude', 'latitude'), ''),
+            'longitude' => captacion_app_xml_nested_child_value($node, array('location/longitude', 'longitude'), ''),
+            'image' => !empty($images) ? $images[0] : captacion_app_xml_first_image($node),
+            'images' => $images,
+            'gallery' => $images,
+            'source_data' => captacion_app_xml_node_to_array($node),
+            'source_email' => captacion_app_xml_child_value($node, array('email', 'contact_email', 'mail'), ''),
+            'source_phone' => captacion_app_xml_child_value($node, array('contact_number', 'phone', 'telephone', 'telefono', 'tel'), ''),
+            'source_whatsapp' => captacion_app_xml_child_value($node, array('whatsapp_number', 'whatsapp', 'whatsapp_phone'), ''),
             'source_url' => esc_url_raw($source_url),
             'publication_status' => 'active',
             'imported_at' => current_time('mysql'),
@@ -2289,22 +2961,33 @@ function captacion_app_rest_xml_feed_import_url(WP_REST_Request $request) {
     $parsed = captacion_app_parse_external_xml_properties($download['body'], $download['url']);
     if (is_wp_error($parsed)) return $parsed;
     if (empty($parsed['records'])) return new WP_Error('captacion_xml_no_properties', 'No se detectaron propiedades importables en este XML.', array('status' => 422));
-    $batch_id = captacion_app_generate_import_batch_id();
     $source_label = substr($download['url'], 0, 190);
-    captacion_app_create_import_batch(array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'created_by' => $user_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'source_file_name' => $source_label, 'source_hash' => $download['hash'], 'records_total' => $parsed['total']));
+    $existing_batch = captacion_app_get_import_batch_by_source($user_id, 'xml_url', $source_label);
+    $batch_id = $existing_batch ? $existing_batch['import_batch_id'] : captacion_app_generate_import_batch_id();
+    if (!$existing_batch) {
+        $batch_created = captacion_app_create_import_batch(array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'created_by' => $user_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'source_file_name' => $source_label, 'source_hash' => $download['hash'], 'records_total' => $parsed['total']));
+        if (is_wp_error($batch_created)) return $batch_created;
+    }
     $result = captacion_app_import_records_from_xml($parsed, array('user_id' => $user_id, 'import_batch_id' => $batch_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => $user_id, 'source_file_name' => $source_label, 'source_hash' => $download['hash']));
     $summary = array_merge($result['summary'], array('properties_updated' => $result['updated'], 'properties_pending_review' => $result['pending_review'], 'technical_errors' => array_slice($result['errors'], 0, 10)));
-    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'summary_json' => $summary));
+    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_total' => $parsed['total'], 'records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'source_hash' => $download['hash'], 'summary_json' => $summary));
     captacion_app_log_resource_event(array('resource_id' => 'xml_feed_import_url'), 'xml_batch_created', array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'source' => $source_label));
     return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'updated' => $result['updated'], 'pending_review' => $result['pending_review'], 'rejected' => $result['rejected'], 'summary' => $summary));
 }
 
-function captacion_app_parse_xml_file_for_import($raw_xml, $source_name) {
-    if (stripos($raw_xml, '<captacionData') !== false) {
-        $parsed = captacion_app_validate_import_xml($raw_xml);
+function captacion_app_parse_file_for_import($raw, $source_name) {
+    $extension = strtolower(pathinfo((string) $source_name, PATHINFO_EXTENSION));
+    if ($extension === 'csv') return captacion_app_parse_csv_properties($raw, $source_name);
+    if ($extension === 'json') return captacion_app_parse_json_properties($raw, $source_name);
+    if (stripos($raw, '<captacionData') !== false) {
+        $parsed = captacion_app_validate_import_xml($raw);
         if (!is_wp_error($parsed)) return $parsed;
     }
-    return captacion_app_parse_external_xml_properties($raw_xml, $source_name);
+    return captacion_app_parse_external_xml_properties($raw, $source_name);
+}
+
+function captacion_app_parse_xml_file_for_import($raw_xml, $source_name) {
+    return captacion_app_parse_file_for_import($raw_xml, $source_name);
 }
 
 function captacion_app_rest_xml_feed_import_file(WP_REST_Request $request) {
@@ -2312,52 +2995,66 @@ function captacion_app_rest_xml_feed_import_file(WP_REST_Request $request) {
     if (!$user_id) return new WP_Error('captacion_auth', 'Tu sesion ha caducado. Vuelve a iniciar sesion.', array('status' => 401));
     $files = $request->get_file_params();
     if (empty($files['file']) || !is_array($files['file'])) {
-        return new WP_Error('captacion_xml_file_required', 'Selecciona un archivo XML.', array('status' => 422));
+        return new WP_Error('captacion_import_file_required', 'Selecciona un archivo XML, CSV o JSON.', array('status' => 422));
     }
     $file = $files['file'];
     if (!empty($file['error'])) {
-        return new WP_Error('captacion_xml_file_upload', 'No se pudo subir el archivo XML.', array('status' => 400));
+        return new WP_Error('captacion_import_file_upload', 'No se pudo subir el archivo.', array('status' => 400));
     }
     $filename = sanitize_file_name($file['name'] ?? 'feed.xml');
-    if (strtolower(pathinfo($filename, PATHINFO_EXTENSION)) !== 'xml') {
-        return new WP_Error('captacion_xml_file_extension', 'El archivo debe tener extension .xml.', array('status' => 422));
+    $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    if (!in_array($extension, array('xml', 'csv', 'json'), true)) {
+        return new WP_Error('captacion_import_file_extension', 'El archivo debe tener extension .xml, .csv o .json.', array('status' => 422));
     }
-    $allowed_mimes = array('text/xml', 'application/xml', 'application/octet-stream', 'text/plain');
+    $allowed_mimes = array('text/xml', 'application/xml', 'application/json', 'text/json', 'text/csv', 'application/csv', 'application/vnd.ms-excel', 'application/octet-stream', 'text/plain');
     $mime = sanitize_text_field($file['type'] ?? '');
     if ($mime && !in_array($mime, $allowed_mimes, true)) {
-        return new WP_Error('captacion_xml_file_mime', 'El tipo de archivo no esta permitido.', array('status' => 422));
+        return new WP_Error('captacion_import_file_mime', 'El tipo de archivo no esta permitido.', array('status' => 422));
     }
     if (empty($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
-        return new WP_Error('captacion_xml_file_tmp', 'No se pudo leer el archivo subido.', array('status' => 400));
+        return new WP_Error('captacion_import_file_tmp', 'No se pudo leer el archivo subido.', array('status' => 400));
     }
     if (filesize($file['tmp_name']) > CAPTACION_XML_MAX_SIZE) {
-        return new WP_Error('captacion_xml_file_size', 'El archivo supera el tamano maximo permitido.', array('status' => 413));
+        return new WP_Error('captacion_import_file_size', 'El archivo supera el tamano maximo permitido.', array('status' => 413));
     }
-    $raw_xml = file_get_contents($file['tmp_name']);
-    if (!$raw_xml || trim($raw_xml) === '') {
-        return new WP_Error('captacion_xml_file_empty', 'El archivo no contiene XML valido.', array('status' => 400));
+    $raw = file_get_contents($file['tmp_name']);
+    if (!$raw || trim($raw) === '') {
+        return new WP_Error('captacion_import_file_empty', 'El archivo no contiene datos validos.', array('status' => 400));
     }
-    if (stripos($raw_xml, '<!DOCTYPE') !== false || stripos($raw_xml, '<!ENTITY') !== false) {
+    if ($extension === 'xml' && (stripos($raw, '<!DOCTYPE') !== false || stripos($raw, '<!ENTITY') !== false)) {
         return new WP_Error('captacion_xml_file_doctype', 'El archivo XML contiene elementos no permitidos.', array('status' => 400));
     }
-    $parsed = captacion_app_parse_xml_file_for_import($raw_xml, $filename);
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+    add_filter('upload_dir', 'captacion_app_import_upload_dir_filter');
+    $upload = wp_handle_upload($file, array(
+        'test_form' => false,
+        'mimes' => array('xml' => 'text/xml|application/xml|text/plain', 'csv' => 'text/csv|application/csv|application/vnd.ms-excel|text/plain', 'json' => 'application/json|text/json|text/plain'),
+    ));
+    remove_filter('upload_dir', 'captacion_app_import_upload_dir_filter');
+    if (!empty($upload['error'])) return new WP_Error('captacion_import_store_failed', $upload['error'], array('status' => 500));
+
+    $parsed = captacion_app_parse_file_for_import($raw, $filename);
     if (is_wp_error($parsed)) return $parsed;
     if (empty($parsed['records'])) {
         return new WP_Error('captacion_xml_no_properties', 'No se han detectado propiedades compatibles.', array('status' => 422));
     }
-    $hash = hash('sha256', $raw_xml);
-    $batch_id = 'xml_local_' . gmdate('Ymd_His') . '_' . substr($hash, 0, 8);
-    captacion_app_create_import_batch(array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'created_by' => $user_id, 'data_origin' => 'xml_file', 'is_demo' => false, 'privacy_scope' => 'private_user', 'source_file_name' => substr($filename, 0, 190), 'source_hash' => $hash, 'records_total' => $parsed['total']));
-    $result = captacion_app_import_records_from_xml($parsed, array('user_id' => $user_id, 'import_batch_id' => $batch_id, 'data_origin' => 'xml_file', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => $user_id, 'source_file_name' => substr($filename, 0, 190), 'source_hash' => $hash));
-    $summary = array_merge($result['summary'], array('properties_updated' => $result['updated'], 'properties_pending_review' => $result['pending_review'], 'technical_errors' => array_slice($result['errors'], 0, 10)));
+    $hash = hash('sha256', $raw);
+    $data_origin = $extension . '_file';
+    $batch_id = $extension . '_local_' . gmdate('Ymd_His') . '_' . substr($hash, 0, 8);
+    $stored_name = basename($upload['file'] ?? $filename);
+    $batch_created = captacion_app_create_import_batch(array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'created_by' => $user_id, 'data_origin' => $data_origin, 'is_demo' => false, 'privacy_scope' => 'private_user', 'source_file_name' => substr($stored_name, 0, 190), 'source_hash' => $hash, 'records_total' => $parsed['total']));
+    if (is_wp_error($batch_created)) return $batch_created;
+    $result = captacion_app_import_records_from_xml($parsed, array('user_id' => $user_id, 'import_batch_id' => $batch_id, 'data_origin' => $data_origin, 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => $user_id, 'source_file_name' => substr($stored_name, 0, 190), 'source_hash' => $hash));
+    $summary = array_merge($result['summary'], array('source_file_path' => $upload['file'] ?? '', 'source_file_url' => $upload['url'] ?? '', 'properties_updated' => $result['updated'], 'properties_pending_review' => $result['pending_review'], 'technical_errors' => array_slice($result['errors'], 0, 10)));
     captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'summary_json' => $summary));
-    captacion_app_log_resource_event(array('resource_id' => 'xml_feed_import_file'), 'xml_batch_created', array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'source' => $filename));
+    captacion_app_log_resource_event(array('resource_id' => 'import_file'), 'import_batch_created', array('import_batch_id' => $batch_id, 'owner_user_id' => $user_id, 'source' => $filename, 'format' => $extension));
     return rest_ensure_response(array(
         'success' => true,
         'ok' => true,
         'feed_id' => $batch_id,
         'import_batch_id' => $batch_id,
         'filename' => $filename,
+        'format' => $extension,
         'properties_imported' => $result['imported'],
         'properties_updated' => $result['updated'],
         'properties_pending_review' => $result['pending_review'],
@@ -2382,11 +3079,76 @@ function captacion_app_rest_xml_feed_sync(WP_REST_Request $request) {
     $records_table = captacion_app_records_table_name();
     $blockers = captacion_app_get_import_batch_pending_blockers($batch_id);
     if (empty($blockers['count'])) {
-        $wpdb->query($wpdb->prepare("UPDATE {$records_table} SET deleted_at = %s WHERE import_batch_id = %s AND deleted_at IS NULL", current_time('mysql'), $batch_id));
+        $wpdb->query($wpdb->prepare("DELETE FROM {$records_table} WHERE import_batch_id = %s", $batch_id));
     }
     $result = captacion_app_import_records_from_xml($parsed, array('user_id' => absint($batch['owner_user_id']), 'import_batch_id' => $batch_id, 'data_origin' => 'xml_url', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => absint($batch['owner_user_id']), 'source_file_name' => $batch['source_file_name'], 'source_hash' => $download['hash']));
-    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'], 'records_rejected' => $result['rejected'], 'summary_json' => $result['summary']));
-    return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'rejected' => $result['rejected']));
+    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_total' => $parsed['total'], 'records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'source_hash' => $download['hash'], 'summary_json' => $result['summary']));
+    return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'updated' => $result['updated'], 'rejected' => $result['rejected']));
+}
+
+function captacion_app_rest_import_rollback(WP_REST_Request $request) {
+    global $wpdb;
+    $batch_id = sanitize_text_field($request->get_param('import_batch_id'));
+    $batch = captacion_app_get_import_batch($batch_id);
+    if (!$batch || !empty($batch['deleted_at'])) return new WP_Error('captacion_batch_not_found', 'Lote no encontrado.', array('status' => 404));
+    if (!captacion_app_user_can_manage_import_batch($batch)) return new WP_Error('captacion_forbidden', 'No tienes permiso para revertir este lote.', array('status' => 403));
+    $records_table = captacion_app_records_table_name();
+    $now = current_time('mysql');
+    $affected = $wpdb->query($wpdb->prepare("UPDATE {$records_table} SET deleted_at = %s, status = %s, updated_at = %s WHERE import_batch_id = %s AND deleted_at IS NULL", $now, 'rolled_back', $now, $batch_id));
+    $summary = json_decode((string) ($batch['summary_json'] ?? '{}'), true);
+    if (!is_array($summary)) $summary = array();
+    $summary['rolled_back_records'] = max(0, (int) $affected);
+    $summary['rolled_back_at'] = $now;
+    captacion_app_update_import_batch_status($batch_id, 'rolled_back', array('summary_json' => $summary));
+    captacion_app_log_resource_event(array('resource_id' => 'import_rollback'), 'import_batch_rolled_back', array('import_batch_id' => $batch_id, 'owner_user_id' => absint($batch['owner_user_id']), 'records' => max(0, (int) $affected)));
+    return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'rolled_back' => max(0, (int) $affected)));
+}
+
+function captacion_app_rest_import_template() {
+    $headers = array('referencia','titulo','tipo','operacion','precio','moneda','provincia','municipio','codigo_postal','superficie','habitaciones','banos','descripcion','imagen');
+    $example = array('REF-001','Piso luminoso en zona centro','Piso','venta','250000','EUR','Madrid','Madrid','28013','95','3','2','Descripcion comercial de la oportunidad','https://ejemplo.com/foto.jpg');
+    $csv = implode(';', $headers) . "\n" . implode(';', array_map(static function ($value) { return '"' . str_replace('"', '""', $value) . '"'; }, $example)) . "\n";
+    $response = new WP_REST_Response($csv, 200);
+    $response->header('Content-Type', 'text/csv; charset=utf-8');
+    $response->header('Content-Disposition', 'attachment; filename="captacion-import-template.csv"');
+    return $response;
+}
+
+function captacion_app_rest_webhook_permission(WP_REST_Request $request) {
+    $expected = (string) captacion_app_setting('webhook_api_key');
+    if ($expected === '') return false;
+    $provided = (string) $request->get_header('x-captacion-webhook-key');
+    return $provided !== '' && hash_equals($expected, $provided);
+}
+
+function captacion_app_rest_webhook_receive(WP_REST_Request $request) {
+    $body = (string) $request->get_body();
+    if (trim($body) === '') return new WP_Error('captacion_webhook_empty', 'El webhook no contiene datos.', array('status' => 400));
+    $owner_user_id = absint($request->get_param('owner_user_id'));
+    $owner_email = sanitize_email((string) $request->get_param('owner_email'));
+    if (!$owner_user_id && $owner_email) {
+        $user = get_user_by('email', $owner_email);
+        if ($user) $owner_user_id = absint($user->ID);
+    }
+    if (!$owner_user_id || !get_userdata($owner_user_id)) return new WP_Error('captacion_webhook_owner', 'Indica owner_user_id u owner_email valido.', array('status' => 422));
+    $content_type = strtolower((string) $request->get_header('content-type'));
+    $source_name = 'webhook-' . gmdate('Ymd-His');
+    if (strpos($content_type, 'xml') !== false || strpos(ltrim($body), '<') === 0) {
+        if (stripos($body, '<!DOCTYPE') !== false || stripos($body, '<!ENTITY') !== false) return new WP_Error('captacion_webhook_xml_doctype', 'XML no permitido.', array('status' => 400));
+        $parsed = captacion_app_parse_external_xml_properties($body, $source_name);
+    } else {
+        $parsed = captacion_app_parse_json_properties($body, $source_name . '.json');
+    }
+    if (is_wp_error($parsed)) return $parsed;
+    if (empty($parsed['records'])) return new WP_Error('captacion_webhook_empty_records', 'No se detectaron propiedades importables.', array('status' => 422));
+    $hash = hash('sha256', $body);
+    $batch_id = 'webhook_' . gmdate('Ymd_His') . '_' . substr($hash, 0, 8);
+    $batch_created = captacion_app_create_import_batch(array('import_batch_id' => $batch_id, 'owner_user_id' => $owner_user_id, 'created_by' => $owner_user_id, 'data_origin' => 'webhook', 'is_demo' => false, 'privacy_scope' => 'private_user', 'source_file_name' => $source_name, 'source_hash' => $hash, 'records_total' => $parsed['total']));
+    if (is_wp_error($batch_created)) return $batch_created;
+    $result = captacion_app_import_records_from_xml($parsed, array('user_id' => $owner_user_id, 'import_batch_id' => $batch_id, 'data_origin' => 'webhook', 'is_demo' => false, 'privacy_scope' => 'private_user', 'owner_user_id' => $owner_user_id, 'source_file_name' => $source_name, 'source_hash' => $hash));
+    $summary = array_merge($result['summary'], array('properties_updated' => $result['updated'], 'properties_pending_review' => $result['pending_review'], 'technical_errors' => array_slice($result['errors'], 0, 10)));
+    captacion_app_update_import_batch_status($batch_id, $result['rejected'] > 0 ? 'error' : 'active', array('records_imported' => $result['imported'] + $result['updated'], 'records_rejected' => $result['rejected'], 'summary_json' => $summary));
+    return rest_ensure_response(array('ok' => true, 'import_batch_id' => $batch_id, 'imported' => $result['imported'], 'updated' => $result['updated'], 'pending_review' => $result['pending_review'], 'rejected' => $result['rejected'], 'summary' => $summary));
 }
 
 function captacion_app_rest_xml_demo_import(WP_REST_Request $request) {
@@ -2583,9 +3345,6 @@ function captacion_app_rest_delete_import_batch(WP_REST_Request $request) {
     }
     $blockers = captacion_app_get_import_batch_pending_blockers($batch_id);
     if (!empty($blockers['count'])) {
-        global $wpdb;
-        $batches_table = captacion_app_import_batches_table_name();
-        $wpdb->update($batches_table, array('status' => 'pending_deletion', 'updated_at' => current_time('mysql')), array('import_batch_id' => $batch_id));
         captacion_app_log_resource_event(array('resource_id' => 'import_batch_delete'), 'xml_batch_deletion_pending', array(
             'import_batch_id' => $batch_id,
             'owner_user_id' => $batch['owner_user_id'],
@@ -2596,14 +3355,14 @@ function captacion_app_rest_delete_import_batch(WP_REST_Request $request) {
             'ok' => true,
             'feed_id' => $batch_id,
             'import_batch_id' => $batch_id,
-            'status' => 'pending_deletion',
+            'status' => $batch['status'] ?? 'active',
+            'blocked' => true,
             'blockers' => $blockers,
-            'message' => 'El XML queda pendiente de eliminación hasta cerrar las operaciones o compras activas vinculadas.',
+            'message' => 'No se puede eliminar este XML hasta cerrar o descartar las operaciones activas vinculadas.',
         ));
     }
-    $now = current_time('mysql');
-    captacion_app_soft_delete_import_batch_records($batch_id, $now);
-    captacion_app_mark_import_batch_deleted($batch_id, $now);
+    captacion_app_hard_delete_import_batch_records($batch_id);
+    captacion_app_hard_delete_import_batch($batch_id);
     captacion_app_log_resource_event(array('resource_id' => 'import_batch_delete'), 'xml_batch_deleted', array(
         'import_batch_id' => $batch_id,
         'owner_user_id' => $batch['owner_user_id'],
@@ -2689,7 +3448,8 @@ function captacion_app_rest_update_pending_property(WP_REST_Request $request) {
     $payload = json_decode($row['payload'] ?: '{}', true);
     $field = sanitize_key($request->get_param('field'));
     $value = sanitize_text_field($request->get_param('value'));
-    if (!$field) return new WP_Error('captacion_field_required', 'Indica el campo a actualizar.', array('status' => 400));
+    $fields = $request->get_param('fields');
+    if (!$field && !is_array($fields)) return new WP_Error('captacion_field_required', 'Indica el campo a actualizar.', array('status' => 400));
     if ($field === '_publish') {
         $payload['publication_status'] = 'active';
         $payload['status'] = 'active';
@@ -2709,7 +3469,22 @@ function captacion_app_rest_update_pending_property(WP_REST_Request $request) {
         'bathrooms' => 'bathrooms',
         'surface' => 'surface',
     );
-    if ($field === 'location') {
+    if (is_array($fields)) {
+        foreach ($fields as $field_key => $field_value) {
+            $field_key = sanitize_key($field_key);
+            $field_value = is_scalar($field_value) ? sanitize_text_field((string) $field_value) : '';
+            if ($field_key === 'location') {
+                $parts = array_map('trim', explode(',', $field_value));
+                $payload['province'] = $parts[0] ?? '';
+                $payload['municipality'] = $parts[1] ?? $parts[0] ?? '';
+            } elseif ($field_key === 'owner') {
+                $payload['owner_name'] = $field_value;
+                $payload['contact_email'] = $field_value;
+            } elseif (isset($field_map[$field_key])) {
+                $payload[$field_map[$field_key]] = $field_value;
+            }
+        }
+    } elseif ($field === 'location') {
         $parts = array_map('trim', explode(',', $value));
         $payload['province'] = $parts[0] ?? '';
         $payload['municipality'] = $parts[1] ?? $parts[0] ?? '';
@@ -2724,7 +3499,9 @@ function captacion_app_rest_update_pending_property(WP_REST_Request $request) {
     $payload['review_alerts'] = $missing;
     $current_status = $row['status'] ?? 'pending_review';
     $new_status = ($current_status === 'active') ? 'active' : (empty($missing) ? 'active' : 'pending_review');
-    $wpdb->update($table, array('payload' => wp_json_encode($payload), 'status' => $new_status, 'updated_at' => current_time('mysql')), array('id' => absint($row['id'])));
+    $update_row = array('payload' => wp_json_encode($payload), 'status' => $new_status, 'updated_at' => current_time('mysql'));
+    if (!empty($payload['title'])) $update_row['title'] = sanitize_text_field($payload['title']);
+    $wpdb->update($table, $update_row, array('id' => absint($row['id'])));
     return rest_ensure_response(array('ok' => true, 'record_key' => $record_key, 'status' => $new_status, 'missing_fields' => $missing));
 }
 
@@ -2782,6 +3559,55 @@ function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
             $user_id
         ), ARRAY_A);
     }
+    $existing_source_keys = array();
+    foreach ($rows as $candidate_row) {
+        if (!empty($candidate_row['source_file_name'])) {
+            $existing_source_keys[absint($candidate_row['owner_user_id']) . '|' . sanitize_key($candidate_row['data_origin']) . '|' . sanitize_text_field($candidate_row['source_file_name'])] = true;
+        }
+    }
+    if (current_user_can('manage_options')) {
+        $record_sources = $wpdb->get_results(
+            "SELECT owner_user_id, created_by, data_origin, source_file_name, source_hash, import_batch_id, MIN(created_at) created_at, MAX(updated_at) updated_at, COUNT(*) records_total FROM {$records_table} WHERE deleted_at IS NULL AND source_file_name != '' AND data_origin IN ('xml_url','xml_file','csv_file','json_file','webhook') GROUP BY owner_user_id, data_origin, source_file_name ORDER BY updated_at DESC LIMIT 100",
+            ARRAY_A
+        );
+    } else {
+        $record_sources = $wpdb->get_results($wpdb->prepare(
+            "SELECT owner_user_id, created_by, data_origin, source_file_name, source_hash, import_batch_id, MIN(created_at) created_at, MAX(updated_at) updated_at, COUNT(*) records_total FROM {$records_table} WHERE owner_user_id = %d AND deleted_at IS NULL AND source_file_name != '' AND data_origin IN ('xml_url','xml_file','csv_file','json_file','webhook') GROUP BY owner_user_id, data_origin, source_file_name ORDER BY updated_at DESC LIMIT 100",
+            $user_id
+        ), ARRAY_A);
+    }
+    foreach ($record_sources as $record_source) {
+        $source_key = absint($record_source['owner_user_id']) . '|' . sanitize_key($record_source['data_origin']) . '|' . sanitize_text_field($record_source['source_file_name']);
+        if (isset($existing_source_keys[$source_key])) continue;
+        $recovered_batch_id = sanitize_text_field($record_source['import_batch_id'] ?: 'xml_recovered_' . substr(md5($source_key), 0, 16));
+        $batch_created = captacion_app_create_import_batch(array(
+            'import_batch_id' => $recovered_batch_id,
+            'owner_user_id' => absint($record_source['owner_user_id']),
+            'created_by' => absint($record_source['created_by']),
+            'data_origin' => sanitize_key($record_source['data_origin']),
+            'is_demo' => false,
+            'privacy_scope' => 'private_user',
+            'source_file_name' => sanitize_text_field($record_source['source_file_name']),
+            'source_hash' => sanitize_text_field($record_source['source_hash']),
+            'records_total' => absint($record_source['records_total']),
+            'summary_json' => array('recovered_from_records' => true, 'totalRecords' => absint($record_source['records_total'])),
+        ));
+        if (!is_wp_error($batch_created)) {
+            captacion_app_update_import_batch_status($recovered_batch_id, 'active', array('records_total' => absint($record_source['records_total']), 'records_imported' => absint($record_source['records_total']), 'records_rejected' => 0));
+            $recovered_row = captacion_app_get_import_batch($recovered_batch_id);
+            if ($recovered_row) $rows[] = $recovered_row;
+        }
+        $existing_source_keys[$source_key] = true;
+    }
+    $unique_rows = array();
+    $seen_sources = array();
+    foreach ($rows as $candidate_row) {
+        $source_key = absint($candidate_row['owner_user_id']) . '|' . sanitize_key($candidate_row['data_origin']) . '|' . sanitize_text_field($candidate_row['source_file_name']);
+        if (!empty($candidate_row['source_file_name']) && isset($seen_sources[$source_key])) continue;
+        if (!empty($candidate_row['source_file_name'])) $seen_sources[$source_key] = true;
+        $unique_rows[] = $candidate_row;
+    }
+    $rows = $unique_rows;
     foreach ($rows as &$row) {
         $counts = $wpdb->get_results($wpdb->prepare(
             "SELECT record_type, COUNT(*) total FROM {$records_table} WHERE import_batch_id = %s AND deleted_at IS NULL GROUP BY record_type",
@@ -2810,6 +3636,24 @@ function captacion_app_rest_list_import_batches(WP_REST_Request $request) {
             if ($status_row['status'] === 'active') $row['active_properties_count'] = absint($status_row['total']);
             if ($status_row['status'] === 'pending_review') $row['pending_review_properties_count'] = absint($status_row['total']);
         }
+        if ($row['properties_count'] === 0 && !empty($row['source_file_name'])) {
+            $source_counts = $wpdb->get_results($wpdb->prepare(
+                "SELECT record_type, COUNT(*) total FROM {$records_table} WHERE owner_user_id = %d AND data_origin = %s AND source_file_name = %s AND deleted_at IS NULL GROUP BY record_type",
+                absint($row['owner_user_id']), sanitize_key($row['data_origin']), sanitize_text_field($row['source_file_name'])
+            ), ARRAY_A);
+            foreach ($source_counts as $count_row) {
+                if ($count_row['record_type'] === 'property') $row['properties_count'] = absint($count_row['total']);
+                if ($count_row['record_type'] === 'need') $row['needs_count'] = absint($count_row['total']);
+            }
+            $source_status_counts = $wpdb->get_results($wpdb->prepare(
+                "SELECT status, COUNT(*) total FROM {$records_table} WHERE owner_user_id = %d AND data_origin = %s AND source_file_name = %s AND record_type = 'property' AND deleted_at IS NULL GROUP BY status",
+                absint($row['owner_user_id']), sanitize_key($row['data_origin']), sanitize_text_field($row['source_file_name'])
+            ), ARRAY_A);
+            foreach ($source_status_counts as $status_row) {
+                if ($status_row['status'] === 'active') $row['active_properties_count'] = absint($status_row['total']);
+                if ($status_row['status'] === 'pending_review') $row['pending_review_properties_count'] = absint($status_row['total']);
+            }
+        }
     }
     return rest_ensure_response(array('ok' => true, 'batches' => $rows));
 }
@@ -2827,20 +3671,19 @@ function captacion_app_rest_delete_my_data(WP_REST_Request $request) {
         return new WP_Error('captacion_confirm_required', 'Debes enviar confirm=CONFIRMAR para eliminar tus datos.', array('status' => 400));
     }
     global $wpdb;
-    $now = current_time('mysql');
     $table = captacion_app_records_table_name();
     $wpdb->query($wpdb->prepare(
-        "UPDATE {$table} SET deleted_at = %s WHERE owner_user_id = %d AND deleted_at IS NULL",
-        $now, $user_id
+        "DELETE FROM {$table} WHERE owner_user_id = %d",
+        $user_id
     ));
     $wpdb->query($wpdb->prepare(
-        "UPDATE {$table} SET deleted_at = %s WHERE user_id = %d AND owner_user_id = 0 AND deleted_at IS NULL",
-        $now, $user_id
+        "DELETE FROM {$table} WHERE user_id = %d AND owner_user_id = 0",
+        $user_id
     ));
     $batches_table = captacion_app_import_batches_table_name();
     $wpdb->query($wpdb->prepare(
-        "UPDATE {$batches_table} SET deleted_at = %s, status = 'deleted', updated_at = %s WHERE owner_user_id = %d AND deleted_at IS NULL",
-        $now, $now, $user_id
+        "DELETE FROM {$batches_table} WHERE owner_user_id = %d",
+        $user_id
     ));
     $access_log_table = captacion_app_access_log_table_name();
     $wpdb->query($wpdb->prepare(
@@ -2950,6 +3793,21 @@ function captacion_app_register_records_routes() {
         'callback' => 'captacion_app_rest_xml_feed_import_file',
         'permission_callback' => 'captacion_app_rest_private_permission',
     ));
+    register_rest_route('captacion/v1', '/import/upload', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_rest_xml_feed_import_file',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
+    register_rest_route('captacion/v1', '/import/template', array(
+        'methods' => WP_REST_Server::READABLE,
+        'callback' => 'captacion_app_rest_import_template',
+        'permission_callback' => '__return_true',
+    ));
+    register_rest_route('captacion/v1', '/webhook/receive', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_rest_webhook_receive',
+        'permission_callback' => 'captacion_app_rest_webhook_permission',
+    ));
     register_rest_route('captacion/v1', '/xml-feeds/(?P<import_batch_id>[a-zA-Z0-9_-]+)/sync', array(
         'methods' => WP_REST_Server::CREATABLE,
         'callback' => 'captacion_app_rest_xml_feed_sync',
@@ -3004,6 +3862,11 @@ function captacion_app_register_records_routes() {
             'permission_callback' => 'captacion_app_rest_private_permission',
         ),
     ));
+    register_rest_route('captacion/v1', '/import-batches/(?P<import_batch_id>[a-zA-Z0-9_-]+)/rollback', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_rest_import_rollback',
+        'permission_callback' => 'captacion_app_rest_private_permission',
+    ));
     register_rest_route('captacion/v1', '/my-data', array(
         'methods' => WP_REST_Server::DELETABLE,
         'callback' => 'captacion_app_rest_delete_my_data',
@@ -3047,13 +3910,13 @@ function captacion_app_notify_internal_mail_event($data) {
     $category = sanitize_key($data['category'] ?? 'general');
     $source = sanitize_text_field($data['source'] ?? '');
     $subject_map = array(
-        'registro' => 'Nuevo registro en Captacion.app',
-        'contacto' => 'Nuevo mensaje de contacto en Captacion.app',
+        'registro' => 'Nuevo registro en Compra Captación',
+        'contacto' => 'Nuevo mensaje de contacto en Compra Captación',
         'reporte_denuncia' => 'Nuevo reporte en el canal de denuncias',
-        'busco_captacion' => 'Nueva demanda publicada en Captacion.app',
-        'ofrecer_captacion' => 'Nueva captacion publicada en Captacion.app',
+        'busco_captacion' => 'Nueva demanda publicada en Compra Captación',
+        'ofrecer_captacion' => 'Nueva captacion publicada en Compra Captación',
     );
-    $subject = $subject_map[$category] ?? 'Nuevo evento en Captacion.app';
+    $subject = $subject_map[$category] ?? 'Nuevo evento en Compra Captación';
     $lines = array(
         'Categoria: ' . $category,
         'Origen: ' . $source,
@@ -3074,33 +3937,33 @@ function captacion_app_notification_templates() {
     return array(
         'welcome' => array(
             'category' => 'registro',
-            'subject' => 'Bienvenido a Captacion.app',
-            'body' => "Hola {name},\n\nTu cuenta profesional en Captacion.app se ha creado correctamente. Desde tu panel privado podras publicar demandas, revisar captaciones compatibles y recibir notificaciones cuando aparezcan oportunidades relevantes.\n\nEquipo Captacion.app",
+            'subject' => 'Bienvenido a Compra Captación',
+            'body' => "Hola {name},\n\nTu cuenta profesional en Compra Captación se ha creado correctamente. Desde tu panel privado podras publicar demandas, revisar captaciones compatibles y recibir notificaciones cuando aparezcan oportunidades relevantes.\n\nEquipo Compra Captación",
         ),
         'contact_received' => array(
             'category' => 'contacto',
-            'subject' => 'Hemos recibido tu mensaje en Captacion.app',
-            'body' => "Hola {name},\n\nHemos recibido tu mensaje y lo estamos revisando. En breve recibiras una comunicacion referente a tu consulta.\n\nEquipo Captacion.app",
+            'subject' => 'Hemos recibido tu mensaje en Compra Captación',
+            'body' => "Hola {name},\n\nHemos recibido tu mensaje y lo estamos revisando. En breve recibiras una comunicacion referente a tu consulta.\n\nEquipo Compra Captación",
         ),
         'report_received' => array(
             'category' => 'reporte_denuncia',
             'subject' => 'Tu reporte esta en tramite',
-            'body' => "Hola {name},\n\nTu reporte asociado a tu cuenta ha quedado registrado con la referencia {reference}. El mensaje esta en tramite y recibiras una respuesta en breve.\n\nEquipo Captacion.app",
+            'body' => "Hola {name},\n\nTu reporte asociado a tu cuenta ha quedado registrado con la referencia {reference}. El mensaje esta en tramite y recibiras una respuesta en breve.\n\nEquipo Compra Captación",
         ),
         'match_need' => array(
             'category' => 'busco_captacion',
             'subject' => 'Nueva captacion compatible con tu demanda',
-            'body' => "Hola {name},\n\nSe ha detectado una captacion compatible con tu demanda: {reference}. Puedes revisar la oportunidad desde tu panel privado, en la seccion Notificaciones.\n\nEquipo Captacion.app",
+            'body' => "Hola {name},\n\nSe ha detectado una captacion compatible con tu demanda: {reference}. Puedes revisar la oportunidad desde tu panel privado, en la seccion Notificaciones.\n\nEquipo Compra Captación",
         ),
         'match_property' => array(
             'category' => 'ofrecer_captacion',
             'subject' => 'Nueva demanda compatible con tu captacion',
-            'body' => "Hola {name},\n\nSe ha detectado una demanda compatible con tu captacion: {reference}. Puedes revisar la oportunidad desde tu panel privado, en la seccion Notificaciones.\n\nEquipo Captacion.app",
+            'body' => "Hola {name},\n\nSe ha detectado una demanda compatible con tu captacion: {reference}. Puedes revisar la oportunidad desde tu panel privado, en la seccion Notificaciones.\n\nEquipo Compra Captación",
         ),
         'no_match_watch' => array(
             'category' => 'general',
             'subject' => 'Alerta activada para futuras coincidencias',
-            'body' => "Hola {name},\n\nPor ahora no se han detectado coincidencias directas para {reference}. La alerta queda activa y te avisaremos en tu panel privado, seccion Notificaciones, cuando aparezca una compatibilidad real.\n\nEquipo Captacion.app",
+            'body' => "Hola {name},\n\nPor ahora no se han detectado coincidencias directas para {reference}. La alerta queda activa y te avisaremos en tu panel privado, seccion Notificaciones, cuando aparezca una compatibilidad real.\n\nEquipo Compra Captación",
         ),
     );
 }
@@ -3348,17 +4211,17 @@ function captacion_app_page_meta_descriptions() {
         'marketplace' => 'Revisa captaciones inmobiliarias, demandas de compradores y oportunidades de colaboracion entre agentes en un marketplace B2B protegido.',
         'buscar-captaciones' => 'Publica demandas de compradores y encuentra captaciones inmobiliarias compatibles por zona, presupuesto, tipologia y condiciones de colaboracion.',
         'ofrecer-captacion' => 'Publica y monetiza captaciones inmobiliarias con acceso protegido, control de datos sensibles y colaboracion profesional entre agencias.',
-        'como-funciona' => 'Conoce como funciona Compra Captacion: publica captaciones y demandas, detecta coincidencias y colabora con trazabilidad comercial.',
+        'como-funciona' => 'Conoce como funciona Compra Captación: publica captaciones y demandas, detecta coincidencias y colabora con trazabilidad comercial.',
         'recursos' => 'Herramientas IA, calculadoras, plantillas y recursos para agentes inmobiliarios que quieren captar mejor y trabajar con mas productividad.',
         'planes' => 'Compara planes para agentes inmobiliarios: acceso inicial, recursos profesionales, publicacion de captaciones y demandas, y funciones avanzadas.',
-        'contacto' => 'Contacta con Compra Captacion para solicitar acceso, resolver dudas sobre planes o proponer colaboraciones inmobiliarias profesionales.',
+        'contacto' => 'Contacta con Compra Captación para solicitar acceso, resolver dudas sobre planes o proponer colaboraciones inmobiliarias profesionales.',
         'area-privada' => 'Area privada para gestionar captaciones, demandas, favoritos, solicitudes, alertas y trazabilidad de operaciones inmobiliarias.',
-        'aviso-legal' => 'Aviso legal de Captacion.app con informacion del titular, condiciones de uso, responsabilidades y datos pendientes de validacion final.',
-        'privacidad' => 'Politica de privacidad de Captacion.app para tratamiento de datos, finalidades, derechos, seguridad y acceso profesional a la plataforma.',
-        'cookies' => 'Politica de cookies de Captacion.app con informacion sobre cookies necesarias, estadisticas, marketing y consentimiento mediante Complianz.',
+        'aviso-legal' => 'Aviso legal de Compra Captación con informacion del titular, condiciones de uso, responsabilidades y datos pendientes de validacion final.',
+        'privacidad' => 'Politica de privacidad de Compra Captación para tratamiento de datos, finalidades, derechos, seguridad y acceso profesional a la plataforma.',
+        'cookies' => 'Politica de cookies de Compra Captación con informacion sobre cookies necesarias, estadisticas, marketing y consentimiento mediante Complianz.',
         'normas-publicacion' => 'Normas para publicar captaciones y demandas inmobiliarias con calidad, confidencialidad, legalidad y respeto entre profesionales.',
-        'condiciones-de-contratacion' => 'Condiciones de contratacion de Captacion.app para planes, servicios, pagos, activacion, obligaciones y uso profesional de la plataforma.',
-        'canal-de-denuncias' => 'Canal de denuncias de Captacion.app para comunicar incumplimientos, irregularidades o riesgos con confidencialidad y proteccion.',
+        'condiciones-de-contratacion' => 'Condiciones de contratacion de Compra Captación para planes, servicios, pagos, activacion, obligaciones y uso profesional de la plataforma.',
+        'canal-de-denuncias' => 'Canal de denuncias de Compra Captación para comunicar incumplimientos, irregularidades o riesgos con confidencialidad y proteccion.',
     );
 }
 
@@ -3415,36 +4278,36 @@ function captacion_app_output_cookie_banner_visibility_fix() {
 add_action('wp_head', 'captacion_app_output_cookie_banner_visibility_fix', 999);
 
 function captacion_app_seed_content_map() {
-    return array(
+    $content_map = array(
         'inicio' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Captaciones inmobiliarias para profesionales</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Las captaciones inmobiliarias son el centro de Compra Captacion: una plataforma B2B para agentes, agencias e inversores que quieren publicar oportunidades, encontrar demandas activas y colaborar con acceso protegido. El objetivo es convertir producto captado, compradores cualificados y acuerdos entre profesionales en operaciones mejor documentadas.</p><!-- /wp:paragraph -->
-<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Captaciones inmobiliarias para profesionales en Compra Captacion"/></figure><!-- /wp:image -->
-<!-- wp:paragraph --><p>En el mercado inmobiliario profesional no siempre coincide quien tiene la captacion con quien tiene el comprador. Compra Captacion ordena ese intercambio con fichas orientativas, demandas estructuradas, reglas de confidencialidad y trazabilidad para que cada parte pueda valorar si existe encaje antes de compartir informacion sensible.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Las captaciones inmobiliarias son el centro de Compra Captación: una plataforma B2B para agentes, agencias e inversores que quieren publicar oportunidades, encontrar demandas activas y colaborar con acceso protegido. El objetivo es convertir producto captado, compradores cualificados y acuerdos entre profesionales en operaciones mejor documentadas.</p><!-- /wp:paragraph -->
+<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Captaciones inmobiliarias para profesionales en Compra Captación"/></figure><!-- /wp:image -->
+<!-- wp:paragraph --><p>En el mercado inmobiliario profesional no siempre coincide quien tiene la captacion con quien tiene el comprador. Compra Captación ordena ese intercambio con fichas orientativas, demandas estructuradas, reglas de confidencialidad y trazabilidad para que cada parte pueda valorar si existe encaje antes de compartir informacion sensible.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Comprar captaciones inmobiliarias con contexto</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Comprar captaciones inmobiliarias no debe reducirse a recibir una direccion o un contacto. Un profesional necesita entender zona, tipologia, precio, estado comercial, condiciones de colaboracion y nivel de informacion disponible. Por eso la plataforma prioriza oportunidades con contexto y evita exponer datos privados del propietario desde el primer momento.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Vender captaciones inmobiliarias sin perder control</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Vender captaciones inmobiliarias permite monetizar una oportunidad real cuando el captador no quiere o no puede trabajarla solo. La ficha publica muestra lo necesario para despertar interes profesional, mientras los datos sensibles, documentos, propietario y direccion exacta se reservan para fases protegidas del flujo.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Colaboracion inmobiliaria 50/50</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>La colaboracion inmobiliaria 50/50 sigue siendo una formula habitual entre agentes: una parte aporta producto y otra aporta comprador, inversor o demanda activa. Compra Captacion ayuda a ordenar esa colaboracion con solicitudes, condiciones, favoritos, alertas y seguimiento para reducir conversaciones dispersas.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>La colaboracion inmobiliaria 50/50 sigue siendo una formula habitual entre agentes: una parte aporta producto y otra aporta comprador, inversor o demanda activa. Compra Captación ayuda a ordenar esa colaboracion con solicitudes, condiciones, favoritos, alertas y seguimiento para reducir conversaciones dispersas.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Marketplace inmobiliario B2B</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El <a href="/marketplace/">marketplace inmobiliario B2B</a> conecta captaciones y demandas para profesionales, no para particulares. Desde una misma web puedes revisar oportunidades, <a href="/buscar-captaciones/">buscar captaciones inmobiliarias</a>, <a href="/ofrecer-captacion/">vender captaciones inmobiliarias</a>, consultar <a href="/recursos/">herramientas IA para agentes inmobiliarios</a> y comparar <a href="/planes/">planes para agentes inmobiliarios</a>.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Preguntas frecuentes sobre captaciones inmobiliarias</h3><!-- /wp:heading -->
-<!-- wp:list --><ul><li><strong>Que es una captacion inmobiliaria?</strong> Es una oportunidad vinculada a un inmueble, propietario o activo que puede trabajarse comercialmente.</li><li><strong>Para quien es Compra Captacion?</strong> Para agentes, agencias, personal shoppers, inversores profesionales y equipos inmobiliarios.</li><li><strong>Se muestran datos privados?</strong> No. La direccion exacta, propietario y documentos deben protegerse hasta que exista interes cualificado.</li><li><strong>Como empiezo?</strong> Revisa el marketplace, publica una demanda o prepara una captacion para compartirla con otros profesionales.</li></ul><!-- /wp:list -->
+<!-- wp:list --><ul><li><strong>Que es una captacion inmobiliaria?</strong> Es una oportunidad vinculada a un inmueble, propietario o activo que puede trabajarse comercialmente.</li><li><strong>Para quien es Compra Captación?</strong> Para agentes, agencias, personal shoppers, inversores profesionales y equipos inmobiliarios.</li><li><strong>Se muestran datos privados?</strong> No. La direccion exacta, propietario y documentos deben protegerse hasta que exista interes cualificado.</li><li><strong>Como empiezo?</strong> Revisa el marketplace, publica una demanda o prepara una captacion para compartirla con otros profesionales.</li></ul><!-- /wp:list -->
 HTML,
         'marketplace' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Marketplace inmobiliario B2B de captaciones y demandas</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Un marketplace inmobiliario B2B permite a agentes, agencias e inversores profesionales compartir captaciones, publicar demandas activas y detectar oportunidades de colaboracion sin convertir la web en un portal abierto para particulares. Compra Captacion conecta profesionales que tienen producto con profesionales que tienen comprador.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Un marketplace inmobiliario B2B permite a agentes, agencias e inversores profesionales compartir captaciones, publicar demandas activas y detectar oportunidades de colaboracion sin convertir la web en un portal abierto para particulares. Compra Captación conecta profesionales que tienen producto con profesionales que tienen comprador.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/property-defaults/edificio-default.jpg" alt="Marketplace inmobiliario B2B de captaciones y demandas"/></figure><!-- /wp:image -->
 <!-- wp:paragraph --><p>El marketplace concentra la parte operativa de la plataforma: fichas de captaciones inmobiliarias, demandas de compradores, oportunidades fuera de mercado, solicitudes de acceso, reglas de confidencialidad y enlaces con el <a href="/area-privada/">area privada inmobiliaria</a>. Cada publicacion debe aportar informacion comercial suficiente, pero sin revelar datos que puedan comprometer al captador.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Captaciones inmobiliarias activas</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Las captaciones inmobiliarias activas son oportunidades publicadas por profesionales que tienen relacion con un propietario, un inmueble o un activo vendible. En el marketplace se presentan con informacion orientativa: tipologia, provincia, zona aproximada, precio, modalidad, estado comercial, exclusividad y condiciones de colaboracion.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Demandas inmobiliarias de compradores</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Las demandas inmobiliarias permiten que un agente con cliente comprador indique que tipo de propiedad busca. Una demanda bien definida incluye territorio, presupuesto, habitaciones, superficie, urgencia y solvencia. Al cruzar demanda y captacion, Compra Captacion ayuda a detectar coincidencias y abrir conversaciones con mas probabilidad de cierre.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Las demandas inmobiliarias permiten que un agente con cliente comprador indique que tipo de propiedad busca. Una demanda bien definida incluye territorio, presupuesto, habitaciones, superficie, urgencia y solvencia. Al cruzar demanda y captacion, Compra Captación ayuda a detectar coincidencias y abrir conversaciones con mas probabilidad de cierre.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Colaboracion entre agentes y agencias</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>La colaboracion inmobiliaria es el eje del marketplace. Un profesional puede aportar la captacion y otro puede aportar comprador, inversor o demanda activa. La plataforma ayuda a ordenar la solicitud, el acceso, las condiciones y el seguimiento de cada oportunidad.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Marketplace privado, no portal para particulares</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Compra Captacion no compite con un portal inmobiliario tradicional para publico final. Su objetivo es facilitar trabajo B2B entre agentes inmobiliarios, agencias, inversores profesionales y equipos que necesitan compartir producto captado con mayor control.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Compra Captación no compite con un portal inmobiliario tradicional para publico final. Su objetivo es facilitar trabajo B2B entre agentes inmobiliarios, agencias, inversores profesionales y equipos que necesitan compartir producto captado con mayor control.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Oportunidades fuera de mercado</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Muchas oportunidades inmobiliarias no se publican de forma masiva en portales abiertos. El marketplace puede ayudar a trabajar propiedades fuera de mercado, activos discretos, captaciones exclusivas o colaboraciones que requieren privacidad antes de compartir datos sensibles.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Como se protege cada operacion</h3><!-- /wp:heading -->
@@ -3452,20 +4315,20 @@ HTML,
 <!-- wp:heading {"level":3} --><h3>Ventajas frente a un portal inmobiliario tradicional</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Trabajar solo con profesionales y no con trafico generalista.</li><li>Publicar captaciones inmobiliarias con informacion limitada y acceso protegido.</li><li>Conectar demandas inmobiliarias con oportunidades compatibles.</li><li>Ordenar la colaboracion entre agencias y agentes con reglas claras.</li><li>Relacionar el marketplace con <a href="/buscar-captaciones/">buscar captaciones</a>, <a href="/ofrecer-captacion/">ofrecer captacion</a>, <a href="/como-funciona/">como funciona</a>, <a href="/planes/">planes</a>, <a href="/recursos/">recursos</a> y <a href="/normas-publicacion/">normas de publicacion</a>.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Como usar el marketplace inmobiliario B2B</h3><!-- /wp:heading -->
-<!-- wp:list --><ul><li>Revisa captaciones disponibles por zona, tipologia y contexto comercial.</li><li>Publica una demanda desde <a href="/buscar-captaciones/">buscar captaciones inmobiliarias</a> si representas a un comprador.</li><li>Prepara una ficha desde <a href="/ofrecer-captacion/">vender captaciones inmobiliarias</a> si tienes producto o propietario.</li><li>Consulta <a href="/como-funciona/">como funciona Compra Captacion</a> antes de solicitar acceso protegido.</li><li>Aplica las <a href="/normas-publicacion/">normas de publicacion inmobiliaria</a> para mantener calidad y confidencialidad.</li></ul><!-- /wp:list -->
+<!-- wp:list --><ul><li>Revisa captaciones disponibles por zona, tipologia y contexto comercial.</li><li>Publica una demanda desde <a href="/buscar-captaciones/">buscar captaciones inmobiliarias</a> si representas a un comprador.</li><li>Prepara una ficha desde <a href="/ofrecer-captacion/">vender captaciones inmobiliarias</a> si tienes producto o propietario.</li><li>Consulta <a href="/como-funciona/">como funciona Compra Captación</a> antes de solicitar acceso protegido.</li><li>Aplica las <a href="/normas-publicacion/">normas de publicacion inmobiliaria</a> para mantener calidad y confidencialidad.</li></ul><!-- /wp:list -->
 HTML,
         'buscar-captaciones' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Buscar captaciones inmobiliarias para clientes compradores</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Buscar captaciones inmobiliarias es clave cuando un agente tiene un cliente comprador, una demanda activa o una oportunidad de venta y necesita encontrar una propiedad compatible. Compra Captacion permite publicar lo que busca tu cliente y cruzarlo con captaciones disponibles dentro de un entorno profesional, protegido y trazable.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Buscar captaciones inmobiliarias es clave cuando un agente tiene un cliente comprador, una demanda activa o una oportunidad de venta y necesita encontrar una propiedad compatible. Compra Captación permite publicar lo que busca tu cliente y cruzarlo con captaciones disponibles dentro de un entorno profesional, protegido y trazable.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/property-defaults/piso-default.jpg" alt="Buscar captaciones inmobiliarias para clientes compradores"/></figure><!-- /wp:image -->
 <!-- wp:paragraph --><p>Esta seccion esta pensada para agentes inmobiliarios, agencias, personal shopper inmobiliario y profesionales que representan a un comprador real. El objetivo no es navegar inventario sin criterio, sino transformar una necesidad concreta en una demanda inmobiliaria clara: comunidad autonoma, provincia, municipio, presupuesto, tipo de propiedad, urgencia, solvencia y condiciones de colaboracion.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Publica una demanda inmobiliaria activa</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Una demanda inmobiliaria activa describe lo que busca un cliente comprador y permite que otros profesionales detecten si tienen una captacion compatible. Cuanto mejor se define la demanda, mas facil es encontrar propiedades que encajen con el comprador y evitar conversaciones improductivas.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Tipo de inmueble que busca el cliente comprador.</li><li>Comunidad autonoma, provincia, municipio y zona prioritaria.</li><li>Presupuesto minimo y maximo con margen realista.</li><li>Habitaciones, banos, superficie, estado y requisitos no negociables.</li><li>Timing de compra, solvencia, financiacion y condiciones de colaboracion.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Encuentra captaciones compatibles</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El valor de buscar captaciones inmobiliarias dentro de Compra Captacion esta en el cruce entre oferta y demanda. Si otro profesional tiene una propiedad, un activo discreto o una captacion fuera de mercado que encaja con tu comprador, la plataforma ayuda a identificar la coincidencia y ordenar el siguiente paso sin exponer datos sensibles antes de tiempo.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El valor de buscar captaciones inmobiliarias dentro de Compra Captación esta en el cruce entre oferta y demanda. Si otro profesional tiene una propiedad, un activo discreto o una captacion fuera de mercado que encaja con tu comprador, la plataforma ayuda a identificar la coincidencia y ordenar el siguiente paso sin exponer datos sensibles antes de tiempo.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Trabaja como agente del comprador</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El agente del comprador necesita herramientas para localizar oportunidades, comparar alternativas y negociar con informacion suficiente. Esta pagina debe comunicar que Compra Captacion no es solo una lista de inmuebles, sino un marketplace inmobiliario B2B donde la demanda profesional tambien tiene protagonismo.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El agente del comprador necesita herramientas para localizar oportunidades, comparar alternativas y negociar con informacion suficiente. Esta pagina debe comunicar que Compra Captación no es solo una lista de inmuebles, sino un marketplace inmobiliario B2B donde la demanda profesional tambien tiene protagonismo.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Accede a propiedades fuera de mercado</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Muchas oportunidades no aparecen en portales abiertos o todavia no estan preparadas para publicarse de forma masiva. Por eso una red de captaciones protegidas puede ser util para encontrar propiedades fuera de mercado, activos discretos o colaboraciones que solo tienen sentido entre profesionales verificados.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Como funciona la busqueda de captaciones</h3><!-- /wp:heading -->
@@ -3477,18 +4340,18 @@ HTML,
 HTML,
         'ofrecer-captacion' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Vender captaciones inmobiliarias con acceso protegido</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Vender captaciones inmobiliarias permite a agentes y agencias monetizar oportunidades reales sin exponer datos sensibles desde el primer momento. Compra Captacion ayuda a publicar captaciones, encontrar profesionales con demanda activa y abrir colaboraciones con trazabilidad comercial.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Vender captaciones inmobiliarias permite a agentes y agencias monetizar oportunidades reales sin exponer datos sensibles desde el primer momento. Compra Captación ayuda a publicar captaciones, encontrar profesionales con demanda activa y abrir colaboraciones con trazabilidad comercial.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/property-defaults/casa-chalet-default.jpg" alt="Vender captaciones inmobiliarias con acceso protegido"/></figure><!-- /wp:image -->
 <!-- wp:paragraph --><p>Esta pagina esta pensada para profesionales que ya tienen una captacion inmobiliaria, un propietario vendedor, una oportunidad discreta o un inmueble con potencial de salida. En lugar de regalar toda la informacion desde el inicio, la plataforma permite publicar una ficha orientativa, controlar el acceso y decidir con quien avanzar.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Publica una captacion inmobiliaria</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Publicar captaciones inmobiliarias en Compra Captacion significa convertir una oportunidad en una ficha profesional lista para ser cruzada con demandas activas. La informacion publica debe despertar interes sin comprometer la confidencialidad: tipologia, territorio aproximado, precio, superficie, habitaciones, estado comercial, modalidad y condiciones de colaboracion.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Publicar captaciones inmobiliarias en Compra Captación significa convertir una oportunidad en una ficha profesional lista para ser cruzada con demandas activas. La informacion publica debe despertar interes sin comprometer la confidencialidad: tipologia, territorio aproximado, precio, superficie, habitaciones, estado comercial, modalidad y condiciones de colaboracion.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Tipo de inmueble, provincia, municipio y zona aproximada.</li><li>Precio estimado, superficie, habitaciones, banos y estado comercial.</li><li>Modalidad: colaboracion, venta de captacion o acceso protegido.</li><li>Condiciones de honorarios, reparto previsto y exclusividad.</li><li>Documentacion disponible y nivel de confidencialidad necesario.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Convierte propietarios vendedores en oportunidades</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>La captacion de propietarios es una de las tareas mas valiosas del negocio inmobiliario. Cuando un propietario vendedor confia en un profesional, esa relacion puede transformarse en una oportunidad comercial para otros agentes con comprador, inversores o agencias que trabajan esa zona.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Vende una captacion 100%</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>En algunos casos el profesional puede querer vender una captacion 100%, ceder la gestion completa o transferir la oportunidad a otro operador mejor posicionado. Esta modalidad debe explicarse con claridad para que el comprador entienda que adquiere una oportunidad profesional, no una simple direccion ni un dato sin contexto.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Comparte captaciones en colaboracion inmobiliaria</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Tambien puedes compartir captaciones inmobiliarias mediante colaboracion 50/50, reparto de honorarios u otro acuerdo entre profesionales. Compra Captacion ayuda a ordenar la solicitud, la disponibilidad, el acceso a datos y la trazabilidad de cada paso antes de abrir informacion sensible.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Tambien puedes compartir captaciones inmobiliarias mediante colaboracion 50/50, reparto de honorarios u otro acuerdo entre profesionales. Compra Captación ayuda a ordenar la solicitud, la disponibilidad, el acceso a datos y la trazabilidad de cada paso antes de abrir informacion sensible.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Protege los datos sensibles del propietario</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>La direccion exacta, los datos personales del propietario, documentacion privada, referencia catastral completa y contactos directos deben quedar protegidos hasta que exista una contraparte cualificada. Esa proteccion aumenta la confianza del captador y reduce el riesgo de fugas de informacion.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Como funciona ofrecer una captacion</h3><!-- /wp:heading -->
@@ -3500,7 +4363,7 @@ HTML,
 HTML,
         'como-funciona' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Como funciona una plataforma inmobiliaria B2B</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Como funciona una plataforma inmobiliaria B2B como Compra Captacion: permite a agentes, agencias e inversores publicar captaciones, crear demandas activas, cruzar oportunidades compatibles y colaborar con acceso protegido. El objetivo es ordenar lo que normalmente se gestiona por llamadas, mensajes privados y contactos dispersos.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Como funciona una plataforma inmobiliaria B2B como Compra Captación: permite a agentes, agencias e inversores publicar captaciones, crear demandas activas, cruzar oportunidades compatibles y colaborar con acceso protegido. El objetivo es ordenar lo que normalmente se gestiona por llamadas, mensajes privados y contactos dispersos.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Como funciona una plataforma inmobiliaria B2B para agentes"/></figure><!-- /wp:image -->
 <!-- wp:paragraph --><p>La plataforma no esta pensada como un portal abierto para particulares, sino como un entorno profesional donde la informacion sensible se comparte por fases. Primero se publica el contexto comercial necesario; despues se valida el interes, la compatibilidad y las condiciones de colaboracion antes de avanzar.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>1. Publica una captacion o una demanda</h3><!-- /wp:heading -->
@@ -3514,17 +4377,17 @@ HTML,
 <!-- wp:heading {"level":3} --><h3>5. Trabaja la operacion con trazabilidad</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Cada solicitud, desbloqueo, favorito, tarea o avance debe quedar asociado a un flujo claro. La trazabilidad es importante para proteger al captador, ordenar la relacion con la contraparte y evitar que una oportunidad profesional se pierda entre conversaciones sueltas.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>6. Cierra mas operaciones entre profesionales</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El resultado buscado es que los agentes inmobiliarios puedan cerrar mas operaciones porque encuentran producto, demanda o colaboracion en el momento adecuado. Compra Captacion conecta el <a href="/marketplace/">marketplace</a>, la opcion de <a href="/buscar-captaciones/">buscar captaciones</a>, la publicacion para <a href="/ofrecer-captacion/">ofrecer captacion</a>, los <a href="/recursos/">recursos profesionales</a>, los <a href="/planes/">planes</a> y el <a href="/area-privada/">area privada</a>.</p><!-- /wp:paragraph -->
-<!-- wp:heading {"level":3} --><h3>Objetivos de Compra Captacion</h3><!-- /wp:heading -->
+<!-- wp:paragraph --><p>El resultado buscado es que los agentes inmobiliarios puedan cerrar mas operaciones porque encuentran producto, demanda o colaboracion en el momento adecuado. Compra Captación conecta el <a href="/marketplace/">marketplace</a>, la opcion de <a href="/buscar-captaciones/">buscar captaciones</a>, la publicacion para <a href="/ofrecer-captacion/">ofrecer captacion</a>, los <a href="/recursos/">recursos profesionales</a>, los <a href="/planes/">planes</a> y el <a href="/area-privada/">area privada</a>.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":3} --><h3>Objetivos de Compra Captación</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Crear una red profesional para captaciones inmobiliarias y demandas activas.</li><li>Proteger informacion sensible hasta que exista interes cualificado.</li><li>Ordenar la colaboracion entre agentes, agencias e inversores.</li><li>Reducir fugas de informacion y conversaciones sin seguimiento.</li><li>Dar mas valor al trabajo de captacion de propietarios vendedores.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Que lograras usando la plataforma</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Un agente puede encontrar propiedades para compradores, publicar oportunidades que no quiere trabajar solo, colaborar con otros profesionales y apoyarse en herramientas de productividad. Una agencia puede organizar mejor sus operaciones compartidas, ampliar red profesional y convertir captaciones o demandas en oportunidades mas estructuradas.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Paginas clave para entender el flujo</h3><!-- /wp:heading -->
-<!-- wp:list --><ul><li><a href="/marketplace/">Marketplace inmobiliario B2B</a> para revisar captaciones y demandas.</li><li><a href="/buscar-captaciones/">Buscar captaciones inmobiliarias</a> para publicar necesidades de compradores.</li><li><a href="/ofrecer-captacion/">Vender captaciones inmobiliarias</a> para compartir oportunidades.</li><li><a href="/recursos/">Herramientas IA para agentes inmobiliarios</a> para mejorar productividad.</li><li><a href="/contacto/">Contacto Compra Captacion</a> para dudas, acceso y colaboraciones.</li></ul><!-- /wp:list -->
+<!-- wp:list --><ul><li><a href="/marketplace/">Marketplace inmobiliario B2B</a> para revisar captaciones y demandas.</li><li><a href="/buscar-captaciones/">Buscar captaciones inmobiliarias</a> para publicar necesidades de compradores.</li><li><a href="/ofrecer-captacion/">Vender captaciones inmobiliarias</a> para compartir oportunidades.</li><li><a href="/recursos/">Herramientas IA para agentes inmobiliarios</a> para mejorar productividad.</li><li><a href="/contacto/">Contacto Compra Captación</a> para dudas, acceso y colaboraciones.</li></ul><!-- /wp:list -->
 HTML,
         'recursos' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Herramientas IA para agentes inmobiliarios</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Las herramientas IA para agentes inmobiliarios ayudan a ahorrar tiempo, automatizar tareas repetitivas, mejorar la captacion, preparar textos comerciales y tomar mejores decisiones. En Compra Captacion reunimos asistentes, calculadoras, plantillas y recursos practicos para que los profesionales inmobiliarios trabajen con mas productividad.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Las herramientas IA para agentes inmobiliarios ayudan a ahorrar tiempo, automatizar tareas repetitivas, mejorar la captacion, preparar textos comerciales y tomar mejores decisiones. En Compra Captación reunimos asistentes, calculadoras, plantillas y recursos practicos para que los profesionales inmobiliarios trabajen con mas productividad.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Herramientas IA para agentes inmobiliarios"/></figure><!-- /wp:image -->
 <!-- wp:paragraph --><p>Esta seccion no debe funcionar como un simple repositorio de documentos. Recursos debe ser un centro de productividad inmobiliaria donde el agente pueda encontrar utilidades para captar mejor, responder antes, redactar fichas, cualificar compradores, calcular honorarios, preparar documentacion y usar inteligencia artificial en su trabajo diario.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Asistentes IA para inmobiliarias</h3><!-- /wp:heading -->
@@ -3540,7 +4403,7 @@ HTML,
 <!-- wp:heading {"level":3} --><h3>Automatizacion y productividad inmobiliaria</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>La automatizacion inmobiliaria debe ayudar al profesional a reducir tareas manuales sin perder criterio. Un buen hub de recursos puede apoyar la cualificacion de leads, la preparacion de visitas, la priorizacion de oportunidades y el seguimiento de operaciones compartidas.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Recursos para colaboracion entre profesionales</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Compra Captacion trabaja con captaciones, demandas y colaboracion entre profesionales. Por eso los recursos deben conectar con el <a href="/marketplace/">marketplace</a>, la pagina para <a href="/buscar-captaciones/">buscar captaciones</a>, la opcion de <a href="/ofrecer-captacion/">ofrecer captacion</a>, el flujo de <a href="/como-funciona/">como funciona</a>, los <a href="/planes/">planes</a> y el <a href="/area-privada/">area privada</a>.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Compra Captación trabaja con captaciones, demandas y colaboracion entre profesionales. Por eso los recursos deben conectar con el <a href="/marketplace/">marketplace</a>, la pagina para <a href="/buscar-captaciones/">buscar captaciones</a>, la opcion de <a href="/ofrecer-captacion/">ofrecer captacion</a>, el flujo de <a href="/como-funciona/">como funciona</a>, los <a href="/planes/">planes</a> y el <a href="/area-privada/">area privada</a>.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Como usar IA en el trabajo diario del agente</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Generar una descripcion clara de una captacion inmobiliaria.</li><li>Preparar una propuesta para propietarios vendedores.</li><li>Cualificar una demanda de cliente comprador.</li><li>Crear mensajes de seguimiento para WhatsApp o email.</li><li>Calcular honorarios, repartos y escenarios de operacion.</li><li>Resumir informacion de una colaboracion antes de tomar decisiones.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Recursos conectados con captaciones y demandas</h3><!-- /wp:heading -->
@@ -3548,15 +4411,15 @@ HTML,
 HTML,
         'planes' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Planes para agentes inmobiliarios</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Los planes para agentes inmobiliarios de Compra Captacion estan pensados para profesionales, agencias y equipos que quieren usar una plataforma B2B para publicar captaciones, buscar demandas, acceder a recursos y trabajar oportunidades con mas orden. Starter permite empezar con acceso inicial y Professional activa un uso mas completo de la plataforma.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Los planes para agentes inmobiliarios de Compra Captación estan pensados para profesionales, agencias y equipos que quieren usar una plataforma B2B para publicar captaciones, buscar demandas, acceder a recursos y trabajar oportunidades con mas orden. Starter permite empezar con acceso inicial y Professional activa un uso mas completo de la plataforma.</p><!-- /wp:paragraph -->
 <!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Planes para agentes inmobiliarios"/></figure><!-- /wp:image -->
 <!-- wp:shortcode -->[captacion_stripe_plans]<!-- /wp:shortcode -->
 <!-- wp:heading {"level":3} --><h3>Starter - 0 euros</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Starter esta orientado a profesionales que quieren conocer Compra Captacion antes de contratar un acceso avanzado. Sirve para explorar la propuesta, revisar recursos, entender el <a href="/marketplace/">marketplace inmobiliario B2B</a> y empezar a organizar la actividad sin coste de entrada.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Starter esta orientado a profesionales que quieren conocer Compra Captación antes de contratar un acceso avanzado. Sirve para explorar la propuesta, revisar recursos, entender el <a href="/marketplace/">marketplace inmobiliario B2B</a> y empezar a organizar la actividad sin coste de entrada.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Que incluye el plan gratis</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Acceso inicial a la plataforma.</li><li>Exploracion del marketplace inmobiliario B2B.</li><li>Recursos gratuitos para agentes inmobiliarios.</li><li>Herramientas IA basicas para productividad.</li><li>Calculadoras y plantillas iniciales.</li><li>Perfil profesional basico.</li><li>Actualizaciones sobre nuevas funciones y oportunidades.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Plan Profesional</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El plan profesional esta pensado para agentes y agencias que quieren usar Compra Captacion como herramienta recurrente. Permite trabajar captaciones inmobiliarias, demandas activas, colaboraciones y <a href="/recursos/">herramientas IA para agentes inmobiliarios</a> con mayor profundidad operativa.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El plan profesional esta pensado para agentes y agencias que quieren usar Compra Captación como herramienta recurrente. Permite trabajar captaciones inmobiliarias, demandas activas, colaboraciones y <a href="/recursos/">herramientas IA para agentes inmobiliarios</a> con mayor profundidad operativa.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Publicar captaciones inmobiliarias.</li><li>Publicar demandas de clientes compradores.</li><li>Solicitar acceso protegido a oportunidades compatibles.</li><li>Usar herramientas IA avanzadas para agentes inmobiliarios.</li><li>Generar textos comerciales, mensajes y descripciones.</li><li>Acceder a calculadoras, plantillas y documentos profesionales.</li><li>Recibir alertas y seguimiento de oportunidades.</li><li>Usar el area privada completa con favoritos, tareas y trazabilidad.</li><li>Contar con soporte prioritario segun disponibilidad del servicio.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Que plan elegir segun tu perfil</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Si quieres conocer la plataforma y revisar recursos, Starter es suficiente para empezar. Si ya trabajas con captaciones, compradores, inversores o colaboraciones entre agencias, Professional es el acceso recomendado para operar con mas continuidad.</p><!-- /wp:paragraph -->
@@ -3566,28 +4429,28 @@ HTML,
 <!-- wp:list --><ul><li><strong>Que plan debo elegir?</strong> Starter sirve para conocer la plataforma; Professional es mejor si trabajas captaciones y demandas de forma recurrente.</li><li><strong>Incluye recursos?</strong> Si, los planes conectan con recursos, calculadoras, plantillas y herramientas IA.</li><li><strong>Puedo publicar captaciones?</strong> El plan profesional esta orientado a publicar captaciones, demandas y solicitudes protegidas.</li><li><strong>Hay soporte para agencias?</strong> Si necesitas acceso, soporte comercial o una configuracion para agencia, puedes contactar con el equipo.</li><li><strong>Las funciones pueden cambiar?</strong> Si, las funcionalidades pueden evolucionar segun el despliegue final de la plataforma.</li></ul><!-- /wp:list -->
 HTML,
         'contacto' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Contacto Compra Captacion</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Contacto Compra Captacion es la pagina para que agentes inmobiliarios, agencias, inversores y profesionales del sector soliciten acceso, resuelvan dudas sobre planes, propongan colaboraciones o pidan soporte sobre el uso de la plataforma.</p><!-- /wp:paragraph -->
-<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Contacto Compra Captacion para profesionales inmobiliarios"/></figure><!-- /wp:image -->
-<!-- wp:paragraph --><p>Si quieres valorar el encaje de la plataforma con tu forma de trabajar, puedes escribir a <strong>contacto@captacion.app</strong>. Cuanto mas claro sea el contexto, mas facil sera orientar la respuesta hacia <a href="/ofrecer-captacion/">captaciones inmobiliarias</a>, <a href="/buscar-captaciones/">demandas de compradores</a>, recursos, planes o colaboraciones profesionales.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Contacto Compra Captación</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Contacto Compra Captación es la pagina para que agentes inmobiliarios, agencias, inversores y profesionales del sector soliciten acceso, resuelvan dudas sobre planes, propongan colaboraciones o pidan soporte sobre el uso de la plataforma.</p><!-- /wp:paragraph -->
+<!-- wp:image {"sizeSlug":"large"} --><figure class="wp-block-image size-large"><img src="/wp-content/themes/captacion-app/media/logo-compra-captacion.png" alt="Contacto Compra Captación para profesionales inmobiliarios"/></figure><!-- /wp:image -->
+<!-- wp:paragraph --><p>Si quieres valorar el encaje de la plataforma con tu forma de trabajar, puedes escribir a <strong>info@compracaptacion.com</strong>. Cuanto mas claro sea el contexto, mas facil sera orientar la respuesta hacia <a href="/ofrecer-captacion/">captaciones inmobiliarias</a>, <a href="/buscar-captaciones/">demandas de compradores</a>, recursos, planes o colaboraciones profesionales.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Solicitar acceso a la plataforma</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El acceso guiado ayuda a entender como funciona Compra Captacion, como se publican captaciones inmobiliarias, como se crean demandas de compradores y como se protege el acceso a informacion sensible dentro del marketplace inmobiliario B2B.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El acceso guiado ayuda a entender como funciona Compra Captación, como se publican captaciones inmobiliarias, como se crean demandas de compradores y como se protege el acceso a informacion sensible dentro del marketplace inmobiliario B2B.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Resolver dudas sobre planes</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>Si tienes dudas sobre Starter, Professional, Premium o una posible configuracion para agencia, la pagina de contacto debe servir como canal directo para aclarar alcance, funciones disponibles y siguientes pasos.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Proponer una colaboracion profesional</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Compra Captacion puede recibir propuestas de colaboracion de agencias, redes inmobiliarias, proveedores de herramientas, profesionales especializados en captacion o equipos que quieran aportar valor al ecosistema.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Compra Captación puede recibir propuestas de colaboracion de agencias, redes inmobiliarias, proveedores de herramientas, profesionales especializados en captacion o equipos que quieran aportar valor al ecosistema.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Soporte para agentes y agencias</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El contacto tambien debe cubrir dudas operativas sobre acceso, publicacion de oportunidades, recursos con inteligencia artificial, area privada, solicitudes protegidas o funcionamiento general de la web.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Que informacion conviene incluir</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Nombre, agencia o perfil profesional.</li><li>Zona principal de trabajo.</li><li>Si buscas captar propiedades, encontrar producto para compradores o colaborar con otros agentes.</li><li>Volumen aproximado de captaciones o demandas.</li><li>Interes en Starter, Professional, Premium, acceso guiado o partnership.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>Canales de contacto</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El canal principal es <strong>contacto@captacion.app</strong>. Tambien puedes revisar antes <a href="/como-funciona/">como funciona</a>, comparar los <a href="/planes/">planes</a>, explorar el <a href="/marketplace/">marketplace</a>, publicar una demanda en <a href="/buscar-captaciones/">buscar captaciones</a> o preparar una oportunidad en <a href="/ofrecer-captacion/">ofrecer captacion</a>.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El canal principal es <strong>info@compracaptacion.com</strong>. Tambien puedes revisar antes <a href="/como-funciona/">como funciona</a>, comparar los <a href="/planes/">planes</a>, explorar el <a href="/marketplace/">marketplace</a>, publicar una demanda en <a href="/buscar-captaciones/">buscar captaciones</a> o preparar una oportunidad en <a href="/ofrecer-captacion/">ofrecer captacion</a>.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Antes de contactar</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Indica si eres agente, agencia, inversor profesional o proveedor.</li><li>Explica tu zona principal de trabajo y tipo de operaciones.</li><li>Senala si buscas publicar captaciones, encontrar producto para compradores o colaborar con otros agentes.</li><li>Incluye si te interesa Starter, Professional, acceso guiado o partnership.</li></ul><!-- /wp:list -->
 HTML,
         'area-privada' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Area privada inmobiliaria para captaciones y demandas</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El area privada inmobiliaria es donde Captacion.app deja de ser una promesa y se convierte en herramienta diaria. Aqui deben converger las captaciones aportadas, las demandas publicadas, las solicitudes recibidas, el seguimiento de operaciones y la trazabilidad de actividad.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>El area privada inmobiliaria es donde Compra Captación deja de ser una promesa y se convierte en herramienta diaria. Aqui deben converger las captaciones aportadas, las demandas publicadas, las solicitudes recibidas, el seguimiento de operaciones y la trazabilidad de actividad.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>El area privada anticipa modulos clave como favoritos, tareas, alertas, comunicaciones internas y seguimiento de estados. El objetivo de esta pagina es explicar claramente que valor operativo obtiene el usuario una vez entra en el producto y empieza a trabajar oportunidades reales.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Que resuelve el area privada inmobiliaria</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Priorizar trabajo pendiente y oportunidades activas.</li><li>Evitar conversaciones dispersas fuera del contexto de cada expediente.</li><li>Concentrar evidencias, tareas y proxima accion de cada operacion.</li><li>Dar continuidad a la colaboracion entre profesionales sin perder control.</li><li>Conectar el <a href="/marketplace/">marketplace inmobiliario B2B</a> con alertas, favoritos y solicitudes.</li></ul><!-- /wp:list -->
@@ -3596,23 +4459,23 @@ HTML,
 <!-- wp:paragraph --><p>Desde el area privada, el usuario puede dar continuidad a lo iniciado en <a href="/buscar-captaciones/">buscar captaciones inmobiliarias</a>, <a href="/ofrecer-captacion/">vender captaciones inmobiliarias</a> o revisar los <a href="/planes/">planes para agentes inmobiliarios</a> si necesita mayor capacidad operativa.</p><!-- /wp:paragraph -->
 HTML,
         'aviso-legal' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Aviso legal Captacion.app</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El aviso legal Captacion.app recoge informacion sobre titularidad, condiciones de uso, responsabilidades y canales de contacto aplicables a la plataforma profesional B2B. La informacion societaria completa se facilitara en los documentos contractuales o canales oficiales correspondientes.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Aviso legal Compra Captación</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>El aviso legal Compra Captación recoge informacion sobre titularidad, condiciones de uso, responsabilidades y canales de contacto aplicables a la plataforma profesional B2B. La informacion societaria completa se facilitara en los documentos contractuales o canales oficiales correspondientes.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Los flujos, formularios y contenidos deben alinearse con la operativa final, las condiciones de uso y la politica de privacidad revisada por asesoria juridica.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Informacion operativa</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Mantener actualizados los datos oficiales del titular en los canales contractuales y documentos legales aplicables.</li><li>Revisar condiciones de uso, propiedad intelectual y limitaciones de responsabilidad.</li><li>Alinear textos con la operativa vigente y con la politica de privacidad publicada.</li></ul><!-- /wp:list -->
 HTML,
         'privacidad' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Politica de privacidad Captacion.app</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>La politica de privacidad Captacion.app explica como se tratan los datos de profesionales, usuarios, leads y contrapartes dentro de la plataforma. Las consultas de privacidad se atienden mediante los canales oficiales publicados por Captacion.app.</p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p>Captacion.app trabaja con informacion comercial sensible y, potencialmente, con datos personales de profesionales, leads y contrapartes. Por eso la politica final debe definir con precision finalidades, bases juridicas, plazos de conservacion, destinatarios y derechos de los interesados.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Politica de privacidad Compra Captación</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>La politica de privacidad Compra Captación explica como se tratan los datos de profesionales, usuarios, leads y contrapartes dentro de la plataforma. Las consultas de privacidad se atienden mediante los canales oficiales publicados por Compra Captación.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Compra Captación trabaja con informacion comercial sensible y, potencialmente, con datos personales de profesionales, leads y contrapartes. Por eso la politica final debe definir con precision finalidades, bases juridicas, plazos de conservacion, destinatarios y derechos de los interesados.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Se recomienda limitar la captacion de datos al minimo imprescindible y evitar recoger informacion real de terceros hasta que el flujo de cumplimiento, seguridad y encargados del tratamiento este cerrado.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>Recomendaciones operativas</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Usar formularios solo con datos adecuados, minimizados y autorizados.</li><li>Revisar textos de consentimiento y finalidades antes de activar nuevas campanas.</li><li>Mantener documentados encargados, copias de seguridad y control de accesos.</li></ul><!-- /wp:list -->
 HTML,
         'cookies' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Politica de cookies Captacion.app</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>La politica de cookies Captacion.app se apoya en Complianz como fuente principal de consentimiento, bloqueo preventivo, inventario y declaracion de cookies. Las tecnologias no necesarias deben permanecer desactivadas hasta obtener consentimiento valido.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Politica de cookies Compra Captación</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>La politica de cookies Compra Captación se apoya en Complianz como fuente principal de consentimiento, bloqueo preventivo, inventario y declaracion de cookies. Las tecnologias no necesarias deben permanecer desactivadas hasta obtener consentimiento valido.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Necesarias: activas para funcionamiento, sesion y seguridad.</li><li>Preferencias: sujetas a la clasificacion final de Complianz.</li><li>Estadisticas: desactivadas hasta consentimiento.</li><li>Marketing: desactivado hasta consentimiento.</li></ul><!-- /wp:list -->
 <!-- wp:paragraph --><p>El sitio puede utilizar almacenamiento local para sesion, tema y datos operativos temporales. No se utiliza como consentimiento legal. El mapa usa Leaflet y teselas de OpenStreetMap como servicio tecnico solicitado y debe figurar en el inventario de tecnologias cuando corresponda.</p><!-- /wp:paragraph -->
 <!-- wp:shortcode -->[cmplz-document type="cookie-statement" region="eu"]<!-- /wp:shortcode -->
@@ -3620,17 +4483,17 @@ HTML,
 HTML,
         'normas-publicacion' => <<<'HTML'
 <!-- wp:heading {"level":2} --><h2>Normas de publicacion inmobiliaria</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Las normas de publicacion inmobiliaria de Captacion.app ayudan a mantener un estandar alto de calidad en captaciones, demandas y colaboraciones. Estas normas protegen a quien publica, a quien compra informacion y a la reputacion del ecosistema profesional.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Las normas de publicacion inmobiliaria de Compra Captación ayudan a mantener un estandar alto de calidad en captaciones, demandas y colaboraciones. Estas normas protegen a quien publica, a quien compra informacion y a la reputacion del ecosistema profesional.</p><!-- /wp:paragraph -->
 <!-- wp:list --><ul><li>Publica solo informacion veraz, actualizada y comercialmente util.</li><li>No incluyas datos personales o de contacto del propietario en la ficha publica.</li><li>Indica con honestidad el estado documental, la urgencia y las condiciones de colaboracion.</li><li>No utilices la plataforma para captar datos de otros profesionales sin intencion real de operar.</li><li>Respeta la confidencialidad de todo expediente desbloqueado.</li></ul><!-- /wp:list -->
 <!-- wp:paragraph --><p>La calidad de las publicaciones es parte del producto. Cuanto mejor se define una captacion o una demanda, mejor funciona el matching y mas valor aporta la plataforma a todos los actores.</p><!-- /wp:paragraph -->
 HTML,
         'condiciones-de-contratacion' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Condiciones de contratacion Captacion.app</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Las condiciones de contratacion Captacion.app regulan la futura contratacion de planes, servicios de acceso y funcionalidades a traves del sitio web y de sus entornos autorizados. El texto definitivo debera revisarse y aprobarse antes del lanzamiento comercial.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Condiciones de contratacion Compra Captación</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>Las condiciones de contratacion Compra Captación regulan la futura contratacion de planes, servicios de acceso y funcionalidades a traves del sitio web y de sus entornos autorizados. El texto definitivo debera revisarse y aprobarse antes del lanzamiento comercial.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>1. Objeto</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Captacion.app ofrecerá acceso a funcionalidades de colaboración inmobiliaria B2B, publicación de captaciones y demandas, herramientas operativas, alertas, recursos y otros servicios vinculados a la plataforma según el plan contratado en cada momento.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Compra Captación ofrecerá acceso a funcionalidades de colaboración inmobiliaria B2B, publicación de captaciones y demandas, herramientas operativas, alertas, recursos y otros servicios vinculados a la plataforma según el plan contratado en cada momento.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>2. Partes intervinientes</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>La contratación se realizará entre la sociedad titular de Captacion.app, cuyos datos completos se incorporarán en la versión final, y la persona física o jurídica que complete correctamente el proceso de alta o contratación y acepte expresamente estas condiciones.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>La contratación se realizará entre la sociedad titular de Compra Captación, cuyos datos completos se incorporarán en la versión final, y la persona física o jurídica que complete correctamente el proceso de alta o contratación y acepte expresamente estas condiciones.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p><strong>PENDIENTE DE COMPLETAR:</strong> razón social, NIF/CIF, domicilio y datos registrales del titular.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>3. Requisitos de contratación</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Aportar datos veraces, completos y actualizados.</li><li>Tener capacidad legal suficiente para contratar.</li><li>Utilizar la plataforma con fines profesionales legítimos.</li><li>Aceptar el aviso legal, la política de privacidad y las normas de publicación aplicables.</li></ul><!-- /wp:list -->
@@ -3641,13 +4504,13 @@ HTML,
 <!-- wp:heading {"level":3} --><h3>6. Obligaciones del cliente</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>No publicar información engañosa, ilícita o carente de legitimidad.</li><li>Custodiar sus credenciales y limitar el acceso a usuarios autorizados.</li><li>No intentar eludir los controles de acceso, pago, moderación o trazabilidad.</li><li>Respetar la confidencialidad de la información desbloqueada dentro de la plataforma.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>7. Limitaciones y responsabilidad</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Captacion.app no garantiza el cierre de operaciones, la veracidad material de cada publicación ni el comportamiento de terceros. La plataforma actúa como entorno de colaboración y gestión, sin asumir la posición de propietario, comprador, vendedor ni mediador universal en cada expediente.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Compra Captación no garantiza el cierre de operaciones, la veracidad material de cada publicación ni el comportamiento de terceros. La plataforma actúa como entorno de colaboración y gestión, sin asumir la posición de propietario, comprador, vendedor ni mediador universal en cada expediente.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>8. Resolución de conflictos y ley aplicable</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>La versión definitiva deberá indicar la legislación aplicable, el fuero competente y, en su caso, los mecanismos de resolución extrajudicial que resulten procedentes según la normativa española y europea aplicable.</p><!-- /wp:paragraph -->
 HTML,
         'canal-de-denuncias' => <<<'HTML'
-<!-- wp:heading {"level":2} --><h2>Canal de denuncias Captacion.app</h2><!-- /wp:heading -->
-<!-- wp:paragraph --><p>El canal de denuncias Captacion.app preve disponer de un sistema interno de informacion para que empleados, colaboradores, proveedores, usuarios profesionales y terceros puedan comunicar de buena fe posibles incumplimientos normativos, irregularidades o conductas contrarias a las politicas internas.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"level":2} --><h2>Canal de denuncias Compra Captación</h2><!-- /wp:heading -->
+<!-- wp:paragraph --><p>El canal de denuncias Compra Captación preve disponer de un sistema interno de informacion para que empleados, colaboradores, proveedores, usuarios profesionales y terceros puedan comunicar de buena fe posibles incumplimientos normativos, irregularidades o conductas contrarias a las politicas internas.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>1. Finalidad del canal</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El canal servirá para recibir comunicaciones sobre hechos que puedan suponer infracciones legales, incumplimientos éticos, vulneraciones de confidencialidad, uso indebido de datos, conflictos de interés, fraudes o conductas contrarias a las normas internas de la plataforma.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>2. Principios de funcionamiento</h3><!-- /wp:heading -->
@@ -3655,13 +4518,26 @@ HTML,
 <!-- wp:heading {"level":3} --><h3>3. Canales previstos</h3><!-- /wp:heading -->
 <!-- wp:list --><ul><li>Canal escrito habilitado por medios telemáticos.</li><li>Posibilidad de solicitar comunicación presencial o por videollamada cuando proceda.</li><li>Canales externos previstos por la normativa aplicable, cuando la persona informante lo considere oportuno.</li></ul><!-- /wp:list -->
 <!-- wp:heading {"level":3} --><h3>4. Ámbito subjetivo</h3><!-- /wp:heading -->
-<!-- wp:paragraph --><p>Podrán utilizarlo, en la medida en que resulte aplicable, personas trabajadoras, profesionales externos, proveedores, socios comerciales, usuarios profesionales de la plataforma y terceros con relación funcional con Captacion.app.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Podrán utilizarlo, en la medida en que resulte aplicable, personas trabajadoras, profesionales externos, proveedores, socios comerciales, usuarios profesionales de la plataforma y terceros con relación funcional con Compra Captación.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>5. Protección de datos</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>El tratamiento de los datos personales vinculados al sistema interno de información deberá ajustarse a la normativa vigente y a una política específica de privacidad del canal, con limitación de acceso, conservación restringida y medidas de seguridad reforzadas.</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":3} --><h3>6. Estado actual</h3><!-- /wp:heading -->
 <!-- wp:paragraph --><p>En esta URL provisional el canal se mantiene como referencia estructural. Antes del lanzamiento deberá definirse la persona responsable del sistema, la herramienta utilizada, el procedimiento de gestión y la política específica asociada.</p><!-- /wp:paragraph -->
 HTML,
     );
+
+    $media_replacements = array(
+        '/wp-content/themes/captacion-app/media/logo-compra-captacion.png' => captacion_app_media_url('media/logo-compra-captacion.png'),
+        '/wp-content/themes/captacion-app/media/property-defaults/edificio-default.jpg' => captacion_app_media_url('media/property-defaults/edificio-default.jpg'),
+        '/wp-content/themes/captacion-app/media/property-defaults/piso-default.jpg' => captacion_app_media_url('media/property-defaults/piso-default.jpg'),
+        '/wp-content/themes/captacion-app/media/property-defaults/casa-chalet-default.jpg' => captacion_app_media_url('media/property-defaults/casa-chalet-default.jpg'),
+    );
+
+    foreach ($content_map as $slug => $content) {
+        $content_map[$slug] = str_replace(array_keys($media_replacements), array_values($media_replacements), $content);
+    }
+
+    return $content_map;
 }
 
 function captacion_app_seed_pages() {
@@ -3690,7 +4566,7 @@ function captacion_app_rank_math_seo_map() {
     return array(
         'inicio' => array(
             'focus_keyword' => 'captaciones inmobiliarias',
-            'title' => 'Captaciones inmobiliarias para profesionales | Compra Captacion',
+            'title' => 'Captaciones inmobiliarias para profesionales | Compra Captación',
             'description' => 'Marketplace B2B para agentes inmobiliarios: publica captaciones, cruza demandas activas y colabora con acceso protegido y trazabilidad.',
         ),
         'marketplace' => array(
@@ -3711,7 +4587,7 @@ function captacion_app_rank_math_seo_map() {
         'como-funciona' => array(
             'focus_keyword' => 'como funciona una plataforma inmobiliaria B2B',
             'title' => 'Como funciona una plataforma inmobiliaria B2B',
-            'description' => 'Conoce como funciona Compra Captacion: publica captaciones y demandas, detecta coincidencias y colabora con trazabilidad comercial.',
+            'description' => 'Conoce como funciona Compra Captación: publica captaciones y demandas, detecta coincidencias y colabora con trazabilidad comercial.',
         ),
         'recursos' => array(
             'focus_keyword' => 'herramientas IA para agentes inmobiliarios',
@@ -3720,13 +4596,13 @@ function captacion_app_rank_math_seo_map() {
         ),
         'planes' => array(
             'focus_keyword' => 'planes para agentes inmobiliarios',
-            'title' => 'Planes para agentes inmobiliarios | Compra Captacion',
+            'title' => 'Planes para agentes inmobiliarios | Compra Captación',
             'description' => 'Compara planes para agentes inmobiliarios: acceso inicial, recursos profesionales, publicacion de captaciones y demandas, y funciones avanzadas.',
         ),
         'contacto' => array(
-            'focus_keyword' => 'contacto Compra Captacion',
-            'title' => 'Contacto Compra Captacion | Acceso, planes y colaboraciones',
-            'description' => 'Contacta con Compra Captacion para solicitar acceso, resolver dudas sobre planes o proponer colaboraciones inmobiliarias profesionales.',
+            'focus_keyword' => 'contacto Compra Captación',
+            'title' => 'Contacto Compra Captación | Acceso, planes y colaboraciones',
+            'description' => 'Contacta con Compra Captación para solicitar acceso, resolver dudas sobre planes o proponer colaboraciones inmobiliarias profesionales.',
         ),
         'area-privada' => array(
             'focus_keyword' => 'area privada inmobiliaria',
@@ -3734,34 +4610,34 @@ function captacion_app_rank_math_seo_map() {
             'description' => 'Area privada para gestionar captaciones, demandas, favoritos, solicitudes, alertas y trazabilidad de operaciones inmobiliarias.',
         ),
         'aviso-legal' => array(
-            'focus_keyword' => 'aviso legal Captacion.app',
-            'title' => 'Aviso legal Captacion.app',
-            'description' => 'Aviso legal de Captacion.app con informacion del titular, condiciones de uso, responsabilidades y datos pendientes de validacion final.',
+            'focus_keyword' => 'aviso legal Compra Captación',
+            'title' => 'Aviso legal Compra Captación',
+            'description' => 'Aviso legal de Compra Captación con informacion del titular, condiciones de uso, responsabilidades y datos pendientes de validacion final.',
         ),
         'privacidad' => array(
-            'focus_keyword' => 'politica de privacidad Captacion.app',
-            'title' => 'Politica de privacidad Captacion.app',
-            'description' => 'Politica de privacidad de Captacion.app para tratamiento de datos, finalidades, derechos, seguridad y acceso profesional a la plataforma.',
+            'focus_keyword' => 'politica de privacidad Compra Captación',
+            'title' => 'Politica de privacidad Compra Captación',
+            'description' => 'Politica de privacidad de Compra Captación para tratamiento de datos, finalidades, derechos, seguridad y acceso profesional a la plataforma.',
         ),
         'cookies' => array(
-            'focus_keyword' => 'politica de cookies Captacion.app',
-            'title' => 'Politica de cookies Captacion.app',
-            'description' => 'Politica de cookies de Captacion.app con informacion sobre cookies necesarias, estadisticas, marketing y consentimiento mediante Complianz.',
+            'focus_keyword' => 'politica de cookies Compra Captación',
+            'title' => 'Politica de cookies Compra Captación',
+            'description' => 'Politica de cookies de Compra Captación con informacion sobre cookies necesarias, estadisticas, marketing y consentimiento mediante Complianz.',
         ),
         'normas-publicacion' => array(
             'focus_keyword' => 'normas de publicacion inmobiliaria',
-            'title' => 'Normas de publicacion inmobiliaria | Captacion.app',
+            'title' => 'Normas de publicacion inmobiliaria | Compra Captación',
             'description' => 'Normas para publicar captaciones y demandas inmobiliarias con calidad, confidencialidad, legalidad y respeto entre profesionales.',
         ),
         'condiciones-de-contratacion' => array(
-            'focus_keyword' => 'condiciones de contratacion Captacion.app',
-            'title' => 'Condiciones de contratacion Captacion.app',
-            'description' => 'Condiciones de contratacion de Captacion.app para planes, servicios, pagos, activacion, obligaciones y uso profesional de la plataforma.',
+            'focus_keyword' => 'condiciones de contratacion Compra Captación',
+            'title' => 'Condiciones de contratacion Compra Captación',
+            'description' => 'Condiciones de contratacion de Compra Captación para planes, servicios, pagos, activacion, obligaciones y uso profesional de la plataforma.',
         ),
         'canal-de-denuncias' => array(
-            'focus_keyword' => 'canal de denuncias Captacion.app',
-            'title' => 'Canal de denuncias Captacion.app',
-            'description' => 'Canal de denuncias de Captacion.app para comunicar incumplimientos, irregularidades o riesgos con confidencialidad y proteccion.',
+            'focus_keyword' => 'canal de denuncias Compra Captación',
+            'title' => 'Canal de denuncias Compra Captación',
+            'description' => 'Canal de denuncias de Compra Captación para comunicar incumplimientos, irregularidades o riesgos con confidencialidad y proteccion.',
         ),
     );
 }
@@ -3962,6 +4838,7 @@ function captacion_app_stripe_link_for_plan($plan) {
     $settings = captacion_app_settings();
     $map = array(
         'initial' => 'stripe_membership_initial_link',
+        'initial_annual' => 'stripe_membership_initial_annual_link',
         'professional' => 'stripe_membership_professional_link',
         'agency' => 'stripe_membership_agency_link',
     );
@@ -3977,9 +4854,9 @@ function captacion_app_stripe_plan_button($plan, $label) {
 
     $contact_email = captacion_app_setting('contact_email');
     $subjects = array(
-        'initial' => 'Quiero activar Starter de Captacion.app',
-        'professional' => 'Quiero informacion del plan Professional de Captacion.app',
-        'agency' => 'Quiero informacion del plan Premium de Captacion.app',
+        'initial' => 'Quiero activar Starter de Compra Captación',
+        'professional' => 'Quiero informacion del plan Professional de Compra Captación',
+        'agency' => 'Quiero informacion del plan Premium de Compra Captación',
     );
     $fallback_label = array(
         'initial' => 'Solicitar acceso',
@@ -3988,7 +4865,7 @@ function captacion_app_stripe_plan_button($plan, $label) {
     );
 
     if ($contact_email) {
-        $mailto = 'mailto:' . rawurlencode($contact_email) . '?subject=' . rawurlencode($subjects[$plan] ?? 'Consulta sobre Captacion.app');
+        $mailto = 'mailto:' . rawurlencode($contact_email) . '?subject=' . rawurlencode($subjects[$plan] ?? 'Consulta sobre Compra Captación');
         return '<a class="captacion-stripe-button" href="' . esc_url($mailto) . '">' . esc_html($fallback_label[$plan] ?? 'Solicitar informacion') . '</a>';
     }
 
@@ -4002,22 +4879,22 @@ function captacion_app_stripe_plans_shortcode() {
         <section class="captacion-plan-card">
             <span class="captacion-plan-kicker">Starter</span>
             <h3>Starter</h3>
-            <p class="captacion-plan-price">0 &euro; <small>/ mes</small></p>
-            <p>Acceso gratuito, buscador, publicaciones, visualización de oportunidades y dashboard básico.</p>
-            <?php echo captacion_app_stripe_plan_button('initial', 'Comenzar gratis'); ?>
+            <p class="captacion-plan-price">19 &euro; <small>/ mes</small></p>
+            <p>3 meses gratis. Incluye 3 accesos al mes, buscador, publicaciones y dashboard básico.</p>
+            <?php echo captacion_app_stripe_plan_button('initial', 'Empezar prueba gratis'); ?>
         </section>
         <section class="captacion-plan-card captacion-plan-card-featured">
             <span class="captacion-plan-kicker">Profesional</span>
-            <h3>Professional</h3>
+            <h3>Profesional</h3>
             <p class="captacion-plan-price">29 &euro; <small>/ mes</small></p>
-            <p>30 accesos mensuales, dashboard profesional, alertas y packs de 15 accesos por 5 EUR.</p>
-            <?php echo captacion_app_stripe_plan_button('professional', 'Activar Professional'); ?>
+            <p>20 accesos mensuales, dashboard profesional, alertas y packs de 10 accesos por 5 EUR.</p>
+            <?php echo captacion_app_stripe_plan_button('professional', 'Activar Profesional'); ?>
         </section>
         <section class="captacion-plan-card">
             <span class="captacion-plan-kicker">Premium</span>
             <h3>Premium</h3>
             <p class="captacion-plan-price">49 &euro; <small>/ mes</small></p>
-            <p>Incluye 60 accesos a oportunidades del marketplace al mes. Packs adicionales: 5 EUR por 30 accesos extra.</p>
+            <p>30 accesos mensuales, dashboard completo y packs de 15 accesos por 5 EUR.</p>
             <?php echo captacion_app_stripe_plan_button('agency', 'Activar Premium'); ?>
         </section>
     </div>
@@ -4237,7 +5114,7 @@ function captacion_app_ai_log($message, $context = array()) {
         $payload[$key] = is_scalar($value) ? $value : wp_json_encode($value, JSON_UNESCAPED_UNICODE);
     }
 
-    error_log('[Captacion.app AI] ' . $message . ' ' . wp_json_encode($payload, JSON_UNESCAPED_UNICODE));
+    error_log('[Compra Captación AI] ' . $message . ' ' . wp_json_encode($payload, JSON_UNESCAPED_UNICODE));
 }
 
 function captacion_app_ai_normalize_request_context($context) {
@@ -4366,7 +5243,7 @@ function captacion_app_ai_provider_request($connection, $payload) {
         );
         if ($provider === 'openrouter') {
             $headers['HTTP-Referer'] = home_url('/');
-            $headers['X-Title'] = 'Captacion.app';
+            $headers['X-Title'] = 'Compra Captación';
         }
         $messages = array();
         if ($system_instruction !== '') {
@@ -4618,9 +5495,250 @@ function captacion_app_register_ai_rest_routes() {
         'callback' => 'captacion_app_ai_rest_request',
         'permission_callback' => 'captacion_app_ai_rest_permission',
     ));
+
+    register_rest_route('captacion-app/v1', '/ai/admin-request', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_ai_rest_admin_request',
+        'permission_callback' => 'captacion_app_ai_rest_permission',
+    ));
+
+    register_rest_route('captacion-app/v1', '/ai/match-explanation', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_ai_rest_match_explanation',
+        'permission_callback' => 'captacion_app_ai_rest_permission',
+    ));
+
+    register_rest_route('captacion-app/v1', '/ai/enhance-listing', array(
+        'methods' => WP_REST_Server::CREATABLE,
+        'callback' => 'captacion_app_ai_rest_enhance_listing',
+        'permission_callback' => 'captacion_app_ai_rest_permission',
+    ));
 }
 add_action('rest_api_init', 'captacion_app_register_ai_rest_routes');
 
+function captacion_app_ai_admin_is_configured() {
+    $settings = captacion_app_settings();
+    return !empty($settings['ai_admin_provider']) && !empty($settings['ai_admin_api_key']);
+}
+
+function captacion_app_ai_admin_get_connection() {
+    if (!captacion_app_ai_admin_is_configured()) {
+        return null;
+    }
+
+    $settings = captacion_app_settings();
+    $providers = captacion_app_ai_providers();
+    $provider = sanitize_key($settings['ai_admin_provider']);
+
+    if (!isset($providers[$provider])) {
+        return null;
+    }
+
+    $model = sanitize_text_field($settings['ai_admin_model']);
+    if ($model === '') {
+        $model = $providers[$provider]['default_model'];
+    }
+
+    return array(
+        'provider' => $provider,
+        'provider_label' => $providers[$provider]['label'],
+        'api_key' => $settings['ai_admin_api_key'],
+        'model' => $model,
+        'endpoint' => $providers[$provider]['endpoint'],
+        'transport' => $providers[$provider]['transport'],
+        'active' => true,
+    );
+}
+
+function captacion_app_ai_admin_request($payload) {
+    $connection = captacion_app_ai_admin_get_connection();
+    if (!$connection) {
+        return new WP_Error('captacion_ai_admin_not_configured', 'La IA centralizada no está configurada. El administrador debe configurar un proveedor en Ajustes de Compra Captación.', array('status' => 412));
+    }
+
+    $defaults = array(
+        'prompt' => '',
+        'system_instruction' => '',
+        'context' => array(),
+        'temperature' => 0.3,
+        'max_tokens' => 700,
+    );
+
+    return captacion_app_ai_provider_request($connection, wp_parse_args($payload, $defaults));
+}
+
+function captacion_app_ai_rest_admin_request(WP_REST_Request $request) {
+    if (!captacion_app_ai_admin_is_configured()) {
+        return new WP_Error('captacion_ai_admin_not_configured', 'La IA centralizada no está configurada.', array('status' => 412));
+    }
+
+    $params = $request->get_json_params();
+    $prompt = trim((string) ($params['prompt'] ?? ''));
+    if ($prompt === '') {
+        return new WP_Error('captacion_ai_missing_prompt', 'La solicitud no incluye un prompt válido.', array('status' => 400));
+    }
+
+    $payload = array(
+        'prompt' => $prompt,
+        'system_instruction' => (string) ($params['system_instruction'] ?? ''),
+        'context' => $params['context'] ?? array(),
+        'temperature' => $params['temperature'] ?? 0.3,
+        'max_tokens' => $params['max_tokens'] ?? 700,
+    );
+
+    $result = captacion_app_ai_admin_request($payload);
+    if (is_wp_error($result)) {
+        return $result;
+    }
+
+    captacion_app_ai_log('Solicitud IA centralizada completada.', array(
+        'user_id' => get_current_user_id(),
+        'provider' => $result['provider'],
+    ));
+
+    return rest_ensure_response(array(
+        'success' => true,
+        'provider' => $result['provider'],
+        'model' => $result['model'],
+        'text' => $result['text'],
+    ));
+}
+
+function captacion_app_ai_rest_match_explanation(WP_REST_Request $request) {
+    if (!captacion_app_ai_admin_is_configured()) {
+        return new WP_Error('captacion_ai_admin_not_configured', 'La IA centralizada no está configurada.', array('status' => 412));
+    }
+
+    $params = $request->get_json_params();
+    $property = $params['property'] ?? array();
+    $need = $params['need'] ?? array();
+
+    if (empty($property) || empty($need)) {
+        return new WP_Error('captacion_ai_missing_data', 'Debes proporcionar datos de propiedad y demanda.', array('status' => 400));
+    }
+
+    $propertyTitle = sanitize_text_field($property['title'] ?? $property['property_title'] ?? 'Propiedad');
+    $propertyType = sanitize_text_field($property['property_type'] ?? $property['type'] ?? '');
+    $propertyPrice = isset($property['indicative_price']) ? (float) $property['indicative_price'] : (float) ($property['price'] ?? 0);
+    $propertyBedrooms = (int) ($property['rooms'] ?? $property['bedrooms'] ?? 0);
+    $propertyBathrooms = (int) ($property['bathrooms'] ?? 0);
+    $propertySurface = (float) ($property['total_area_m2'] ?? $property['surface'] ?? 0);
+    $propertyProvince = sanitize_text_field($property['province'] ?? $property['location'] ?? '');
+    $propertyMunicipality = sanitize_text_field($property['municipality'] ?? '');
+    $propertyPostalCode = sanitize_text_field($property['postalCode'] ?? $property['postal_code'] ?? '');
+
+    $needTitle = sanitize_text_field($need['title'] ?? $need['need_title'] ?? 'Demanda');
+    $needType = sanitize_text_field($need['property_type'] ?? $need['type'] ?? '');
+    $needBudget = isset($need['max_budget']) ? (float) $need['max_budget'] : (float) ($need['budget'] ?? 0);
+    $needBedrooms = (int) ($need['min_rooms'] ?? $need['bedrooms'] ?? 0);
+    $needBathrooms = (int) ($need['min_bathrooms'] ?? $need['bathrooms'] ?? 0);
+    $needSurface = (float) ($need['desired_area_min_m2'] ?? $need['surface'] ?? 0);
+    $needProvince = sanitize_text_field($need['province'] ?? $need['location'] ?? '');
+    $needMunicipality = sanitize_text_field($need['municipality'] ?? '');
+    $needPostalCode = sanitize_text_field($need['postalCode'] ?? $need['postal_code'] ?? '');
+
+    $prompt = "Genera una explicacion breve y profesional (maximo 3 lineas) de por que esta propiedad coincide con esta demanda inmobiliaria.\n\n";
+    $prompt .= "PROPIEDAD:\n";
+    $prompt .= "- Titulo: {$propertyTitle}\n";
+    $prompt .= "- Tipo: {$propertyType}\n";
+    $prompt .= "- Precio: " . number_format($propertyPrice, 0, ',', '.') . " EUR\n";
+    if ($propertyBedrooms) { $prompt .= "- Habitaciones: {$propertyBedrooms}\n"; }
+    if ($propertyBathrooms) { $prompt .= "- Banos: {$propertyBathrooms}\n"; }
+    if ($propertySurface) { $prompt .= "- Superficie: {$propertySurface} m2\n"; }
+    $prompt .= "- Ubicacion: " . implode(', ', array_filter(array($propertyProvince, $propertyMunicipality, $propertyPostalCode))) . "\n\n";
+    $prompt .= "DEMANDA:\n";
+    $prompt .= "- Titulo: {$needTitle}\n";
+    $prompt .= "- Tipo: {$needType}\n";
+    $prompt .= "- Presupuesto maximo: " . number_format($needBudget, 0, ',', '.') . " EUR\n";
+    if ($needBedrooms) { $prompt .= "- Habitaciones minimas: {$needBedrooms}\n"; }
+    if ($needBathrooms) { $prompt .= "- Banos minimos: {$needBathrooms}\n"; }
+    if ($needSurface) { $prompt .= "- Superficie minima: {$needSurface} m2\n"; }
+    $prompt .= "- Ubicacion: " . implode(', ', array_filter(array($needProvince, $needMunicipality, $needPostalCode)));
+
+    $systemInstruction = "Eres un consultor inmobiliario experto en analisis de coincidencias oferta-demanda. Responde en espanol profesional, claro y directo. No inventes datos. Limitate a senalar los puntos de compatibilidad reales entre la propiedad y la demanda.";
+
+    $result = captacion_app_ai_admin_request(array(
+        'prompt' => $prompt,
+        'system_instruction' => $systemInstruction,
+        'temperature' => 0.2,
+        'max_tokens' => 300,
+    ));
+
+    if (is_wp_error($result)) {
+        captacion_app_ai_log('Error generando explicacion de match.', array(
+            'error' => $result->get_error_message(),
+        ));
+        return $result;
+    }
+
+    return rest_ensure_response(array(
+        'success' => true,
+        'explanation' => $result['text'],
+    ));
+}
+
+function captacion_app_ai_rest_enhance_listing(WP_REST_Request $request) {
+    if (!captacion_app_ai_admin_is_configured()) {
+        return new WP_Error('captacion_ai_admin_not_configured', 'La IA centralizada no esta configurada.', array('status' => 412));
+    }
+
+    $params = $request->get_json_params();
+    $current_title = trim((string) ($params['title'] ?? ''));
+    $current_description = trim((string) ($params['description'] ?? ''));
+    $property_type = sanitize_text_field($params['property_type'] ?? $params['type'] ?? 'inmueble');
+    $location = sanitize_text_field($params['location'] ?? '');
+    $price = isset($params['price']) ? (float) $params['price'] : 0;
+    $features = trim((string) ($params['features'] ?? ''));
+
+    if ($current_title === '' && $current_description === '') {
+        return new WP_Error('captacion_ai_missing_content', 'Proporciona al menos un titulo o descripcion actual para mejorar.', array('status' => 400));
+    }
+
+    $prompt = "Eres un copywriter inmobiliario experto en marketing digital B2B.\n\n";
+    $prompt .= "Mejora el titulo y la descripcion de este inmueble para hacerlos mas atractivos, profesionales y efectivos en un marketplace B2B entre agentes inmobiliarios.\n\n";
+    $prompt .= "TIPO: {$property_type}\n";
+    if ($location) { $prompt .= "UBICACION: {$location}\n"; }
+    if ($price) { $prompt .= "PRECIO: " . number_format($price, 0, ',', '.') . " EUR\n"; }
+    if ($features) { $prompt .= "CARACTERISTICAS: {$features}\n"; }
+    $prompt .= "\nTITULO ACTUAL: {$current_title}\n";
+    $prompt .= "DESCRIPCION ACTUAL: {$current_description}\n\n";
+    $prompt .= "Devuelve SOLO el siguiente formato JSON sin explicaciones:\n";
+    $prompt .= '{"title": "nuevo titulo mejorado", "description": "nueva descripcion mejorada"}';
+
+    $systemInstruction = "Eres un asistente inmobiliario especializado en copywriting B2B. Responde en espanol profesional. Responde SOLO con el JSON solicitado, sin explicaciones ni texto adicional. Manten los datos clave del inmueble (precio, ubicacion, tipo) sin alterarlos.";
+
+    $result = captacion_app_ai_admin_request(array(
+        'prompt' => $prompt,
+        'system_instruction' => $systemInstruction,
+        'temperature' => 0.3,
+        'max_tokens' => 600,
+    ));
+
+    if (is_wp_error($result)) {
+        captacion_app_ai_log('Error mejorando listing.', array(
+            'error' => $result->get_error_message(),
+        ));
+        return $result;
+    }
+
+    $json_text = trim($result['text']);
+    $json_text = preg_replace('/^```(?:json)?\s*|\s*```$/i', '', $json_text);
+    $parsed = json_decode($json_text, true);
+
+    if (!is_array($parsed) || empty($parsed['title'])) {
+        $parsed = array(
+            'title' => $current_title ?: $property_type . ' en ' . ($location ?: 'venta'),
+            'description' => $current_description ?: $json_text,
+        );
+    }
+
+    return rest_ensure_response(array(
+        'success' => true,
+        'title' => sanitize_text_field($parsed['title']),
+        'description' => sanitize_textarea_field($parsed['description'] ?? ''),
+        'raw' => $result['text'],
+    ));
+}
 
 /* Official territorial synchronization: INE + CartoCiudad/CNIG. */
 function captacion_app_territory_table_name() {
@@ -4688,10 +5806,14 @@ function captacion_app_maybe_install_territory_table() {
     if (get_option('captacion_territory_table_version') !== '20260620') {
         captacion_app_install_territory_table();
     }
+}
+
+function captacion_app_prepare_territory_catalog() {
+    captacion_app_maybe_install_territory_table();
     captacion_app_maybe_seed_territories();
 }
-add_action('admin_init', 'captacion_app_maybe_install_territory_table');
-add_action('init', 'captacion_app_maybe_install_territory_table');
+add_action('after_switch_theme', 'captacion_app_prepare_territory_catalog', 20);
+add_action('admin_init', 'captacion_app_prepare_territory_catalog');
 
 function captacion_app_territory_reference_maps() {
     $communities = array(
@@ -5091,7 +6213,7 @@ function captacion_app_rest_validate_cartociudad(WP_REST_Request $request) {
     $query = sanitize_text_field(implode(' ', array_filter(array($params['address'] ?? '', $params['postalCode'] ?? '', $params['municipality'] ?? '', $params['province'] ?? ''))));
     if (strlen($query) < 3) return new WP_Error('territory_address_query', 'Indica dirección, código postal o municipio.', array('status'=>400));
     $url = add_query_arg(array('q'=>$query, 'limit'=>5), 'https://www.cartociudad.es/geocoder/api/geocoder/findJsonp');
-    $response = wp_remote_get($url, array('timeout'=>15, 'user-agent'=>'Captacion.app WordPress territorial validator'));
+    $response = wp_remote_get($url, array('timeout'=>15, 'user-agent'=>'Compra Captación WordPress territorial validator'));
     if (is_wp_error($response)) return $response;
     $data = captacion_app_parse_jsonp(wp_remote_retrieve_body($response));
     if (!is_array($data)) return new WP_Error('territory_cartociudad_parse', 'CartoCiudad no devolvió una respuesta válida.', array('status'=>502));
@@ -5144,7 +6266,7 @@ function captacion_app_privacy_exporter($email, $page = 1) {
     foreach ($rows as $row) {
         $item_id = 'captacion-record-' . $row['id'];
         $group_id = 'captacion_app_records';
-        $group_label = 'Captacion.app - Registros';
+        $group_label = 'Compra Captación - Registros';
         $data = array(
             array('name' => 'ID', 'value' => $row['id']),
             array('name' => 'Tipo de registro', 'value' => $row['record_type']),
@@ -5169,7 +6291,7 @@ function captacion_app_privacy_exporter($email, $page = 1) {
 
 function captacion_app_register_privacy_exporter($exporters) {
     $exporters['captacion-app-records'] = array(
-        'exporter_friendly_name' => 'Captacion.app - Registros',
+        'exporter_friendly_name' => 'Compra Captación - Registros',
         'callback' => 'captacion_app_privacy_exporter',
     );
     return $exporters;
@@ -5205,7 +6327,7 @@ function captacion_app_privacy_eraser($email, $page = 1) {
 
 function captacion_app_register_privacy_eraser($erasers) {
     $erasers['captacion-app-records'] = array(
-        'eraser_friendly_name' => 'Captacion.app - Registros',
+        'eraser_friendly_name' => 'Compra Captación - Registros',
         'callback' => 'captacion_app_privacy_eraser',
     );
     return $erasers;

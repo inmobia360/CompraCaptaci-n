@@ -1,8 +1,8 @@
 /*
-Theme Name: Captacion.app
+Theme Name: Compra Captación
 Theme URI: https://captacion.app/
-Author: Captacion.app
-Description: Tema WordPress para publicar Captacion.app como web propia, con ajustes editables desde el administrador.
+Author: Compra Captación
+Description: Tema WordPress para publicar Compra Captación como web propia, con ajustes editables desde el administrador.
 Version: 1.5.4
 Requires at least: 6.0
 Tested up to: 6.8
@@ -10,7 +10,7 @@ Requires PHP: 7.4
 Text Domain: captacion-app
 */
 
-/* Complianz siempre prevalece visualmente sobre modales y avisos de Captacion.app. */
+/* Complianz siempre prevalece visualmente sobre modales y avisos de Compra Captación. */
 .cmplz-cookiebanner,
 #cmplz-cookiebanner-container,
 .cmplz-manage-consent {

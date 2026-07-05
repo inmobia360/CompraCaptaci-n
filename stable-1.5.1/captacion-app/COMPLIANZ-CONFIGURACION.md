@@ -1,4 +1,4 @@
-# Complianz — configuración inicial de Captacion.app
+# Complianz — configuración inicial de Compra Captación
 
 Esta guía forma parte de la versión 1.4.3. Complianz debe ser la única fuente de consentimiento, banner, preferencias, bloqueo preventivo y declaración de cookies.
 
@@ -15,7 +15,7 @@ Esta guía forma parte de la versión 1.4.3. Complianz debe ser la única fuente
 
 ## Datos del sitio
 
-- Proyecto: Captacion.app.
+- Proyecto: Compra Captación.
 - Staging: https://lightblue-salamander-627943.hostingersite.com
 - Dominio final: PENDIENTE.
 - País: España.
@@ -27,7 +27,7 @@ Datos provisionales exclusivos de staging:
 - NIF/CIF: B00000000.
 - Domicilio: Domicilio social pendiente de completar.
 - Privacidad: privacidad@captacion.app.
-- Contacto: contacto@captacion.app.
+- Contacto: info@compracaptacion.com.
 - Teléfono: PENDIENTE.
 - DPO: PENDIENTE / no designado salvo confirmación.
 
