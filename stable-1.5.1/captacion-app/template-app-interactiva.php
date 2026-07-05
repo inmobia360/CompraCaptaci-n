@@ -1011,33 +1011,10 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
                 Compra, vende y comparte captaciones entre profesionales
               </h1>
               <p class="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
-                Publica oportunidades, cruza demandas activas y colabora con otros profesionales sin exponer datos sensibles desde el primer momento.
+                Conecta con agencias, agentes e inversores para monetizar oportunidades inmobiliarias con privacidad, trazabilidad y control comercial.
               </p>
-
-              <!-- Dos conceptos clave -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
-                <div class="p-4 rounded-2xl bg-white/90 border border-blue/15 shadow-sm">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-light text-blue flex items-center justify-center font-black">C</div>
-                    <div>
-                      <span class="block text-[10px] uppercase tracking-[0.22em] text-blue font-black">Captación</span>
-                      <p class="text-xs text-slate-500 mt-1">Publica oportunidades con la información justa para despertar interés profesional y desbloquea el detalle cuando exista una opción real de cierre.</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="p-4 rounded-2xl bg-white/90 border border-green/15 shadow-sm">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-green-light text-green flex items-center justify-center font-black">D</div>
-                    <div>
-                      <span class="block text-[10px] uppercase tracking-[0.22em] text-green font-black">Demanda</span>
-                      <p class="text-xs text-slate-500 mt-1">Activa necesidades reales, detecta producto compatible y abre conversaciones mejor preparadas desde el inicio.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div class="flex flex-wrap items-center gap-4 pt-1">
-                <button type="button" onclick="openProfessionalSubscriptionModal('hero-starter')" class="px-6 py-3.5 rounded-xl bg-blue text-white font-bold text-sm hover:bg-blue-dark hover:-translate-y-0.5 transition-all shadow-lg shadow-blue/25">Probar gratis</button>
+                <button type="button" onclick="openProfessionalSubscriptionModal('hero-starter')" class="px-6 py-3.5 rounded-xl bg-blue text-white font-bold text-sm hover:bg-blue-dark hover:-translate-y-0.5 transition-all shadow-lg shadow-blue/25">Publicar captación</button>
                 <a href="#/como-funciona" class="px-6 py-3.5 rounded-xl bg-white border border-slate-200 text-navy font-bold text-sm hover:border-slate-400 hover:bg-slate-50 transition-all">Ver cómo funciona</a>
                 <span class="inline-flex items-center px-3 py-2 rounded-full bg-green-light text-green text-xs font-bold">Sin tarjeta · 3 accesos</span>
               </div>
