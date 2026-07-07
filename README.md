@@ -4,12 +4,22 @@ Repositorio oficial del tema WordPress de Captacion.app, plataforma inmobiliaria
 
 ## Estado
 
-- GitHub: `inmobia360/captacion-app`
+- GitHub: `inmobia360/CompraCaptaci-n`
 - Rama estable: `main`
 - Fuente activa: `stable-1.5.1/captacion-app`
 - Tema WordPress: `Captacion.app`
 - Version del tema: ver `stable-1.5.1/captacion-app/style.css`
 - Despliegue objetivo: WordPress / Hostinger
+
+## Start here
+
+Si vas a trabajar en este proyecto, empieza por:
+
+1. `AGENTS.md`
+2. `docs/START-HERE.md`
+3. `docs/MATRIZ-OFICIAL.md`
+4. `docs/PROTOCOLO-DE-CAMBIOS.md`
+5. `docs/CHECKLIST-PUBLICACION-QA.md`
 
 ## Estructura
 
@@ -112,7 +122,13 @@ No subir a WordPress un ZIP donde `style.css` quede dentro de una carpeta adicio
 
 ## Documentacion
 
+- `docs/START-HERE.md`: punto de entrada recomendado para cualquier desarrollador o IA.
+- `docs/INDICE-MAESTRO.md`: mapa completo de la documentacion operativa.
+- `docs/MATRIZ-OFICIAL.md`: define el repo y la ruta fuente que mandan.
+- `docs/PROTOCOLO-DE-CAMBIOS.md`: flujo minimo para cambios futuros.
+- `docs/DESPLIEGUE-WORDPRESS.md`: como generar y desplegar el ZIP valido.
+- `docs/CHECKLIST-PUBLICACION-QA.md`: control previo y posterior al despliegue.
+- `docs/SOP-MANUAL-INTERNO.md`: procedimiento interno estandar.
 - `AGENTS.md`: reglas obligatorias para agentes y desarrolladores.
 - `captacion-os/`: sistema operativo documental para Codex, Antigravity y GitHub.
-- `docs/`: informes, seguridad, estructura, workflow y hoja de ruta.
 - `.github/`: plantillas y validaciones automaticas.
