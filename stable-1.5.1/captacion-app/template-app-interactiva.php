@@ -995,9 +995,9 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
   <main class="flex-grow">
 
     <!-- PÁGINA 1: INICIO -->
-    <div id="page-inicio" class="page-section hidden">
+    <div id="page-inicio" class="page-section">
       <!-- Hero principal -->
-      <section class="relative overflow-hidden bg-gradient-to-br from-blue-light/50 via-white to-white py-14 md:py-20">
+      <section class="relative overflow-hidden bg-gradient-to-br from-blue-light/50 via-white to-white py-10 md:py-14">
         <div class="absolute -right-40 -bottom-40 w-96 h-96 rounded-full bg-blue-light/70 blur-3xl pointer-events-none"></div>
         <div class="absolute -left-28 -top-36 w-80 h-80 rounded-full bg-green-light/50 blur-3xl pointer-events-none"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -1013,6 +1013,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
               <p class="text-base sm:text-lg text-slate-600 max-w-2xl leading-relaxed">
                 Conecta con agencias, agentes e inversores para monetizar oportunidades inmobiliarias con privacidad, trazabilidad y control comercial.
               </p>
+
               <div class="flex flex-wrap items-center gap-4 pt-1">
                 <button type="button" onclick="openProfessionalSubscriptionModal('hero-starter')" class="px-6 py-3.5 rounded-xl bg-blue text-white font-bold text-sm hover:bg-blue-dark hover:-translate-y-0.5 transition-all shadow-lg shadow-blue/25">Publicar captación</button>
                 <a href="#/como-funciona" class="px-6 py-3.5 rounded-xl bg-white border border-slate-200 text-navy font-bold text-sm hover:border-slate-400 hover:bg-slate-50 transition-all">Ver cómo funciona</a>
@@ -1032,7 +1033,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       </section>
 
       <!-- KPIs vivos -->
-      <section class="relative -mt-4 md:-mt-6 z-10">
+      <section class="relative -mt-2 md:-mt-3 z-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-white/95 backdrop-blur p-4 rounded-3xl border border-slate-200/80 shadow-xl">
             <div class="home-kpi-card p-5 rounded-2xl bg-slate-50 border border-slate-100">
@@ -10256,12 +10257,29 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       });
     }
 
+    function forceInitialPageVisibility() {
+      const hash = window.location.hash && window.location.hash.startsWith('#/') ? window.location.hash : '#/inicio';
+      const activePageId = routes[hash] || 'page-inicio';
+      document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      document.getElementById(activePageId)?.classList.remove('hidden');
+      document.getElementById('global-conversion-cta')?.classList.toggle('hidden', ['page-area-privada','page-aviso-legal','page-privacidad','page-cookies','page-normas-publicacion'].includes(activePageId));
+    }
+
     // Lanzar inicialización controlada
     if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', initApp);
+      window.addEventListener('DOMContentLoaded', initApp, { once: true });
     } else {
       initApp();
     }
+
+    // Fallback defensivo: si por caché/defer el router no inicializa a tiempo,
+    // al menos la página activa no queda totalmente oculta.
+    window.addEventListener('load', () => {
+      forceInitialPageVisibility();
+      try { handleRoute(); } catch (error) {}
+    }, { once: true });
 
     /* =============================================
        DATA & PRIVACY MANAGEMENT (XML import/export, batches, deletion)
