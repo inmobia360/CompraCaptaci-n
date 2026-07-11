@@ -1677,6 +1677,28 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
             </div>
             </div>
 
+            <div class="rounded-2xl border border-blue/15 bg-blue-light/20 p-5 space-y-4">
+              <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
+                <div>
+                  <span class="block text-sm font-black text-navy">Catastro y verificacion opcional</span>
+                  <p class="text-xs text-slate-500 mt-1 leading-relaxed">Si la tienes, agrega la referencia catastral para dejar trazabilidad interna. La referencia completa no se publica.</p>
+                </div>
+                <span class="inline-flex w-fit items-center px-3 py-1 rounded-full bg-white text-[10px] font-black uppercase tracking-[0.14em] text-blue border border-blue/15">Proteccion activa</span>
+              </div>
+              <div class="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-3 items-end">
+                <div>
+                  <label class="block text-xs font-bold text-slate-500 mb-1">Referencia catastral</label>
+                  <input type="text" id="offer-cadastral-reference" maxlength="20" oninput="updateOfferCatastroPreview()" placeholder="Ej: 1234567AB1234C0001DE" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue/20 font-mono tracking-[0.18em]" />
+                  <p class="text-[11px] text-slate-400 mt-1">Formato publico protegido. Si la referencia es valida, la verificamos solo como apoyo interno.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" onclick="openCatastroPortal()" class="px-3.5 py-2.5 rounded-xl border border-blue/20 bg-white text-[10px] font-black text-blue hover:bg-blue-light transition-all">Abrir sede Catastro</button>
+                  <button type="button" onclick="updateOfferCatastroPreview()" class="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-[10px] font-black text-navy hover:bg-slate-50 transition-all">Validar formato</button>
+                </div>
+              </div>
+              <div id="offer-cadastral-preview" class="hidden"></div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label class="block text-xs font-bold text-slate-500 mb-1">Número de habitaciones *</label>
@@ -1821,7 +1843,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
               <div id="offer-default-image-preview" class="hidden rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm">
                 <div class="grid grid-cols-1 md:grid-cols-[220px_1fr]">
                   <div class="relative min-h-[180px] bg-slate-100">
-                    <img id="offer-default-image-preview-img" src="" alt="Imagen predeterminada por tipologia" width="640" height="666" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" />
+                    <img id="offer-default-image-preview-img" src="<?php echo esc_url($captacion_media['property_defaults']['piso']); ?>" data-virtual-type="Piso" alt="Imagen predeterminada para Piso" width="640" height="666" class="absolute inset-0 h-full w-full object-cover" loading="lazy" decoding="async" onerror="if (window.handleMarketplaceImageError) window.handleMarketplaceImageError(this);" />
                   </div>
                   <div class="p-5">
                     <span class="inline-flex px-3 py-1 rounded-full bg-blue-light text-blue text-[10px] font-black uppercase tracking-[0.16em]">Imagen predeterminada activa</span>
@@ -3260,6 +3282,21 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       'userLabel' => $captacion_is_logged_in ? $captacion_current_user->display_name : '',
     ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
   </script>
+  <script>
+    // Respaldo público: si un script externo rompe la inicialización, no dejamos la home en blanco.
+    (function ensureVisiblePublicHome() {
+      function revealHomeIfRouterDidNotStart() {
+        if (document.querySelector('.page-section:not(.hidden)')) return;
+        document.getElementById('page-inicio')?.classList.remove('hidden');
+        document.getElementById('global-conversion-cta')?.classList.remove('hidden');
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { setTimeout(revealHomeIfRouterDidNotStart, 400); });
+      } else {
+        setTimeout(revealHomeIfRouterDidNotStart, 400);
+      }
+    })();
+  </script>
 
   <!-- Lógica completa de negocio, geografía y servicios IA en un script unificado -->
   <script>
@@ -3628,9 +3665,20 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       const normalizedType = normalizeVirtualPropertyType(type);
       return DEFAULT_PROPERTY_IMAGES[normalizedType] || DEFAULT_PROPERTY_IMAGES['Activo inmobiliario'];
     }
+    function getGeneratedMarketplaceImage(type = '') {
+      const normalizedType = normalizeVirtualPropertyType(type);
+      return VIRTUAL_MARKETPLACE_IMAGES[normalizedType] || VIRTUAL_MARKETPLACE_IMAGES['Activo inmobiliario'];
+    }
+    function handleMarketplaceImageError(imageElement) {
+      if (!imageElement) return;
+      imageElement.onerror = null;
+      imageElement.src = getGeneratedMarketplaceImage(imageElement.dataset.virtualType || 'Activo inmobiliario');
+    }
     const DEFAULT_MARKETPLACE_IMAGE = getVirtualMarketplaceImage('Activo inmobiliario');
     window.DEFAULT_MARKETPLACE_IMAGE = DEFAULT_MARKETPLACE_IMAGE;
     window.getVirtualMarketplaceImage = getVirtualMarketplaceImage;
+    window.getGeneratedMarketplaceImage = getGeneratedMarketplaceImage;
+    window.handleMarketplaceImageError = handleMarketplaceImageError;
     const MAX_MARKETPLACE_IMAGE_SIZE = 900;
     const MARKETPLACE_IMAGE_QUALITY = 0.78;
     const CAPTACION_PRODUCTION_MODE = true;
@@ -4012,6 +4060,132 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       }[char]));
     }
 
+    const CATASTRO_HOME_URL = 'https://www1.sedecatastro.gob.es/';
+
+    function normalizeCadastralReference(value = '') {
+      return cleanText(value).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    }
+
+    function isCadastralReferenceValid(value = '') {
+      return /^[A-Z0-9]{20}$/.test(normalizeCadastralReference(value));
+    }
+
+    function maskCadastralReference(value = '') {
+      const reference = normalizeCadastralReference(value);
+      if (!reference) return '';
+      if (reference.length < 20) {
+        return `${reference.slice(0, 4)}...${reference.slice(-3)}`;
+      }
+      return `${reference.slice(0, 4)} ${reference.slice(4, 8)} ${reference.slice(8, 12)} ${reference.slice(12, 16)} ${reference.slice(16, 20)}`;
+    }
+
+    function buildCatastroLinks() {
+      return {
+        home: CATASTRO_HOME_URL,
+        search: CATASTRO_HOME_URL,
+        map: CATASTRO_HOME_URL
+      };
+    }
+
+    function openCatastroPortal() {
+      window.open(CATASTRO_HOME_URL, '_blank', 'noopener,noreferrer');
+    }
+
+    function copyCadastralReference(reference = '') {
+      const normalized = normalizeCadastralReference(reference);
+      if (!normalized) {
+        showToast('No hay una referencia catastral para copiar.', 'info');
+        return;
+      }
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard.writeText(normalized).then(() => {
+          showToast('Referencia catastral copiada al portapapeles.', 'success');
+        }).catch(() => {
+          showToast('No se pudo copiar la referencia.', 'info');
+        });
+        return;
+      }
+      showToast('Tu navegador no permite copiar automaticamente.', 'info');
+    }
+
+    function updateOfferCatastroPreview() {
+      const input = document.getElementById('offer-cadastral-reference');
+      const preview = document.getElementById('offer-cadastral-preview');
+      if (!input || !preview) return;
+      const reference = normalizeCadastralReference(input.value || '');
+      if (!reference) {
+        preview.classList.add('hidden');
+        preview.innerHTML = '';
+        return;
+      }
+      const isValid = isCadastralReferenceValid(reference);
+      preview.classList.remove('hidden');
+      preview.innerHTML = `
+        <div class="rounded-2xl border ${isValid ? 'border-green/20 bg-green-light/30' : 'border-amber/20 bg-amber-light/30'} p-4 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+            <div>
+              <span class="block text-[10px] font-black uppercase tracking-[0.16em] ${isValid ? 'text-green' : 'text-amber'}">Catastro privado</span>
+              <p class="mt-1 text-xs text-slate-600">La referencia completa no se publica. Se guarda solo para trazabilidad interna y validacion documental.</p>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase ${isValid ? 'bg-green-light text-green' : 'bg-amber-light text-amber'}">${isValid ? 'Formato valido' : 'Pendiente de validar'}</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
+            <div>
+              <span class="block text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500 mb-1">Referencia protegida</span>
+              <p class="font-mono text-sm font-bold text-navy tracking-[0.18em]">${escapeHTML(maskCadastralReference(reference))}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="openCatastroPortal()" class="px-3 py-2 rounded-xl border border-blue/20 bg-white text-[10px] font-black text-blue hover:bg-blue-light">Abrir sede Catastro</button>
+              <button type="button" onclick="copyCadastralReference('${escapeHTML(reference)}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-[10px] font-black text-navy hover:bg-slate-50">Copiar referencia</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-[10px] font-bold text-slate-600">
+            <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200">Home oficial</span>
+            <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200">Visor publico</span>
+            <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200">Trazabilidad interna</span>
+          </div>
+          ${!isValid ? '<p class="text-[11px] text-amber-700">Si pegas una referencia catastral, debe tener 20 caracteres alfanumericos.</p>' : ''}
+        </div>
+      `;
+    }
+
+    function renderCatastroPropertyBlock(property = {}) {
+      const reference = normalizeCadastralReference(property.cadastral_reference || property.cadastralReference || '');
+      const maskedReference = cleanText(property.cadastral_reference_masked || (reference ? maskCadastralReference(reference) : 'No aportada'));
+      const status = cleanText(property.cadastral_status || (reference ? 'format_ok' : 'not_provided'));
+      const statusLabel = status === 'format_ok' ? 'Formato validado' : status === 'verified' ? 'Validado' : 'No aportada';
+      const checkedAt = property.cadastral_last_checked_at ? formatRelativeTime(property.cadastral_last_checked_at) : 'Sin comprobacion';
+      const hasReference = Boolean(reference);
+      const links = buildCatastroLinks();
+      return `
+        <div class="rounded-2xl border border-blue/15 bg-blue-light/20 p-4 space-y-3">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="block text-[10px] font-black uppercase tracking-[0.16em] text-blue">Catastro</span>
+              <p class="mt-1 text-xs text-slate-600">Dato privado para trazabilidad y validacion documental. No se expone completo en la ficha publica.</p>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase ${hasReference ? 'bg-green-light text-green' : 'bg-slate-100 text-slate-500'}">${escapeHTML(statusLabel)}</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 items-end">
+            <div>
+              <span class="block text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500 mb-1">Referencia protegida</span>
+              <p class="font-mono text-sm font-bold text-navy tracking-[0.18em]">${escapeHTML(maskedReference)}</p>
+              <p class="mt-1 text-[11px] text-slate-500">Ultima comprobacion: ${escapeHTML(checkedAt)}</p>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="openCatastroPortal()" class="px-3 py-2 rounded-xl border border-blue/20 bg-white text-[10px] font-black text-blue hover:bg-blue-light">Abrir sede Catastro</button>
+              ${hasReference ? `<button type="button" onclick="copyCadastralReference('${escapeHTML(reference)}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-[10px] font-black text-navy hover:bg-slate-50">Copiar ref. protegida</button>` : ''}
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-[10px] font-bold text-slate-600">
+            <a href="${escapeHTML(links.home)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 hover:border-blue/30">Sede electronica</a>
+            <a href="${escapeHTML(links.search)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-full bg-white border border-slate-200 hover:border-blue/30">Consulta publica</a>
+            <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200">Proteccion B2B</span>
+          </div>
+        </div>
+      `;
+    }
+
     function formatCurrency(value) {
       return new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(Number(value) || 0) + ' €';
     }
@@ -4067,6 +4241,115 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         <p class="mt-1 text-[11px] text-slate-500 leading-relaxed">Activa el modo IA para analizar puntos de interés cercanos usando solo la ubicación aproximada de la captación.</p>
         <button type="button" onclick="activateAIFromPropertyCard()" class="mt-3 px-3 py-2 rounded-xl bg-navy text-white text-[10px] font-black">Activar modo IA</button>
       </div>`;
+    }
+
+    function parseFlexibleNumber(value) {
+      if (value === null || value === undefined || value === '') return 0;
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          const parsed = parseFlexibleNumber(item);
+          if (parsed) return parsed;
+        }
+        return 0;
+      }
+      if (typeof value === 'object') {
+        const preferredKeys = ['value', 'amount', 'price', 'number', 'text', 'url', 'src', 'href', 'link', 'file', 'path', 'source', 'download', 'image', 'image_url', 'imageUrl', 'attachment_url', 'attachmentUrl', 'guid', 'media_url', 'mediaUrl'];
+        for (const key of preferredKeys) {
+          if (Object.prototype.hasOwnProperty.call(value, key)) {
+            const parsed = parseFlexibleNumber(value[key]);
+            if (parsed) return parsed;
+          }
+        }
+        for (const nestedValue of Object.values(value)) {
+          const parsed = parseFlexibleNumber(nestedValue);
+          if (parsed) return parsed;
+        }
+        return 0;
+      }
+      if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : 0;
+      }
+      const raw = cleanText(String(value));
+      if (!raw) return 0;
+      const numericChunkMatch = raw.replace(/\s+/g, '').match(/-?\d[\d.,]*/);
+      let normalized = numericChunkMatch ? numericChunkMatch[0] : raw.replace(/\s+/g, '');
+      normalized = normalized.replace(/[^0-9,.-]/g, '');
+      const hasComma = normalized.includes(',');
+      const hasDot = normalized.includes('.');
+      if (hasComma && hasDot) {
+        if (normalized.lastIndexOf(',') > normalized.lastIndexOf('.')) {
+          normalized = normalized.replace(/\./g, '').replace(',', '.');
+        } else {
+          normalized = normalized.replace(/,/g, '');
+        }
+      } else if (hasComma) {
+        const parts = normalized.split(',');
+        if (parts.length === 2 && parts[1].length > 0 && parts[1].length <= 2) {
+          normalized = normalized.replace(',', '.');
+        } else {
+          normalized = normalized.replace(/,/g, '');
+        }
+      } else if (hasDot) {
+        const parts = normalized.split('.');
+        if (parts.length > 2 || (parts.length === 2 && parts[1].length > 2)) {
+          normalized = normalized.replace(/\./g, '');
+        }
+      }
+      const parsed = Number.parseFloat(normalized);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function parseFlexibleInteger(value) {
+      const parsed = parseFlexibleNumber(value);
+      return parsed > 0 ? Math.round(parsed) : 0;
+    }
+
+    function extractImageUrlFromValue(value) {
+      if (!value) return '';
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          const url = extractImageUrlFromValue(item);
+          if (url) return url;
+        }
+        return '';
+      }
+      if (typeof value === 'object') {
+        const preferredKeys = ['image', 'image_url', 'imageUrl', 'images', 'gallery', 'media', 'enclosure', 'attachment', 'content', 'url', 'src', 'href', 'link', 'file', 'path', 'source', 'download', 'attachment_url', 'attachmentUrl', 'guid', 'media_url', 'mediaUrl', 'thumbnail', 'thumb', 'photo', 'foto', 'picture'];
+        for (const key of preferredKeys) {
+          if (Object.prototype.hasOwnProperty.call(value, key)) {
+            const url = extractImageUrlFromValue(value[key]);
+            if (url) return url;
+          }
+        }
+        return '';
+      }
+      const raw = cleanText(String(value));
+      if (!raw) return '';
+      if (/^(https?:)?\/\//i.test(raw) || /^data:image\//i.test(raw) || /^\/(?:wp-content|uploads)\//i.test(raw)) {
+        return raw;
+      }
+      const match = raw.match(/https?:\/\/[^\s"'<>]+/i);
+      return match ? match[0] : '';
+    }
+
+    function extractImageUrlsFromValue(value, urls = []) {
+      if (!value) return urls;
+      if (Array.isArray(value)) {
+        value.forEach(item => extractImageUrlsFromValue(item, urls));
+        return urls;
+      }
+      if (typeof value === 'object') {
+        const preferredKeys = ['image', 'image_url', 'imageUrl', 'images', 'gallery', 'media', 'enclosure', 'attachment', 'content', 'url', 'src', 'href', 'link', 'file', 'path', 'source', 'download', 'attachment_url', 'attachmentUrl', 'guid', 'media_url', 'mediaUrl', 'thumbnail', 'thumb', 'photo', 'foto', 'picture'];
+        preferredKeys.forEach(key => {
+          if (Object.prototype.hasOwnProperty.call(value, key)) {
+            extractImageUrlsFromValue(value[key], urls);
+          }
+        });
+        return urls;
+      }
+      const url = extractImageUrlFromValue(value);
+      if (url && !urls.includes(url)) urls.push(url);
+      return urls;
     }
 
     function resolveMarketplaceImage(image = '', type = 'Activo inmobiliario') {
@@ -4257,6 +4540,13 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         province,
         municipality
       });
+      const cadastralReference = normalizeCadastralReference(property.cadastral_reference || property.cadastralReference || property.cadastre_reference || '');
+      const cadastralReferenceMasked = cleanText(property.cadastral_reference_masked || (cadastralReference ? maskCadastralReference(cadastralReference) : ''));
+      const cadastralReferenceHash = cleanText(property.cadastral_reference_hash || '');
+      const catastroStatus = cleanText(property.cadastral_status || (cadastralReference ? 'format_ok' : 'not_provided'));
+      const catastroSource = cleanText(property.cadastral_source || '');
+      const catastroCheckedAt = Number(property.cadastral_last_checked_at) || 0;
+      const catastroLinks = buildCatastroLinks();
       return {
         ...property,
         id: cleanText(property.id || `prop-${Date.now()}-${index}`),
@@ -4275,12 +4565,21 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         municipality_ine_code: cleanText(territory.municipality_ine_code || ''),
         municipality_name: cleanText(territory.municipality_name || municipality),
         locality: cleanText(locality),
-        postalCode: cleanText(property.postalCode || property.zipCode || property.zip || property.codigoPostal || property.codigo_postal || ''),
-        bedrooms: Number(property.rooms ?? property.bedrooms ?? property.habitaciones ?? property.dormitorios) || 0,
-        rooms: Number(property.rooms ?? property.bedrooms ?? property.habitaciones ?? property.dormitorios) || 0,
-        bathrooms: Number(property.bathrooms ?? property.banos ?? property['baños']) || 0,
-        surface: Number(property.total_area_m2 ?? property.superficie_construida ?? property.surface ?? property.surfaceM2 ?? property.superficie ?? property.metros) || 0,
-        total_area_m2: Number(property.total_area_m2 ?? property.superficie_construida ?? property.surface ?? property.surfaceM2 ?? property.superficie ?? property.metros) || 0,
+        postalCode: cleanText(property.postalCode || property.postal_code || property.postcode || property.zipCode || property.zip || property.codigoPostal || property.codigo_postal || ''),
+        cadastral_reference: cadastralReference,
+        cadastral_reference_masked: cadastralReferenceMasked,
+        cadastral_reference_hash: cadastralReferenceHash,
+        cadastral_status: catastroStatus,
+        cadastral_source: catastroSource,
+        cadastral_last_checked_at: catastroCheckedAt,
+        catastro_home_url: cleanText(property.catastro_home_url || catastroLinks.home),
+        catastro_search_url: cleanText(property.catastro_search_url || catastroLinks.search),
+        catastro_map_url: cleanText(property.catastro_map_url || catastroLinks.map),
+        bedrooms: parseFlexibleInteger(property.rooms ?? property.bedrooms ?? property.habitaciones ?? property.dormitorios),
+        rooms: parseFlexibleInteger(property.rooms ?? property.bedrooms ?? property.habitaciones ?? property.dormitorios),
+        bathrooms: parseFlexibleInteger(property.bathrooms ?? property.banos ?? property['baños']),
+        surface: parseFlexibleNumber(property.total_area_m2 ?? property.superficie_construida ?? property.surface ?? property.surfaceM2 ?? property.superficie ?? property.metros),
+        total_area_m2: parseFlexibleNumber(property.total_area_m2 ?? property.superficie_construida ?? property.surface ?? property.surfaceM2 ?? property.superficie ?? property.metros),
         location: cleanText(property.location || province),
         neighborhood: cleanText(property.neighborhood || `${province}${locality ? ' · ' + locality : ''}`),
         fee: cleanText(property.offered_commission || property.fee || 'A consultar'),
@@ -4295,11 +4594,15 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         fundingConditions: cleanText(property.fundingConditions || ''),
         date: Number(property.date) || Date.now() - (index + 1) * 3600000 * 8,
         score: Number(property.score) || 80,
-        price: Number(property.indicative_price ?? property.price) || 0,
-        indicative_price: Number(property.indicative_price ?? property.price) || 0,
+        price: parseFlexibleNumber(property.indicative_price ?? property.price),
+        indicative_price: parseFlexibleNumber(property.indicative_price ?? property.price),
         offered_commission: cleanText(property.offered_commission || property.fee || 'A consultar'),
-        image: property.image || '',
-        imageIsDefault: Boolean(property.imageIsDefault || !property.image)
+        image: extractImageUrlFromValue(property.image || property.images || property.gallery || property.source_data || property.sourceData || ''),
+        images: extractImageUrlsFromValue(property.images || property.gallery || property.source_data || property.sourceData || []),
+        gallery: extractImageUrlsFromValue(property.gallery || property.images || property.source_data || property.sourceData || []),
+        source_data: property.source_data && typeof property.source_data === 'object' ? property.source_data : (property.sourceData && typeof property.sourceData === 'object' ? property.sourceData : {}),
+        sourceData: property.source_data && typeof property.source_data === 'object' ? property.source_data : (property.sourceData && typeof property.sourceData === 'object' ? property.sourceData : {}),
+        imageIsDefault: Boolean(property.imageIsDefault || !extractImageUrlFromValue(property.image || property.images || property.gallery || property.source_data || property.sourceData || ''))
       };
     }
 
@@ -4328,11 +4631,11 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         municipality_name: cleanText(territory.municipality_name || need.municipality || ''),
         locality: cleanText(need.locality || ''),
         postalCode: cleanText(need.postalCode || need.zipCode || need.zip || need.codigoPostal || need.codigo_postal || ''),
-        bedrooms: Number(need.min_rooms ?? need.bedrooms ?? need.rooms ?? need.habitaciones ?? need.dormitorios) || 0,
-        min_rooms: Number(need.min_rooms ?? need.bedrooms ?? need.rooms ?? need.habitaciones ?? need.dormitorios) || 0,
-        bathrooms: Number(need.min_bathrooms ?? need.bathrooms ?? need.banos ?? need['baños']) || 0,
-        min_bathrooms: Number(need.min_bathrooms ?? need.bathrooms ?? need.banos ?? need['baños']) || 0,
-        surface: Number(need.desired_area_min_m2 ?? need.surface ?? need.surfaceM2 ?? need.superficie ?? need.metros) || 0,
+        bedrooms: parseFlexibleInteger(need.min_rooms ?? need.bedrooms ?? need.rooms ?? need.habitaciones ?? need.dormitorios),
+        min_rooms: parseFlexibleInteger(need.min_rooms ?? need.bedrooms ?? need.rooms ?? need.habitaciones ?? need.dormitorios),
+        bathrooms: parseFlexibleInteger(need.min_bathrooms ?? need.bathrooms ?? need.banos ?? need['baños']),
+        min_bathrooms: parseFlexibleInteger(need.min_bathrooms ?? need.bathrooms ?? need.banos ?? need['baños']),
+        surface: parseFlexibleNumber(need.desired_area_min_m2 ?? need.surface ?? need.surfaceM2 ?? need.superficie ?? need.metros),
         desired_area_min_m2: Number(need.desired_area_min_m2 ?? need.surface ?? need.surfaceM2 ?? need.superficie ?? need.metros) || 0,
         feeSplit: cleanText(need.accepted_commission || need.feeSplit || 'A consultar'),
         description: cleanText(need.description || ''),
@@ -4517,7 +4820,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         <article class="home-carousel-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
           <div>
             <div class="relative h-36 overflow-hidden bg-slate-100">
-              <img src="${cardImage}" data-virtual-type="${escapeHTML(property.type || 'Activo inmobiliario')}" width="640" height="666" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de ${escapeHTML(property.title)}" />
+              <img src="${cardImage}" data-virtual-type="${escapeHTML(property.type || 'Activo inmobiliario')}" width="640" height="666" loading="lazy" decoding="async" onerror="window.handleMarketplaceImageError(this);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de ${escapeHTML(property.title)}" />
               <div class="absolute inset-0 bg-gradient-to-t from-navy/75 via-transparent to-transparent"></div>
               <span class="absolute left-3 bottom-3 px-2 py-1 rounded-full bg-white/90 text-blue text-[10px] font-bold uppercase">${escapeHTML(property.type || 'Activo')}</span>
             </div>
@@ -4827,7 +5130,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         const publicationStatus = String(prop.status || prop.publication_status || 'active').toLowerCase();
         if (publicationStatus !== 'active') return false;
         const price = Number(prop.price) || 0;
-        const haystack = [prop.title, prop.reference, prop.type, prop.ccaa, prop.province, prop.municipality, prop.location, prop.postalCode, prop.description]
+        const haystack = [prop.title, prop.reference, prop.cadastral_reference_masked, prop.type, prop.ccaa, prop.province, prop.municipality, prop.location, prop.postalCode, prop.description]
           .map(value => String(value || '').toLowerCase()).join(' ');
         const withinSelectedMapArea = !marketplaceMapSelectedBounds || !window.L
           || marketplaceMapSelectedBounds.contains(L.latLng(getApproximatePoint(prop, index)));
@@ -6098,6 +6401,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         Precio orientativo: <strong class="text-navy">${formatCurrency(property.price)}</strong><br>
         Honorarios de colaboración: <strong class="text-blue">${escapeHTML(property.fee || 'A consultar')}</strong><br>
         Referencia: <strong class="text-navy">${escapeHTML(property.reference || property.id)}</strong><br>
+        ${property.cadastral_reference_masked ? `Catastro: <strong class="text-navy">${escapeHTML(property.cadastral_reference_masked)}</strong><br>` : ''}
         Plan: <strong class="text-navy">${escapeHTML(marketplacePlanLabel())}</strong><br>
         Accesos disponibles: <strong class="text-blue">${Number(marketplaceAccessState?.remaining_marketplace_accesses || 0)}</strong>${statusError ? `<br><span class="text-amber">${escapeHTML(statusError)}</span>` : ''}`;
       const planMessage = document.getElementById('access-modal-plan-message');
@@ -6826,7 +7130,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
           const copy = descriptions[group.category] || descriptions['Otros'];
           return `<article class="opportunity-category-card" data-category-card data-search="${escapeHTML((group.category + ' ' + copy).toLowerCase())}">
             <div class="opportunity-category-card-image">
-              <img src="${image}" data-virtual-type="${escapeHTML(group.category)}" width="640" height="666" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" alt="Categoria ${escapeHTML(group.category)}" />
+              <img src="${image}" data-virtual-type="${escapeHTML(group.category)}" width="640" height="666" loading="lazy" decoding="async" onerror="window.handleMarketplaceImageError(this);" alt="Categoria ${escapeHTML(group.category)}" />
               <span class="opportunity-category-card-badge">${mode === 'market' ? 'Categoria' : 'Grupo'}</span>
               <span class="opportunity-category-card-count">${group.items.length}</span>
             </div>
@@ -6888,7 +7192,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       const note = variant === 'latest' ? `${location} · C.P. ${postalCode}` : `${getCompatibleNeedsForProperty(prop, 10).length} match · ${location}`;
       return `<article class="opportunity-showcase-card">
         <div class="opportunity-showcase-card-image">
-          <img src="${image}" data-virtual-type="${escapeHTML(prop.type || 'Activo inmobiliario')}" width="640" height="666" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" alt="Imagen de ${escapeHTML(prop.title)}" />
+          <img src="${image}" data-virtual-type="${escapeHTML(prop.type || 'Activo inmobiliario')}" width="640" height="666" loading="lazy" decoding="async" onerror="window.handleMarketplaceImageError(this);" alt="Imagen de ${escapeHTML(prop.title)}" />
           <span class="opportunity-showcase-badge">${escapeHTML(normalizeOpportunityCategory(prop.type))}</span>
           <span class="opportunity-showcase-score">★ ${score}/100</span>
           <div class="absolute left-3 top-3 z-20">${favoriteButton('capture', prop.id, 'Guardar captación en favoritos')}</div>
@@ -6918,7 +7222,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       const note = variant === 'latest' ? `${province} · C.P. ${postalCode}` : `${getCompatiblePropertiesForNeed(need, 10).length} match · ${province}`;
       return `<article class="opportunity-showcase-card">
         <div class="opportunity-showcase-card-image">
-          <img src="${image}" data-virtual-type="${escapeHTML(need.type || 'Demanda activa')}" width="640" height="666" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" alt="Referencia visual de ${escapeHTML(need.title)}" />
+          <img src="${image}" data-virtual-type="${escapeHTML(need.type || 'Demanda activa')}" width="640" height="666" loading="lazy" decoding="async" onerror="window.handleMarketplaceImageError(this);" alt="Referencia visual de ${escapeHTML(need.title)}" />
           <span class="opportunity-showcase-badge">${escapeHTML(normalizeOpportunityCategory(need.type))}</span>
           <span class="opportunity-showcase-score">★ ${score}/100</span>
           <div class="absolute left-3 top-3 z-20">${favoriteButton('demand', need.id, 'Guardar demanda en favoritos')}</div>
@@ -7187,7 +7491,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
               const image = escapeHTML(resolveMarketplaceImage(prop.image, prop.type));
               return `<article class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
                 <div class="aspect-[4/3] relative bg-slate-100">
-                  <img src="${image}" data-virtual-type="${escapeHTML(prop.type)}" width="640" height="666" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de ${escapeHTML(prop.title)}" />
+                  <img src="${image}" data-virtual-type="${escapeHTML(prop.type)}" width="640" height="666" loading="lazy" decoding="async" onerror="window.handleMarketplaceImageError(this);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de ${escapeHTML(prop.title)}" />
                   <div class="absolute inset-0 bg-gradient-to-t from-navy/80 via-transparent to-transparent"></div>
                   <div class="absolute right-3 top-3 z-20">${favoriteButton('capture', prop.id, 'Guardar captación en favoritos')}</div>
                   <span class="absolute left-3 bottom-3 px-2 py-1 rounded-full bg-white/90 text-blue text-[10px] font-black uppercase">${escapeHTML(prop.type)}</span>
@@ -7245,7 +7549,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         const publishedText = formatRelativeTime(prop.date);
         const headerHtml = `
           <div class="aspect-square relative overflow-hidden bg-slate-100">
-            <img src="${marketplaceImage}" data-virtual-type="${escapeHTML(prop.type)}" width="640" height="666" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de ${escapeHTML(prop.title)}" />
+            <img src="${marketplaceImage}" data-virtual-type="${escapeHTML(prop.type)}" width="640" height="666" loading="lazy" decoding="async" onerror="window.handleMarketplaceImageError(this);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de ${escapeHTML(prop.title)}" />
             <div class="absolute inset-0 bg-gradient-to-t from-navy/85 via-navy/15 to-transparent"></div>
             <div class="absolute top-3 left-3 z-20">${favoriteButton('capture', prop.id, 'Guardar captación en favoritos')}</div>
             <div class="absolute top-3 right-3 z-20 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-[10px] font-black shadow-lg ${scoreVisual.classes}" title="${scoreVisual.label}">★ ${scoreVisual.value}/100</div>
@@ -7255,7 +7559,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
 
         const listHeaderHtml = `
           <div class="relative h-32 w-full md:h-auto md:w-44 shrink-0 overflow-hidden bg-slate-100 rounded-2xl md:rounded-r-none">
-            <img src="${marketplaceImage}" data-virtual-type="${escapeHTML(prop.type)}" width="640" height="666" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de ${escapeHTML(prop.title)}" />
+            <img src="${marketplaceImage}" data-virtual-type="${escapeHTML(prop.type)}" width="640" height="666" loading="lazy" decoding="async" onerror="window.handleMarketplaceImageError(this);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de ${escapeHTML(prop.title)}" />
             <div class="absolute inset-0 bg-gradient-to-t from-navy/80 via-transparent to-transparent"></div>
             <div class="absolute top-3 left-3 z-20">${favoriteButton('capture', prop.id, 'Guardar captación en favoritos')}</div>
             <div class="absolute top-3 right-3 z-20 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-[10px] font-black shadow-lg ${scoreVisual.classes}" title="${scoreVisual.label}">★ ${scoreVisual.value}/100</div>
@@ -7266,6 +7570,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         const detailsHtml = `
           <div id="details-${prop.id}" class="hidden pt-3 border-t border-slate-100 text-xs text-slate-600 space-y-2">
             <div><strong>Referencia:</strong> ${escapeHTML(prop.reference)}</div>
+            ${renderCatastroPropertyBlock(prop)}
             <div><strong>Código Postal:</strong> ${escapeHTML(maskPublicPostalCode(prop.postalCode))}</div>
             <div><strong>Características:</strong> ${formatPropertyFeatures(prop)}</div>
             ${renderPropertyNearbyInterests(prop)}
@@ -7397,6 +7702,10 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       const useDefault = mode === 'default';
       wrapper.classList.toggle('hidden', !useDefault);
       if (!useDefault) return;
+      image.onerror = () => {
+        image.onerror = null;
+        image.src = getGeneratedMarketplaceImage(type);
+      };
       image.src = resolveMarketplaceImage('', type);
       image.alt = `Imagen predeterminada para ${type}`;
     }
@@ -7519,8 +7828,14 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       const docs = cleanText(document.getElementById('offer-docs').value);
       const title = cleanText(document.getElementById('offer-title').value);
       const description = cleanText(document.getElementById('offer-description').value);
+      const cadastralReferenceRaw = cleanText(document.getElementById('offer-cadastral-reference')?.value || '');
+      const cadastralReference = normalizeCadastralReference(cadastralReferenceRaw);
       if (title.length < 8) { showToast('El título de la captación debe tener al menos 8 caracteres.', 'info'); return; }
       if (description.length < 30) { showToast('La descripción debe tener al menos 30 caracteres.', 'info'); return; }
+      if (cadastralReferenceRaw && !isCadastralReferenceValid(cadastralReference)) {
+        showToast('La referencia catastral debe tener 20 caracteres alfanumericos.', 'info');
+        return;
+      }
       if (!surface || !price || !fee || !propertyCondition || !mandateType || !urgency || !docs) {
         showToast('Completa superficie, precio, comisión, condición, encargo, urgencia y documentación.', 'info');
         return;
@@ -7577,6 +7892,14 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         sale_urgency: urgency,
         docs,
         documentation_level: docs,
+        cadastral_reference: cadastralReference,
+        cadastral_reference_masked: cadastralReference ? maskCadastralReference(cadastralReference) : '',
+        cadastral_status: cadastralReference ? 'format_ok' : 'not_provided',
+        cadastral_source: cadastralReference ? 'manual' : '',
+        cadastral_last_checked_at: cadastralReference ? Date.now() : 0,
+        catastro_home_url: CATASTRO_HOME_URL,
+        catastro_search_url: CATASTRO_HOME_URL,
+        catastro_map_url: CATASTRO_HOME_URL,
         score: calculatePublicationOpportunityScore({
           title,
           description,
@@ -7605,7 +7928,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       const previewImage = escapeHTML(resolveMarketplaceImage(tempPropertyToPublish.image, tempPropertyToPublish.type));
       const headerHtml = `
         <div class="aspect-square relative overflow-hidden flex flex-col justify-end p-6 bg-slate-100">
-          <img src="${previewImage}" data-virtual-type="${escapeHTML(tempPropertyToPublish.type)}" width="640" height="666" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de portada" />
+          <img src="${previewImage}" data-virtual-type="${escapeHTML(tempPropertyToPublish.type)}" width="640" height="666" loading="lazy" decoding="async" onerror="window.handleMarketplaceImageError(this);" class="absolute inset-0 w-full h-full object-cover" alt="Imagen de portada" />
           <div class="absolute inset-0 bg-gradient-to-t from-navy/90 via-navy/30 to-transparent"></div>
           <h3 class="text-2xl font-extrabold text-white leading-tight relative z-10">${tempPropertyToPublish.title}</h3>
         </div>
@@ -7722,6 +8045,9 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         const form = document.querySelector('#page-ofrecer-captacion form');
         if (form) form.reset();
         updatePropertyFormDynamics('offer');
+        const cadastralInput = document.getElementById('offer-cadastral-reference');
+        if (cadastralInput) cadastralInput.value = '';
+        updateOfferCatastroPreview();
 
         const statusText = document.getElementById('file-upload-status');
         const previewZone = document.getElementById('file-preview-zone');
@@ -8492,27 +8818,47 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
 
     function extractXmlImageUrls(node) {
       const urls = [];
-      const selectors = ['image', 'imagen', 'photo', 'foto', 'picture', 'pictures', 'photos'];
-      node.querySelectorAll(selectors.join(',')).forEach(imageNode => {
-        const direct = [
-          imageNode.querySelector('url')?.textContent?.trim(),
-          imageNode.querySelector('src')?.textContent?.trim(),
-          imageNode.querySelector('href')?.textContent?.trim(),
-          imageNode.querySelector('link')?.textContent?.trim(),
-          imageNode.querySelector('file')?.textContent?.trim(),
-          imageNode.querySelector('archivo')?.textContent?.trim(),
-          imageNode.querySelector('ruta')?.textContent?.trim(),
-          imageNode.querySelector('path')?.textContent?.trim(),
-          imageNode.querySelector('source')?.textContent?.trim(),
-          imageNode.getAttribute('url'),
-          imageNode.getAttribute('src'),
-          imageNode.getAttribute('href'),
-          imageNode.getAttribute('file'),
-          imageNode.textContent?.trim()
-        ].find(Boolean);
-        if (direct) urls.push(direct);
-      });
-      return [...new Set(urls.map(url => cleanText(url)).filter(Boolean))];
+      if (!node) return urls;
+      const allowedTags = ['image', 'imagen', 'photo', 'foto', 'picture', 'pictures', 'photos', 'media', 'enclosure', 'attachment', 'content', 'attachment_url', 'media_url'];
+      const urlAttrs = ['url', 'src', 'href', 'link', 'file', 'archivo', 'ruta', 'path', 'source', 'download', 'guid', 'attachment_url', 'media_url'];
+      const walk = currentNode => {
+        if (!currentNode || !currentNode.children) return;
+        Array.from(currentNode.children).forEach(child => {
+          const rawTag = String(child.tagName || '').toLowerCase();
+          const tag = rawTag.includes(':') ? rawTag.split(':').pop() : rawTag;
+          const isCandidate = allowedTags.includes(tag) || rawTag.includes('image') || rawTag.includes('photo') || rawTag.includes('media') || rawTag.includes('enclosure') || rawTag.includes('attachment');
+          if (isCandidate) {
+            const direct = [
+              child.querySelector?.('url')?.textContent?.trim(),
+              child.querySelector?.('src')?.textContent?.trim(),
+              child.querySelector?.('href')?.textContent?.trim(),
+              child.querySelector?.('link')?.textContent?.trim(),
+              child.querySelector?.('file')?.textContent?.trim(),
+              child.querySelector?.('archivo')?.textContent?.trim(),
+              child.querySelector?.('ruta')?.textContent?.trim(),
+              child.querySelector?.('path')?.textContent?.trim(),
+              child.querySelector?.('source')?.textContent?.trim(),
+              child.getAttribute?.('url'),
+              child.getAttribute?.('src'),
+              child.getAttribute?.('href'),
+              child.getAttribute?.('file'),
+              child.getAttribute?.('attachment_url'),
+              child.getAttribute?.('media_url'),
+              child.textContent?.trim()
+            ].find(Boolean);
+            if (direct) urls.push(cleanText(direct));
+            Array.from(child.attributes || []).forEach(attr => {
+              if (urlAttrs.includes(String(attr.name || '').toLowerCase())) {
+                const attrValue = cleanText(attr.value || '');
+                if (attrValue) urls.push(attrValue);
+              }
+            });
+          }
+          walk(child);
+        });
+      };
+      walk(node);
+      return [...new Set(urls.filter(Boolean))];
     }
 
     function parseXmlProperties(xmlText, xmlUrl) {
@@ -8542,15 +8888,16 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
         const municipality = getXmlNodeText(node, ['municipality', 'municipio', 'city', 'localidad']) || province;
         const locality = getXmlNodeText(node, ['neighborhood', 'barrio', 'zona']);
         const postalCode = getXmlNodeText(node, ['postal_code', 'postalCode', 'codigo_postal', 'codigopostal', 'cp', 'zip', 'zipcode']);
-        const bedrooms = Number(getXmlNodeText(node, ['bedrooms', 'habitaciones', 'dormitorios', 'rooms'])) || 0;
-        const bathrooms = Number(getXmlNodeText(node, ['bathrooms', 'banos', 'baños', 'aseos'])) || 0;
-        const surface = Number(String(getXmlNodeText(node, ['surface', 'surface_m2', 'superficie', 'metros', 'm2'])).replace(/[^0-9.,-]/g, '').replace(',', '.')) || 0;
+        const bedrooms = parseFlexibleInteger(getXmlNodeText(node, ['bedrooms', 'habitaciones', 'dormitorios', 'rooms']));
+        const bathrooms = parseFlexibleInteger(getXmlNodeText(node, ['bathrooms', 'banos', 'baños', 'aseos']));
+        const surface = parseFlexibleNumber(getXmlNodeText(node, ['surface', 'surface_m2', 'superficie', 'metros', 'm2']));
         const description = sanitizeXmlPublicText(getXmlNodeText(node, ['description', 'descripcion', 'observations', 'observaciones']));
         const title = sanitizeXmlPublicText(getXmlNodeText(node, ['title', 'titulo', 'name', 'nombre'])) || `Propiedad importada en ${municipality}`;
         const type = getXmlNodeText(node, ['type', 'tipo', 'property_type', 'tipo_inmueble']) || 'Activo inmobiliario';
-        const rawPrice = getXmlNodeText(node, ['price', 'precio', 'importe']).replace(/[^0-9.,-]/g, '').replace(/\./g, '').replace(',', '.');
-        const images = extractXmlImageUrls(node);
-        const image = images[0] || getXmlNodeText(node, ['image', 'imagen', 'photo', 'foto', 'picture']);
+        const rawPrice = getXmlNodeText(node, ['price', 'precio', 'importe']);
+        const sourceData = xmlNodeToObject(node);
+        const images = [...new Set([...extractXmlImageUrls(node), ...extractImageUrlsFromValue(sourceData, [])])].filter(Boolean);
+        const image = images[0] || extractImageUrlFromValue(getXmlNodeText(node, ['image', 'imagen', 'photo', 'foto', 'picture']));
         const fee = getXmlNodeText(node, ['fee', 'comision', 'honorarios']) || 'A consultar';
         return normalizePropertyRecord({
           id: `xml-${feedId}-${reference}`,
@@ -8565,11 +8912,11 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
           bathrooms,
           surface,
           neighborhood: `${municipality}${locality ? ' · ' + locality : ''}`,
-          price: Number(rawPrice) || 0,
+          price: parseFlexibleNumber(rawPrice),
           fee,
           images,
           gallery: images,
-          sourceData: xmlNodeToObject(node),
+          sourceData,
           score: 80,
           rehab: false,
           exclusive: false,
@@ -9894,7 +10241,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       if (type === 'capture') {
         const property = privatePropertyById(id); if (!property) return '';
         const image = resolveMarketplaceImage(property.image, property.type);
-        return `<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div class="relative ${compact ? 'h-24' : 'h-36'}"><img src="${image}" data-virtual-type="${escapeHTML(property.type)}" width="640" height="666" onerror="this.onerror=null;this.src=window.getVirtualMarketplaceImage(this.dataset.virtualType);" class="absolute inset-0 w-full h-full object-cover" alt="${escapeHTML(property.title)}" loading="lazy" decoding="async" /></div><div class="p-4"><span class="text-[10px] font-black text-blue">Captación · ${escapeHTML(property.reference || property.id)}</span><strong class="block text-sm text-navy mt-1 line-clamp-2">${escapeHTML(property.title)}</strong><span class="block text-[11px] text-slate-500 mt-1">${escapeHTML(property.province || property.location)} · ${formatCurrency(property.price)}</span><div class="flex flex-wrap gap-2 mt-3"><button onclick="openMapPropertyCard('${property.id}')" class="px-3 py-2 rounded-lg bg-blue text-white text-[10px] font-bold">Abrir ficha</button><button onclick="toggleFavorite('capture','${property.id}')" class="px-3 py-2 rounded-lg border border-red-200 text-red-600 text-[10px] font-bold">Eliminar</button></div></div></article>`;
+        return `<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div class="relative ${compact ? 'h-24' : 'h-36'}"><img src="${image}" data-virtual-type="${escapeHTML(property.type)}" width="640" height="666" onerror="window.handleMarketplaceImageError(this);" class="absolute inset-0 w-full h-full object-cover" alt="${escapeHTML(property.title)}" loading="lazy" decoding="async" /></div><div class="p-4"><span class="text-[10px] font-black text-blue">Captación · ${escapeHTML(property.reference || property.id)}</span><strong class="block text-sm text-navy mt-1 line-clamp-2">${escapeHTML(property.title)}</strong><span class="block text-[11px] text-slate-500 mt-1">${escapeHTML(property.province || property.location)} · ${formatCurrency(property.price)}</span><div class="flex flex-wrap gap-2 mt-3"><button onclick="openMapPropertyCard('${property.id}')" class="px-3 py-2 rounded-lg bg-blue text-white text-[10px] font-bold">Abrir ficha</button><button onclick="toggleFavorite('capture','${property.id}')" class="px-3 py-2 rounded-lg border border-red-200 text-red-600 text-[10px] font-bold">Eliminar</button></div></div></article>`;
       }
       if (type === 'demand') {
         const need = privateNeedById(id); if (!need) return '';
@@ -9920,14 +10267,14 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
     function renderPrivateOffers() {
       const tbody = document.getElementById('private-offers-table'); if (!tbody) return;
       const search = normalizeMatchText(document.getElementById('private-offers-search')?.value || '');
-      const list = privateProperties().filter(property => !search || normalizeMatchText(`${property.reference} ${property.title} ${property.province} ${property.municipality} ${property.postalCode} ${property.status} ${(property.missing_fields||[]).join(' ')}`).includes(search));
+      const list = privateProperties().filter(property => !search || normalizeMatchText(`${property.reference} ${property.cadastral_reference_masked || ''} ${property.title} ${property.province} ${property.municipality} ${property.postalCode} ${property.status} ${(property.missing_fields||[]).join(' ')}`).includes(search));
       const summary = document.getElementById('private-offers-summary'); if (summary) summary.innerHTML = [ ['Publicadas',list.length,'text-blue'], ['Con solicitudes',(getPrivateDashboardState().requestsReceived||[]).length,'text-amber'], ['Coincidencias',list.reduce((sum,item)=>sum+getCompatibleNeedsForProperty(item,10).length,0),'text-green'], ['Cerradas',closedOperations.length,'text-navy'] ].map(([label,value,color])=>privateKpiCard(label,value,color,'offers')).join('');
       tbody.innerHTML = list.slice(0, 80).map(property => {
         const matches=getCompatibleNeedsForProperty(property,10);
         const status = property.status || 'active';
         const missing = Array.isArray(property.missing_fields) ? property.missing_fields : [];
         const statusClass = status === 'pending_review' ? 'bg-amber-light text-amber' : status === 'paused' ? 'bg-slate-100 text-slate-500' : status === 'deleted' ? 'bg-red-50 text-red-600' : 'bg-green-light text-green';
-        return `<tr class="border-b border-slate-100"><td class="px-4 py-3"><strong class="text-blue">${escapeHTML(property.reference || property.id)}</strong></td><td class="px-4 py-3"><strong class="block text-xs text-navy">${escapeHTML(property.title || property.reference || 'Propiedad importada')}</strong><span class="text-[10px] text-slate-500">${escapeHTML(property.province || property.location || 'Sin provincia')} · ${escapeHTML(property.municipality || property.city || 'Sin municipio')}</span>${missing.length ? `<span class="block mt-1 text-[10px] text-amber">Faltan: ${escapeHTML(missing.join(', '))}</span>` : ''}</td><td class="px-4 py-3 font-bold text-navy">${formatCurrency(property.price)}</td><td class="px-4 py-3"><span class="private-status-pill ${Number(property.score)>=85?'bg-green-light text-green':'bg-blue-light text-blue'}">★ ${escapeHTML(property.score || 80)}/100</span></td><td class="px-4 py-3"><span class="private-status-pill bg-blue-light text-blue">${matches.length}</span></td><td class="px-4 py-3"><span class="private-status-pill ${statusClass}">${status === 'pending_review' ? 'Pendiente revisión' : status === 'paused' ? 'Pausada' : status === 'deleted' ? 'Eliminada' : 'Activa'}</span></td><td class="px-4 py-3"><div class="flex flex-wrap gap-2"><button onclick="editImportedProperty('${property.id}')" class="text-[11px] font-bold text-blue">Editar</button><button onclick="updateImportedPropertyStatus('${property.id}','${status === 'paused' ? 'active' : 'paused'}')" class="text-[11px] font-bold text-navy">${status === 'paused' ? 'Reactivar' : 'Pausar'}</button>${status === 'pending_review' ? `<button onclick="publishImportedProperty('${property.id}')" class="text-[11px] font-bold text-green">Publicar</button>` : ''}<button onclick="updateImportedPropertyStatus('${property.id}','deleted')" class="text-[11px] font-bold text-red-600">Borrar</button></div></td></tr>`;
+        return `<tr class="border-b border-slate-100"><td class="px-4 py-3"><strong class="text-blue">${escapeHTML(property.reference || property.id)}</strong></td><td class="px-4 py-3"><strong class="block text-xs text-navy">${escapeHTML(property.title || property.reference || 'Propiedad importada')}</strong><span class="text-[10px] text-slate-500">${escapeHTML(property.province || property.location || 'Sin provincia')} · ${escapeHTML(property.municipality || property.city || 'Sin municipio')}</span>${property.cadastral_reference_masked ? `<span class="block mt-1 text-[10px] text-blue">Catastro: ${escapeHTML(property.cadastral_reference_masked)}</span>` : ''}${missing.length ? `<span class="block mt-1 text-[10px] text-amber">Faltan: ${escapeHTML(missing.join(', '))}</span>` : ''}</td><td class="px-4 py-3 font-bold text-navy">${formatCurrency(property.price)}</td><td class="px-4 py-3"><span class="private-status-pill ${Number(property.score)>=85?'bg-green-light text-green':'bg-blue-light text-blue'}">★ ${escapeHTML(property.score || 80)}/100</span></td><td class="px-4 py-3"><span class="private-status-pill bg-blue-light text-blue">${matches.length}</span></td><td class="px-4 py-3"><span class="private-status-pill ${statusClass}">${status === 'pending_review' ? 'Pendiente revisión' : status === 'paused' ? 'Pausada' : status === 'deleted' ? 'Eliminada' : 'Activa'}</span></td><td class="px-4 py-3"><div class="flex flex-wrap gap-2"><button onclick="editImportedProperty('${property.id}')" class="text-[11px] font-bold text-blue">Editar</button><button onclick="updateImportedPropertyStatus('${property.id}','${status === 'paused' ? 'active' : 'paused'}')" class="text-[11px] font-bold text-navy">${status === 'paused' ? 'Reactivar' : 'Pausar'}</button>${status === 'pending_review' ? `<button onclick="publishImportedProperty('${property.id}')" class="text-[11px] font-bold text-green">Publicar</button>` : ''}<button onclick="updateImportedPropertyStatus('${property.id}','deleted')" class="text-[11px] font-bold text-red-600">Borrar</button></div></td></tr>`;
       }).join('') || `<tr><td colspan="7" class="p-5 text-xs text-slate-500">No hay captaciones con esos criterios.</td></tr>`;
     }
 

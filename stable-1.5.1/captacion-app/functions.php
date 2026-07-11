@@ -478,15 +478,105 @@ function captacion_app_media_url($relative_path) {
         return $fallback_url;
     }
 
+    $attachment_url = captacion_app_media_attachment_url($relative_path, $filename);
+    if (!$attachment_url) {
+        foreach (captacion_app_media_filename_aliases($relative_path) as $alias_filename) {
+            $attachment_url = captacion_app_media_attachment_url($relative_path, $alias_filename);
+            if ($attachment_url) {
+                break;
+            }
+        }
+    }
+    if ($attachment_url) {
+        $cache[$relative_path] = $attachment_url;
+        return $attachment_url;
+    }
+
+    $cache[$relative_path] = $fallback_url;
+    return $fallback_url;
+}
+
+function captacion_app_media_filename_aliases($relative_path) {
+    $key = strtolower(str_replace('\\', '/', ltrim((string) $relative_path, '/')));
+    $aliases = array(
+        'media/logo-compra-captacion.png' => array(
+            'Logo-Compra-Captacion_transparente.png',
+            'Logo-Compra-Captacion_01_transparente.png',
+            'Logo Compra Captación_01_transparente.png',
+            'Logo Compra Captacion_01_transparente.png',
+            'Logo Compra Captación_01.png',
+            'Logo Compra Captacion_01.png',
+            'Logo Compra Captación_transparente.png',
+            'Logo Compra Captacion_transparente.png',
+        ),
+        'media/favicon-compra-captacion.png' => array(
+            'favicon_01.png',
+            'favicon-compra-captacion.png',
+        ),
+        'media/video-explicativo-captacion-app.mp4' => array(
+            'videowebdecaptacion.mp4',
+            'video-explicativo-captacion-app.mp4',
+        ),
+        'media/poster-video-captacion-app.webp' => array(
+            'poster-video-captacion-app.webp',
+        ),
+        'media/property-defaults/piso-default.jpg' => array(
+            'Piso imagen predeterminada.png',
+            'Piso imagen predeterminada.jpg',
+            'piso-default.jpg',
+        ),
+        'media/property-defaults/casa-chalet-default.jpg' => array(
+            'Casa Chalet imagen predeterminada.png',
+            'Casa Chalet imagen predeterminada.jpg',
+            'casa-chalet-default.jpg',
+        ),
+        'media/property-defaults/comercial-default.jpg' => array(
+            'Comercial imagen predeterminada.png',
+            'Comercial imagen predeterminada.jpg',
+            'comercial-default.jpg',
+        ),
+        'media/property-defaults/edificio-default.jpg' => array(
+            'Edificio imagen predeterminada.png',
+            'Edificio imagen predeterminada.jpg',
+            'edificio-default.jpg',
+        ),
+        'media/property-defaults/nave-default.jpg' => array(
+            'Nave imagen predeterminada.png',
+            'Nave imagen predeterminada.jpg',
+            'nave-default.jpg',
+        ),
+        'media/property-defaults/oficina-default.jpg' => array(
+            'Oficina imagen predeterminada.png',
+            'Oficina imagen predeterminada.jpg',
+            'oficina-default.jpg',
+        ),
+        'media/property-defaults/terreno-default.jpg' => array(
+            'Terreno imagen predeterminada.png',
+            'Terreno imagen predeterminada.jpg',
+            'terreno-default.jpg',
+        ),
+    );
+    return $aliases[$key] ?? array();
+}
+
+function captacion_app_media_attachment_url($relative_path, $filename = '') {
+    $relative_path = ltrim((string) $relative_path, '/');
+    $filename = $filename !== '' ? basename((string) $filename) : basename($relative_path);
+    if ($filename === '') {
+        return '';
+    }
+    $target_filename = sanitize_file_name($filename);
+    $target_stem = sanitize_file_name(pathinfo($filename, PATHINFO_FILENAME));
+
     $attachments = get_posts(array(
         'post_type' => 'attachment',
         'post_status' => 'inherit',
-        'posts_per_page' => 20,
+        'posts_per_page' => -1,
         'fields' => 'ids',
         'meta_query' => array(
             array(
                 'key' => '_wp_attached_file',
-                'value' => $filename,
+                'value' => $target_filename,
                 'compare' => 'LIKE',
             ),
         ),
@@ -494,18 +584,29 @@ function captacion_app_media_url($relative_path) {
 
     foreach ($attachments as $attachment_id) {
         $attached_file = (string) get_post_meta($attachment_id, '_wp_attached_file', true);
-        if (basename($attached_file) !== $filename) {
+        $attachment_title = sanitize_file_name((string) get_the_title($attachment_id));
+        $attachment_slug = sanitize_file_name((string) get_post_field('post_name', $attachment_id));
+        $attachment_guid = basename((string) wp_get_attachment_url($attachment_id));
+        $attachment_file = sanitize_file_name(basename($attached_file));
+        $attachment_stem = sanitize_file_name(pathinfo($attached_file, PATHINFO_FILENAME));
+        $attachment_guid_stem = sanitize_file_name(pathinfo($attachment_guid, PATHINFO_FILENAME));
+        if (
+            $attachment_file !== $target_filename
+            && $attachment_stem !== $target_stem
+            && $attachment_title !== $target_stem
+            && $attachment_slug !== $target_stem
+            && sanitize_file_name($attachment_guid) !== $target_filename
+            && $attachment_guid_stem !== $target_stem
+        ) {
             continue;
         }
         $url = wp_get_attachment_url($attachment_id);
         if ($url) {
-            $cache[$relative_path] = $url;
             return $url;
         }
     }
 
-    $cache[$relative_path] = $fallback_url;
-    return $fallback_url;
+    return '';
 }
 
 function captacion_app_output_theme_favicon() {
@@ -2066,6 +2167,61 @@ function captacion_app_positive_number($value, $field_label) {
     return $number;
 }
 
+function captacion_app_catastro_base_url() {
+    return 'https://www1.sedecatastro.gob.es/';
+}
+
+function captacion_app_catastro_normalize_reference($reference) {
+    $reference = strtoupper(preg_replace('/[^A-Z0-9]/', '', sanitize_text_field((string) $reference)));
+    return $reference;
+}
+
+function captacion_app_catastro_is_valid_reference($reference) {
+    return (bool) preg_match('/^[A-Z0-9]{20}$/', captacion_app_catastro_normalize_reference($reference));
+}
+
+function captacion_app_catastro_mask_reference($reference) {
+    $reference = captacion_app_catastro_normalize_reference($reference);
+    if ($reference === '') {
+        return '';
+    }
+
+    if (strlen($reference) < 20) {
+        return substr($reference, 0, 4) . '...' . substr($reference, -3);
+    }
+
+    return implode(' ', array(
+        substr($reference, 0, 4),
+        substr($reference, 4, 4),
+        substr($reference, 8, 4),
+        substr($reference, 12, 4),
+        substr($reference, 16, 4),
+    ));
+}
+
+function captacion_app_catastro_hash_reference($reference) {
+    $reference = captacion_app_catastro_normalize_reference($reference);
+    if ($reference === '') {
+        return '';
+    }
+
+    return hash_hmac('sha256', $reference, wp_salt('auth'));
+}
+
+function captacion_app_catastro_links($reference = '', $province = '', $municipality = '') {
+    $home = captacion_app_catastro_base_url();
+    $reference = captacion_app_catastro_normalize_reference($reference);
+
+    return array(
+        'home' => $home,
+        'search' => $home,
+        'map' => $home,
+        'reference' => $reference,
+        'province' => sanitize_text_field((string) $province),
+        'municipality' => sanitize_text_field((string) $municipality),
+    );
+}
+
 function captacion_app_sanitize_real_estate_payload($record_type, $payload) {
     $payload = is_array($payload) ? $payload : array();
     $type = captacion_app_normalize_property_type($payload['property_type'] ?? $payload['type'] ?? '');
@@ -2125,6 +2281,20 @@ function captacion_app_sanitize_real_estate_payload($record_type, $payload) {
     $clean['bathrooms'] = $bathrooms;
 
     if ($is_property) {
+        $cadastral_reference = captacion_app_catastro_normalize_reference($payload['cadastral_reference'] ?? $payload['cadastralRef'] ?? $payload['cadastre_reference'] ?? '');
+        if ($cadastral_reference !== '' && !captacion_app_catastro_is_valid_reference($cadastral_reference)) {
+            return new WP_Error('captacion_invalid_cadastral_reference', 'La referencia catastral debe tener 20 caracteres alfanumericos.', array('status' => 422));
+        }
+        $clean['cadastral_reference'] = $cadastral_reference;
+        $clean['cadastral_reference_masked'] = $cadastral_reference ? captacion_app_catastro_mask_reference($cadastral_reference) : '';
+        $clean['cadastral_reference_hash'] = $cadastral_reference ? captacion_app_catastro_hash_reference($cadastral_reference) : '';
+        $clean['cadastral_status'] = $cadastral_reference ? 'format_ok' : 'not_provided';
+        $clean['cadastral_source'] = sanitize_key($payload['cadastral_source'] ?? '');
+        $clean['cadastral_last_checked_at'] = $cadastral_reference ? absint($payload['cadastral_last_checked_at'] ?? time()) : 0;
+        $catastro_links = captacion_app_catastro_links($cadastral_reference, $payload['province_name'] ?? $payload['province'] ?? '', $payload['municipality_name'] ?? $payload['municipality'] ?? '');
+        $clean['catastro_home_url'] = esc_url_raw($catastro_links['home']);
+        $clean['catastro_search_url'] = esc_url_raw($catastro_links['search']);
+        $clean['catastro_map_url'] = esc_url_raw($catastro_links['map']);
         $legacy_rehab = filter_var($payload['necesita_reforma_integral'] ?? $payload['rehab'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $condition = captacion_app_enum_value($payload['property_condition'] ?? ($legacy_rehab ? 'Reforma integral' : ''), captacion_app_conditions_for_type($type), 'condición de la propiedad');
         $mandate = captacion_app_enum_value($payload['mandate_type'] ?? '', captacion_app_offer_mandates(), 'tipo de encargo');
@@ -2478,6 +2648,7 @@ function captacion_app_property_marketplace_missing_fields($payload) {
         'description' => array('description'),
         'owner' => array('owner_user_id', 'user_id'),
         'source' => array('data_origin', 'source_type'),
+        'postal_code' => array('postalCode', 'postcode', 'zipCode', 'zip', 'codigoPostal', 'codigo_postal'),
         'rooms' => array('rooms', 'bedrooms'),
         'bathrooms' => array('bathrooms', 'baths'),
         'surface' => array('surface', 'total_area_m2', 'built_area'),
@@ -2516,6 +2687,31 @@ function captacion_app_prepare_imported_property_payload($payload, $context) {
     $payload['publication_status'] = empty($missing) ? 'active' : 'pending_review';
     $payload['status'] = empty($missing) ? 'active' : 'pending_review';
     return $payload;
+}
+
+function captacion_app_merge_non_empty_payload($primary, $fallback) {
+    if (!is_array($primary)) $primary = array();
+    if (!is_array($fallback)) $fallback = array();
+    $merged = $fallback;
+    foreach ($primary as $key => $value) {
+        if (is_array($value) && isset($fallback[$key]) && is_array($fallback[$key])) {
+            $merged[$key] = captacion_app_merge_non_empty_payload($value, $fallback[$key]);
+            continue;
+        }
+        if (is_array($value)) {
+            $merged[$key] = $value;
+            continue;
+        }
+        $scalar = is_string($value) ? trim($value) : $value;
+        if ($scalar === '' || $scalar === null) {
+            if (!array_key_exists($key, $merged)) {
+                $merged[$key] = $value;
+            }
+            continue;
+        }
+        $merged[$key] = $value;
+    }
+    return $merged;
 }
 
 function captacion_app_import_records_from_xml($parsed, $overrides) {
@@ -2592,13 +2788,24 @@ function captacion_app_import_records_from_xml($parsed, $overrides) {
         if ($existing_id) {
             $existing_payload_json = $wpdb->get_var($wpdb->prepare("SELECT payload FROM {$table} WHERE id = %d", absint($existing_id)));
             $existing_payload = json_decode($existing_payload_json ?: '{}', true);
-            if (is_array($existing_payload) && !empty($existing_payload['manual_override']) && $record_type === 'property') {
-                $payload_raw['xml_update_pending'] = true;
-                $payload_raw['xml_pending_payload'] = $row['payload'];
-                $payload_raw = array_merge($payload_raw, $existing_payload);
-                $payload_raw['xml_update_pending'] = true;
-                $row['payload'] = wp_json_encode($payload_raw);
-                $row['status'] = sanitize_text_field($existing_payload['status'] ?? $row['status']);
+            if ($record_type === 'property' && is_array($existing_payload)) {
+                if (!empty($existing_payload['manual_override'])) {
+                    $payload_raw['xml_update_pending'] = true;
+                    $payload_raw['xml_pending_payload'] = $row['payload'];
+                    $payload_raw = array_merge($payload_raw, $existing_payload);
+                    $payload_raw['xml_update_pending'] = true;
+                    $row['payload'] = wp_json_encode($payload_raw);
+                    $row['status'] = sanitize_text_field($existing_payload['status'] ?? $row['status']);
+                } else {
+                    $payload_raw = captacion_app_merge_non_empty_payload($payload_raw, $existing_payload);
+                    $row['payload'] = wp_json_encode($payload_raw);
+                    if (empty($row['title']) && !empty($existing_payload['title'])) {
+                        $row['title'] = sanitize_text_field($existing_payload['title']);
+                    }
+                    if (empty($row['status']) && !empty($existing_payload['status'])) {
+                        $row['status'] = sanitize_text_field($existing_payload['status']);
+                    }
+                }
             }
         }
         $result = captacion_app_upsert_record($row);
@@ -2721,8 +2928,8 @@ function captacion_app_xml_operation_value($operation, $price_freq = '') {
 }
 
 function captacion_app_xml_first_image($node) {
-    $names = array('images', 'image', 'fotos', 'foto', 'photos', 'photo', 'pictures', 'picture', 'galeria', 'gallery', 'media', 'multimedia', 'url', 'URL', 'Url');
-    $url_keys = array('url', 'URL', 'Url', 'src', 'href', 'link', 'file', 'archivo', 'ruta', 'path', 'source', 'download');
+    $names = array('images', 'image', 'fotos', 'foto', 'photos', 'photo', 'pictures', 'picture', 'galeria', 'gallery', 'media', 'multimedia', 'enclosure', 'attachment', 'content', 'attachment_url', 'media_url');
+    $url_keys = array('url', 'URL', 'Url', 'src', 'href', 'link', 'file', 'archivo', 'ruta', 'path', 'source', 'download', 'guid', 'attachment_url', 'media_url');
     foreach ($names as $name) {
         if (!isset($node->{$name})) continue;
         $value = '';
@@ -2797,12 +3004,36 @@ function captacion_app_xml_node_to_array($node) {
 
 function captacion_app_xml_image_urls($node) {
     $urls = array();
-    $image_tags = array('image', 'imagen', 'photo', 'foto', 'picture', 'pictures', 'photos');
-    $url_keys = array('url', 'URL', 'Url', 'src', 'href', 'link', 'file', 'archivo', 'ruta', 'path', 'source', 'download');
+    $image_tags = array('image', 'imagen', 'photo', 'foto', 'picture', 'pictures', 'photos', 'media', 'enclosure', 'attachment', 'content', 'attachment_url', 'media_url');
+    $url_keys = array('url', 'URL', 'Url', 'src', 'href', 'link', 'file', 'archivo', 'ruta', 'path', 'source', 'download', 'guid', 'attachment_url', 'media_url');
     foreach ($node->xpath('.//*') ?: array() as $child) {
         $tag = strtolower($child->getName());
-        if (!in_array($tag, $image_tags, true)) continue;
+        $tag = strpos($tag, ':') !== false ? substr($tag, strrpos($tag, ':') + 1) : $tag;
+        if (!in_array($tag, $image_tags, true) && strpos($tag, 'image') === false && strpos($tag, 'photo') === false && strpos($tag, 'media') === false && strpos($tag, 'attachment') === false && strpos($tag, 'enclosure') === false) continue;
         $value = '';
+        if ($child->children()->count()) {
+            foreach ($child->children() as $grandchild) {
+                $nested_tag = strtolower($grandchild->getName());
+                $nested_tag = strpos($nested_tag, ':') !== false ? substr($nested_tag, strrpos($nested_tag, ':') + 1) : $nested_tag;
+                if (in_array($nested_tag, $image_tags, true)) {
+                    continue;
+                }
+                $nested_value = captacion_app_xml_nested_child_value($grandchild, $url_keys, '');
+                if (!$nested_value) {
+                    foreach ($url_keys as $key) {
+                        $att = (string) $grandchild[$key];
+                        if ($att !== '') { $nested_value = $att; break; }
+                    }
+                }
+                if (!$nested_value) {
+                    $nested_value = trim((string) $grandchild);
+                }
+                if ($nested_value) {
+                    $value = $nested_value;
+                    break;
+                }
+            }
+        }
         foreach ($url_keys as $key) {
             if (isset($child->{$key}) && trim((string) $child->{$key}) !== '') { $value = trim((string) $child->{$key}); break; }
         }
@@ -2908,6 +3139,8 @@ function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
         $surface = captacion_app_xml_number_value(captacion_app_xml_child_value($node, array('surface', 'area', 'built_area', 'size', 'superficie', 'metros', 'm2', 'total_area'), captacion_app_xml_nested_child_value($node, array('surface_area/built', 'surface_area/plot', 'surface_area'), '0')));
         $municipality = captacion_app_xml_child_value($node, array('city', 'municipality', 'town', 'locality', 'ciudad', 'poblacion', 'localidad', 'municipio'), captacion_app_xml_nested_child_value($node, array('location/town', 'location/city', 'location/locality'), ''));
         $province = captacion_app_xml_child_value($node, array('province', 'region', 'state', 'provincia'), captacion_app_xml_nested_child_value($node, array('location/province', 'location/region'), ''));
+        $postal_code = captacion_app_xml_child_value($node, array('postcode', 'postal_code', 'postalCode', 'zip', 'zipcode', 'codigo_postal', 'cp', 'codigopostal', 'postal'), captacion_app_xml_nested_child_value($node, array('location/postcode', 'location/postal_code', 'location/postalCode', 'location/zip', 'location/zipcode', 'location/codigo_postal', 'location/cp'), ''));
+        $locality = captacion_app_xml_child_value($node, array('zone', 'area', 'district', 'neighborhood', 'barrio', 'zona', 'quarter', 'ward'), captacion_app_xml_nested_child_value($node, array('location/zone', 'location/area', 'location/district', 'location/neighborhood', 'location/barrio', 'location/zona'), ''));
         if (!$title) $title = trim(($description ? mb_substr(sanitize_text_field($description), 0, 80) : $type) . ($municipality ? ' en ' . $municipality : '') . ($external_id ? ' - Ref. ' . $external_id : ''));
         if (!$title) $title = 'Propiedad importada XML';
         $operation = captacion_app_xml_operation_value(captacion_app_xml_child_value($node, array('operation', 'transaction', 'offer_type', 'operacion', 'tipo_operacion', 'transaction_type'), ''), captacion_app_xml_child_value($node, array('price_freq', 'price_period'), ''));
@@ -2928,6 +3161,15 @@ function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
             'country' => captacion_app_xml_child_value($node, array('country'), captacion_app_xml_nested_child_value($node, array('location/country'), '')),
             'province' => $province,
             'municipality' => $municipality,
+            'postalCode' => $postal_code,
+            'postal_code' => $postal_code,
+            'postcode' => $postal_code,
+            'zipCode' => $postal_code,
+            'zip' => $postal_code,
+            'codigoPostal' => $postal_code,
+            'locality' => $locality,
+            'zone' => $locality,
+            'neighborhood' => $locality,
             'address_approx' => captacion_app_xml_child_value($node, array('address', 'street', 'location_detail'), captacion_app_xml_nested_child_value($node, array('location/address'), '')),
             'surface' => $surface,
             'total_area_m2' => $surface,
