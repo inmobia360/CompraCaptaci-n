@@ -52,4 +52,3 @@ Datos provisionales exclusivos de staging:
 4. Excluir los scripts esenciales de Complianz de retraso, combinación o minificación si el optimizador los altera.
 5. Vaciar caché de WordPress, Hostinger y CDN después del despliegue.
 6. Verificar que `/cookies/` muestra el shortcode `[cmplz-document type="cookie-statement" region="eu"]` y que “Configurar cookies” abre las preferencias.
-

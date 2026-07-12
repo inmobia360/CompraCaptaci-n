@@ -40,4 +40,3 @@
 - Búsqueda de referencias al banner/modal y funciones de consentimiento propias: sin referencias activas.
 - Búsqueda de rastreadores conocidos: sin implementaciones activas.
 - PHP CLI no estaba disponible en el entorno local; se verificaron el equilibrio de bloques PHP y las modificaciones por inspección estática. Debe ejecutarse `php -l` en staging o CI antes de producción.
-
