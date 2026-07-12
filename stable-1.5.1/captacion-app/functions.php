@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -2714,6 +2714,321 @@ function captacion_app_merge_non_empty_payload($primary, $fallback) {
     return $merged;
 }
 
+/**
+ * Capa 1: Parser XML -> JSON crudo
+ * Convierte un bloque XML en un formato de datos crudos (JSON/array).
+ */
+function captacion_app_parse_xml_to_json($raw_xml, $source_url = '') {
+    libxml_use_internal_errors(true);
+    $xml = simplexml_load_string($raw_xml, 'SimpleXMLElement', LIBXML_NONET);
+    if ($xml === false) {
+        libxml_clear_errors();
+        return new WP_Error('captacion_xml_parse_fail', 'No se pudo interpretar el XML provisto.');
+    }
+    libxml_clear_errors();
+    
+    $candidate_names = array('property', 'realty', 'offer', 'listing', 'item', 'ad', 'object', 'estate');
+    $nodes = array();
+    foreach ($candidate_names as $name) {
+        foreach ($xml->xpath('//*[local-name()="' . $name . '"]') ?: array() as $node) {
+            $nodes[] = $node;
+        }
+    }
+    if (!$nodes && in_array($xml->getName(), $candidate_names, true)) {
+        $nodes[] = $xml;
+    }
+    
+    $raw_records = array();
+    foreach ($nodes as $index => $node) {
+        if (count($raw_records) >= 1000) break; // Límite de salvaguarda
+        
+        $raw_records[] = array(
+            'raw_node' => captacion_app_xml_node_to_array($node),
+            'source_url' => $source_url,
+            'index' => $index
+        );
+    }
+    return $raw_records;
+}
+
+/**
+ * Capa 2: Normalizador de Datos
+ * Sanitiza, limpia, tipa y unifica los campos de la propiedad.
+ */
+function captacion_app_normalize_property_data($raw_record) {
+    $node = $raw_record['raw_node'] ?? array();
+    $source_url = $raw_record['source_url'] ?? '';
+    $index = $raw_record['index'] ?? 0;
+    
+    // Obtener campos utilizando los helpers existentes para mayor compatibilidad
+    $external_id = $node['id'] ?? $node['reference'] ?? $node['ref'] ?? $node['external_id'] ?? $node['mls_id'] ?? $node['codigo'] ?? '';
+    if (empty($external_id)) {
+        $external_id = 'xml-' . ($index + 1);
+    }
+    $external_id = sanitize_text_field((string)$external_id);
+    
+    $record_key = 'xmlurl-' . substr(md5($source_url . '|' . $external_id . '|' . $index), 0, 18);
+    
+    $title = sanitize_text_field((string)($node['title'] ?? $node['name'] ?? $node['headline'] ?? $node['titulo'] ?? $node['nombre'] ?? ''));
+    
+    $description = sanitize_textarea_field((string)($node['description'] ?? $node['desc'] ?? $node['remarks'] ?? $node['text'] ?? $node['notes'] ?? $node['comment'] ?? $node['observations'] ?? $node['notas'] ?? ''));
+    if (empty($description)) {
+        $description = 'Propiedad importada desde feed XML externo.';
+    }
+    
+    // Tipología de inmueble
+    $raw_type = $node['property_type'] ?? $node['type'] ?? $node['category'] ?? $node['tipologia'] ?? $node['tipo'] ?? 'Piso';
+    $type = captacion_app_normalize_property_type($raw_type);
+    if (!in_array($type, captacion_app_property_types(), true)) {
+        $type = 'Piso';
+    }
+    
+    // Operación
+    $raw_op = $node['operation'] ?? $node['transaction'] ?? $node['offer_type'] ?? $node['operacion'] ?? $node['tipo_operacion'] ?? $node['transaction_type'] ?? '';
+    $price_freq = $node['price_freq'] ?? $node['price_period'] ?? '';
+    $operation = captacion_app_xml_operation_value($raw_op, $price_freq);
+    
+    // Precios y superficie (numéricos)
+    $raw_price = $node['price'] ?? $node['amount'] ?? $node['value'] ?? $node['precio'] ?? $node['preu'] ?? $node['cost'] ?? $node['importe'] ?? $node['pvp'] ?? '0';
+    $price = floatval(preg_replace('/[^\d\.]/', '', (string)$raw_price)) ?: 0.0;
+    
+    $raw_surface = $node['surface'] ?? $node['area'] ?? $node['built_area'] ?? $node['size'] ?? $node['superficie'] ?? $node['metros'] ?? $node['m2'] ?? $node['total_area'] ?? '0';
+    $surface = floatval(preg_replace('/[^\d\.]/', '', (string)$raw_surface)) ?: 0.0;
+    
+    // Distribución
+    $rooms = absint($node['rooms'] ?? $node['bedrooms'] ?? $node['beds'] ?? $node['habitaciones'] ?? $node['dormitorios'] ?? 0);
+    $bathrooms = absint($node['bathrooms'] ?? $node['baths'] ?? $node['banos'] ?? $node['baños'] ?? $node['bathroom'] ?? $node['toilets'] ?? 0);
+    
+    // Localización
+    $municipality = sanitize_text_field((string)($node['city'] ?? $node['municipality'] ?? $node['town'] ?? $node['locality'] ?? $node['ciudad'] ?? $node['poblacion'] ?? $node['localidad'] ?? $node['municipio'] ?? ''));
+    $province = sanitize_text_field((string)($node['province'] ?? $node['region'] ?? $node['state'] ?? $node['provincia'] ?? ''));
+    $postal_code = sanitize_text_field((string)($node['postcode'] ?? $node['postal_code'] ?? $node['postalCode'] ?? $node['zip'] ?? $node['zipcode'] ?? $node['codigo_postal'] ?? $node['cp'] ?? $node['codigopostal'] ?? $node['postal'] ?? ''));
+    $locality = sanitize_text_field((string)($node['zone'] ?? $node['area'] ?? $node['district'] ?? $node['neighborhood'] ?? $node['barrio'] ?? $node['zona'] ?? $node['quarter'] ?? $node['ward'] ?? ''));
+    
+    // Comunidad Autónoma basada en Provincia
+    $ccaa = '';
+    if (!empty($province)) {
+        $ccaa = captacion_app_get_ccaa_by_province($province);
+    }
+    
+    if (!$title) {
+        $title = trim(mb_substr($description, 0, 80) . ($municipality ? ' en ' . $municipality : '') . ' - Ref. ' . $external_id);
+    }
+    
+    // Coordenadas
+    $latitude = sanitize_text_field((string)($node['latitude'] ?? ''));
+    $longitude = sanitize_text_field((string)($node['longitude'] ?? ''));
+    
+    // Imágenes
+    $images = array();
+    if (isset($node['images']) && is_array($node['images'])) {
+        foreach ($node['images'] as $img) {
+            $url = esc_url_raw(trim((string)$img));
+            if ($url) $images[] = $url;
+        }
+    } elseif (isset($node['image'])) {
+        $url = esc_url_raw(trim((string)$node['image']));
+        if ($url) $images[] = $url;
+    }
+    
+    // Si no tiene imágenes resueltas, escaneamos recursivamente el nodo original
+    if (empty($images)) {
+        $images = captacion_app_extract_images_from_array($node);
+    }
+    
+    return array(
+        'id' => $external_id,
+        'external_id' => $external_id,
+        'record_key' => $record_key,
+        'title' => $title,
+        'description' => $description,
+        'property_type' => $type,
+        'type' => $type,
+        'operation' => $operation,
+        'price' => $price,
+        'indicative_price' => $price,
+        'currency' => sanitize_text_field((string)($node['currency'] ?? 'EUR')),
+        'country' => sanitize_text_field((string)($node['country'] ?? 'España')),
+        'ccaa' => $ccaa,
+        'province' => $province,
+        'municipality' => $municipality,
+        'postal_code' => $postal_code,
+        'postalCode' => $postal_code,
+        'locality' => $locality,
+        'surface' => $surface,
+        'rooms' => $rooms,
+        'bathrooms' => $bathrooms,
+        'latitude' => $latitude,
+        'longitude' => $longitude,
+        'images' => $images,
+        'image' => !empty($images) ? $images[0] : '',
+        'source_data' => $node,
+        'source_url' => esc_url_raw($source_url),
+        'imported_at' => current_time('mysql'),
+        'updated_at' => current_time('mysql'),
+    );
+}
+
+// Función auxiliar para resolver CCAA por provincia
+function captacion_app_get_ccaa_by_province($province) {
+    $prov = strtolower(remove_accents($province));
+    $map = array(
+        'galicia' => array('a coruna', 'lugo', 'ourense', 'pontevedra', 'coruna', 'la coruña'),
+        'andalucia' => array('almeria', 'cadiz', 'cordoba', 'granada', 'huelva', 'jaen', 'malaga', 'sevilla'),
+        'aragon' => array('huesca', 'teruel', 'zaragoza'),
+        'asturias' => array('asturias'),
+        'baleares' => array('baleares', 'islas baleares', 'palma'),
+        'canarias' => array('las palmas', 'santa cruz de tenerife', 'tenerife'),
+        'cantabria' => array('cantabria'),
+        'castilla y leon' => array('avila', 'burgos', 'leon', 'palencia', 'salamanca', 'segovia', 'soria', 'valladolid', 'zamora'),
+        'castilla-la mancha' => array('albacete', 'ciudad real', 'cuenca', 'guadalajara', 'toledo'),
+        'catalunya' => array('barcelona', 'girona', 'lleida', 'tarragona', 'cataluna'),
+        'comunidad valenciana' => array('alicante', 'castellon', 'valencia'),
+        'extremadura' => array('badajoz', 'caceres'),
+        'madrid' => array('madrid'),
+        'murcia' => array('murcia'),
+        'navarra' => array('navarra'),
+        'pais vasco' => array('araba', 'alava', 'bizkaia', 'vizcaya', 'gipuzkoa', 'guipuzcoa'),
+        'la rioja' => array('rioja', 'la rioja'),
+    );
+    foreach ($map as $ccaa => $provinces) {
+        if (in_array($prov, $provinces, true)) return $ccaa;
+    }
+    return '';
+}
+
+// Auxiliar para extraer urls de imágenes recursivamente de un array crudo
+function captacion_app_extract_images_from_array($arr) {
+    $images = array();
+    if (!is_array($arr)) return $images;
+    foreach ($arr as $key => $val) {
+        if (is_array($val)) {
+            $images = array_merge($images, captacion_app_extract_images_from_array($val));
+        } else {
+            $val_str = trim((string)$val);
+            if (preg_match('/^https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp)(?:\?.*)?$/i', $val_str)) {
+                $images[] = esc_url_raw($val_str);
+            }
+        }
+    }
+    return array_values(array_unique($images));
+}
+
+/**
+ * Capa 3: Validador y Persistencia (Upsert con soporte de Overrides manuales)
+ * Valida los campos, registra advertencias e inserta/actualiza en la BD.
+ */
+function captacion_app_store_imported_property($normalized_data, $context) {
+    global $wpdb;
+    $table = captacion_app_records_table_name();
+    
+    $user_id = absint($context['user_id'] ?? get_current_user_id());
+    $user = get_userdata($user_id);
+    $user_email = $user ? $user->user_email : '';
+    $import_batch_id = $context['import_batch_id'] ?? '';
+    $data_origin = $context['data_origin'] ?? 'xml_url';
+    $is_demo = !empty($context['is_demo']) ? 1 : 0;
+    $privacy_scope = $context['privacy_scope'] ?? 'private_user';
+    $owner_user_id = absint($context['owner_user_id'] ?? $user_id);
+    $source_file_name = sanitize_text_field($context['source_file_name'] ?? '');
+    $source_hash = $context['source_hash'] ?? '';
+    
+    // Ejecutar validación de campos requeridos
+    $missing_fields = captacion_app_property_marketplace_missing_fields($normalized_data);
+    
+    $warnings = array();
+    if (in_array('price', $missing_fields, true)) $warnings[] = 'Falta precio o valor indicativo.';
+    if (in_array('postal_code', $missing_fields, true)) $warnings[] = 'Falta código postal.';
+    if (in_array('location', $missing_fields, true)) $warnings[] = 'Falta localización (provincia o municipio).';
+    if (in_array('surface', $missing_fields, true)) $warnings[] = 'Falta superficie en metros cuadrados.';
+    if (in_array('rooms', $missing_fields, true)) $warnings[] = 'Falta número de habitaciones.';
+    if (in_array('bathrooms', $missing_fields, true)) $warnings[] = 'Falta número de baños.';
+    
+    // Determinación del estado según validación
+    $status = empty($missing_fields) ? 'active' : 'pending_review';
+    
+    // Completar campos contextuales en el payload
+    $normalized_data['missing_fields'] = $missing_fields;
+    $normalized_data['warnings'] = $warnings;
+    $normalized_data['status'] = $status;
+    $normalized_data['publication_status'] = $status;
+    $normalized_data['owner_user_id'] = $owner_user_id;
+    $normalized_data['user_id'] = $user_id;
+    $normalized_data['feed_id'] = $import_batch_id;
+    $normalized_data['import_batch_id'] = $import_batch_id;
+    $normalized_data['data_origin'] = $data_origin;
+    $normalized_data['is_demo'] = $is_demo;
+    
+    $record_type = 'property';
+    $record_key = $normalized_data['record_key'];
+    $title = $normalized_data['title'];
+    $related_id = $normalized_data['external_id'];
+    $now = current_time('mysql');
+    
+    $row_data = array(
+        'record_type' => $record_type,
+        'record_key' => $record_key,
+        'user_id' => $user_id,
+        'user_email' => $user_email,
+        'title' => $title,
+        'status' => $status,
+        'related_id' => $related_id,
+        'payload' => '', // Se establecerá abajo
+        'owner_user_id' => $owner_user_id,
+        'created_by' => $user_id,
+        'import_batch_id' => $import_batch_id,
+        'data_origin' => $data_origin,
+        'is_demo' => $is_demo,
+        'privacy_scope' => $privacy_scope,
+        'source_file_name' => $source_file_name,
+        'source_hash' => $source_hash,
+        'updated_at' => $now,
+    );
+    
+    $existing_id = $wpdb->get_var($wpdb->prepare(
+        "SELECT id FROM {$table} WHERE record_type = %s AND record_key = %s",
+        $record_type, $record_key
+    ));
+    
+    if ($existing_id) {
+        $existing_payload_json = $wpdb->get_var($wpdb->prepare("SELECT payload FROM {$table} WHERE id = %d", absint($existing_id)));
+        $existing_payload = json_decode($existing_payload_json ?: '{}', true);
+        if (is_array($existing_payload)) {
+            if (!empty($existing_payload['manual_override'])) {
+                $normalized_data['xml_update_pending'] = true;
+                $normalized_data['xml_pending_payload'] = wp_json_encode($normalized_data);
+                $normalized_data = array_merge($normalized_data, $existing_payload);
+                $normalized_data['xml_update_pending'] = true;
+                $row_data['status'] = sanitize_text_field($existing_payload['status'] ?? $row_data['status']);
+            } else {
+                $normalized_data = captacion_app_merge_non_empty_payload($normalized_data, $existing_payload);
+                if (!empty($existing_payload['title'])) {
+                    $row_data['title'] = sanitize_text_field($existing_payload['title']);
+                }
+                if (!empty($existing_payload['status'])) {
+                    $row_data['status'] = sanitize_text_field($existing_payload['status']);
+                }
+            }
+        }
+        $row_data['payload'] = wp_json_encode($normalized_data);
+        $wpdb->update($table, $row_data, array('id' => $existing_id));
+        $action_result = 'updated';
+    } else {
+        $row_data['payload'] = wp_json_encode($normalized_data);
+        $row_data['created_at'] = $now;
+        $wpdb->insert($table, $row_data);
+        $action_result = 'inserted';
+    }
+    
+    return array(
+        'id' => $existing_id ?: $wpdb->insert_id,
+        'action' => $action_result,
+        'status' => $row_data['status'],
+        'warnings' => $warnings,
+        'missing_fields' => $missing_fields
+    );
+}
+
 function captacion_app_import_records_from_xml($parsed, $overrides) {
     global $wpdb;
     $table = captacion_app_records_table_name();
@@ -2727,96 +3042,92 @@ function captacion_app_import_records_from_xml($parsed, $overrides) {
     $owner_user_id = absint($overrides['owner_user_id'] ?? $user_id);
     $source_file_name = sanitize_text_field($overrides['source_file_name'] ?? '');
     $source_hash = $overrides['source_hash'] ?? '';
+    
     $imported = 0;
     $updated = 0;
     $pending_review = 0;
     $rejected = 0;
     $errors = array();
-    foreach ($parsed['records'] as $rec) {
+    
+    foreach ($parsed['records'] as $index => $rec) {
         $record_type = sanitize_key($rec['record_type']);
         $record_key = sanitize_text_field($rec['record_key']);
-        $payload_raw = is_array($rec['payload']) ? $rec['payload'] : array();
-        if (!in_array($data_origin, array('xml_url', 'xml_file', 'csv_file', 'json_file', 'webhook'), true) && in_array($record_type, array('property', 'need'), true)) {
-            $sanitized = captacion_app_sanitize_real_estate_payload($record_type, $payload_raw);
-            if (is_wp_error($sanitized)) {
-                $rejected++;
-                $errors[] = array('key' => $record_key, 'error' => $sanitized->get_error_message());
-                continue;
-            }
-            $payload_raw = $sanitized;
-        }
-        if ($record_type === 'property' && in_array($data_origin, array('xml_url', 'xml_file', 'csv_file', 'json_file', 'webhook'), true)) {
-            $payload_raw = captacion_app_prepare_imported_property_payload($payload_raw, array(
-                'owner_user_id' => $owner_user_id,
+        
+        if ($record_type !== 'property') {
+            // Lógica no-propiedad para compatibilidad con otros tipos si procede
+            $payload_raw = is_array($rec['payload']) ? $rec['payload'] : array();
+            $title = sanitize_text_field($rec['title'] ?: ($payload_raw['title'] ?? ''));
+            $status = sanitize_text_field($payload_raw['status'] ?? $rec['status'] ?? '');
+            $related_id = sanitize_text_field($rec['related_id'] ?: ($payload_raw['related_id'] ?? ''));
+            $now = current_time('mysql');
+            $row = array(
+                'record_type' => $record_type,
+                'record_key' => $record_key,
                 'user_id' => $user_id,
+                'user_email' => $user_email,
+                'title' => $title,
+                'status' => $status,
+                'related_id' => $related_id,
+                'payload' => wp_json_encode($payload_raw),
+                'created_at' => $now,
+                'updated_at' => $now,
+                'owner_user_id' => $owner_user_id,
+                'created_by' => $user_id,
                 'import_batch_id' => $import_batch_id,
                 'data_origin' => $data_origin,
                 'is_demo' => $is_demo,
-            ));
-            if (($payload_raw['status'] ?? '') === 'pending_review') $pending_review++;
+                'privacy_scope' => $privacy_scope,
+                'consent_status' => $overrides['consent_status'] ?? '',
+                'source_file_name' => $source_file_name,
+                'source_hash' => $source_hash,
+                'deleted_at' => null,
+            );
+            $result = captacion_app_upsert_record($row);
+            if (is_wp_error($result)) {
+                $rejected++;
+                $errors[] = array('key' => $record_key, 'error' => $result->get_error_message());
+            } else {
+                $imported++;
+            }
+            continue;
         }
-        $title = sanitize_text_field($rec['title'] ?: ($payload_raw['title'] ?? ''));
-        $status = sanitize_text_field($payload_raw['status'] ?? $rec['status'] ?? '');
-        $related_id = sanitize_text_field($rec['related_id'] ?: ($payload_raw['related_id'] ?? ''));
-        $now = current_time('mysql');
-        $row = array(
-            'record_type' => $record_type,
-            'record_key' => $record_key,
+        
+        // Es una propiedad: pasamos por nuestro normalizador y persistencia robusta
+        $raw_record = array(
+            'raw_node' => $rec['payload'] ?? $rec,
+            'source_url' => $source_file_name,
+            'index' => $index
+        );
+        $normalized = captacion_app_normalize_property_data($raw_record);
+        
+        $result = captacion_app_store_imported_property($normalized, array(
             'user_id' => $user_id,
-            'user_email' => $user_email,
-            'title' => $title,
-            'status' => $status,
-            'related_id' => $related_id,
-            'payload' => wp_json_encode($payload_raw),
-            'created_at' => $now,
-            'updated_at' => $now,
-            'owner_user_id' => $owner_user_id,
-            'created_by' => $user_id,
             'import_batch_id' => $import_batch_id,
             'data_origin' => $data_origin,
             'is_demo' => $is_demo,
             'privacy_scope' => $privacy_scope,
-            'consent_status' => $overrides['consent_status'] ?? '',
+            'owner_user_id' => $owner_user_id,
             'source_file_name' => $source_file_name,
-            'source_hash' => $source_hash,
-            'deleted_at' => null,
-        );
-        $existing_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM {$table} WHERE record_type = %s AND record_key = %s",
-            $record_type, $record_key
+            'source_hash' => $source_hash
         ));
-        if ($existing_id) {
-            $existing_payload_json = $wpdb->get_var($wpdb->prepare("SELECT payload FROM {$table} WHERE id = %d", absint($existing_id)));
-            $existing_payload = json_decode($existing_payload_json ?: '{}', true);
-            if ($record_type === 'property' && is_array($existing_payload)) {
-                if (!empty($existing_payload['manual_override'])) {
-                    $payload_raw['xml_update_pending'] = true;
-                    $payload_raw['xml_pending_payload'] = $row['payload'];
-                    $payload_raw = array_merge($payload_raw, $existing_payload);
-                    $payload_raw['xml_update_pending'] = true;
-                    $row['payload'] = wp_json_encode($payload_raw);
-                    $row['status'] = sanitize_text_field($existing_payload['status'] ?? $row['status']);
-                } else {
-                    $payload_raw = captacion_app_merge_non_empty_payload($payload_raw, $existing_payload);
-                    $row['payload'] = wp_json_encode($payload_raw);
-                    if (empty($row['title']) && !empty($existing_payload['title'])) {
-                        $row['title'] = sanitize_text_field($existing_payload['title']);
-                    }
-                    if (empty($row['status']) && !empty($existing_payload['status'])) {
-                        $row['status'] = sanitize_text_field($existing_payload['status']);
-                    }
-                }
+        
+        if ($result['action'] === 'updated') {
+            $updated++;
+        } else {
+            $imported++;
+        }
+        
+        if ($result['status'] === 'pending_review') {
+            $pending_review++;
+            if (!empty($result['warnings'])) {
+                $errors[] = array(
+                    'key' => $normalized['external_id'],
+                    'error' => 'Advertencias: ' . implode(' ', $result['warnings'])
+                );
             }
         }
-        $result = captacion_app_upsert_record($row);
-        if (is_wp_error($result)) {
-            $rejected++;
-            $errors[] = array('key' => $record_key, 'error' => $result->get_error_message());
-        } else {
-            if ($existing_id) $updated++;
-            else $imported++;
-        }
     }
+    
     return array(
         'imported' => $imported,
         'updated' => $updated,
@@ -3110,87 +3421,25 @@ function captacion_app_parse_json_properties($raw_json, $source_name) {
 }
 
 function captacion_app_parse_external_xml_properties($raw_xml, $source_url) {
-    libxml_use_internal_errors(true);
-    $xml = simplexml_load_string($raw_xml, 'SimpleXMLElement', LIBXML_NONET);
-    if ($xml === false) {
-        libxml_clear_errors();
-        return new WP_Error('captacion_xml_external_parse', 'No se pudo interpretar el XML descargado.', array('status' => 400));
+    $raw_records = captacion_app_parse_xml_to_json($raw_xml, $source_url);
+    if (is_wp_error($raw_records)) {
+        return new WP_Error('captacion_xml_external_parse', $raw_records->get_error_message(), array('status' => 400));
     }
-    libxml_clear_errors();
-    $candidate_names = array('property', 'realty', 'offer', 'listing', 'item', 'ad', 'object', 'estate');
-    $nodes = array();
-    foreach ($candidate_names as $name) {
-        foreach ($xml->xpath('//*[local-name()="' . $name . '"]') ?: array() as $node) $nodes[] = $node;
-    }
-    if (!$nodes && in_array($xml->getName(), $candidate_names, true)) $nodes[] = $xml;
     $records = array();
     $seen = array();
-    foreach ($nodes as $index => $node) {
-        if (count($records) >= CAPTACION_XML_MAX_RECORDS) break;
-        $external_id = captacion_app_xml_child_value($node, array('id', 'reference', 'ref', 'external_id', 'mls_id', 'codigo', 'cod', 'ID'), 'xml-' . ($index + 1));
-        $record_key = 'xmlurl-' . substr(md5($source_url . '|' . $external_id . '|' . $index), 0, 18);
-        if (isset($seen[$record_key])) continue;
-        $seen[$record_key] = true;
-        $title = captacion_app_xml_child_value($node, array('title', 'name', 'headline', 'notes', 'titulo', 'heading', 'subject', 'summary', 'nombre'), '');
-        $description = captacion_app_xml_desc_value($node) ?: captacion_app_xml_child_value($node, array('description', 'desc', 'remarks', 'text', 'notes', 'comment', 'observations', 'notas'), 'Propiedad importada desde feed XML externo.');
-        $type = captacion_app_normalize_property_type(captacion_app_xml_child_value($node, array('property_type', 'type', 'category', 'tipologia', 'tipo'), 'Piso'));
-        if (!in_array($type, captacion_app_property_types(), true)) $type = 'Piso';
-        $price = captacion_app_xml_number_value(captacion_app_xml_child_value($node, array('price', 'amount', 'value', 'precio', 'preu', 'cost', 'importe', 'pvp'), '0'));
-        $surface = captacion_app_xml_number_value(captacion_app_xml_child_value($node, array('surface', 'area', 'built_area', 'size', 'superficie', 'metros', 'm2', 'total_area'), captacion_app_xml_nested_child_value($node, array('surface_area/built', 'surface_area/plot', 'surface_area'), '0')));
-        $municipality = captacion_app_xml_child_value($node, array('city', 'municipality', 'town', 'locality', 'ciudad', 'poblacion', 'localidad', 'municipio'), captacion_app_xml_nested_child_value($node, array('location/town', 'location/city', 'location/locality'), ''));
-        $province = captacion_app_xml_child_value($node, array('province', 'region', 'state', 'provincia'), captacion_app_xml_nested_child_value($node, array('location/province', 'location/region'), ''));
-        $postal_code = captacion_app_xml_child_value($node, array('postcode', 'postal_code', 'postalCode', 'zip', 'zipcode', 'codigo_postal', 'cp', 'codigopostal', 'postal'), captacion_app_xml_nested_child_value($node, array('location/postcode', 'location/postal_code', 'location/postalCode', 'location/zip', 'location/zipcode', 'location/codigo_postal', 'location/cp'), ''));
-        $locality = captacion_app_xml_child_value($node, array('zone', 'area', 'district', 'neighborhood', 'barrio', 'zona', 'quarter', 'ward'), captacion_app_xml_nested_child_value($node, array('location/zone', 'location/area', 'location/district', 'location/neighborhood', 'location/barrio', 'location/zona'), ''));
-        if (!$title) $title = trim(($description ? mb_substr(sanitize_text_field($description), 0, 80) : $type) . ($municipality ? ' en ' . $municipality : '') . ($external_id ? ' - Ref. ' . $external_id : ''));
-        if (!$title) $title = 'Propiedad importada XML';
-        $operation = captacion_app_xml_operation_value(captacion_app_xml_child_value($node, array('operation', 'transaction', 'offer_type', 'operacion', 'tipo_operacion', 'transaction_type'), ''), captacion_app_xml_child_value($node, array('price_freq', 'price_period'), ''));
-        $rooms = absint(captacion_app_xml_child_value($node, array('rooms', 'bedrooms', 'beds', 'habitaciones', 'dormitorios', 'room', 'bedroom'), '0'));
-        $bathrooms = absint(captacion_app_xml_child_value($node, array('bathrooms', 'baths', 'banos', 'baños', 'bathroom', 'toilets'), '0'));
-        $images = captacion_app_xml_image_urls($node);
-        $payload = array(
-            'id' => $external_id,
-            'external_id' => $external_id,
-            'title' => $title,
-            'description' => sanitize_textarea_field($description),
-            'property_type' => $type,
-            'type' => $type,
-            'operation' => $operation,
-            'price' => $price,
-            'indicative_price' => $price,
-            'currency' => captacion_app_xml_child_value($node, array('currency'), 'EUR'),
-            'country' => captacion_app_xml_child_value($node, array('country'), captacion_app_xml_nested_child_value($node, array('location/country'), '')),
-            'province' => $province,
-            'municipality' => $municipality,
-            'postalCode' => $postal_code,
-            'postal_code' => $postal_code,
-            'postcode' => $postal_code,
-            'zipCode' => $postal_code,
-            'zip' => $postal_code,
-            'codigoPostal' => $postal_code,
-            'locality' => $locality,
-            'zone' => $locality,
-            'neighborhood' => $locality,
-            'address_approx' => captacion_app_xml_child_value($node, array('address', 'street', 'location_detail'), captacion_app_xml_nested_child_value($node, array('location/address'), '')),
-            'surface' => $surface,
-            'total_area_m2' => $surface,
-            'rooms' => $rooms,
-            'bedrooms' => $rooms,
-            'bathrooms' => $bathrooms,
-            'latitude' => captacion_app_xml_nested_child_value($node, array('location/latitude', 'latitude'), ''),
-            'longitude' => captacion_app_xml_nested_child_value($node, array('location/longitude', 'longitude'), ''),
-            'image' => !empty($images) ? $images[0] : captacion_app_xml_first_image($node),
-            'images' => $images,
-            'gallery' => $images,
-            'source_data' => captacion_app_xml_node_to_array($node),
-            'source_email' => captacion_app_xml_child_value($node, array('email', 'contact_email', 'mail'), ''),
-            'source_phone' => captacion_app_xml_child_value($node, array('contact_number', 'phone', 'telephone', 'telefono', 'tel'), ''),
-            'source_whatsapp' => captacion_app_xml_child_value($node, array('whatsapp_number', 'whatsapp', 'whatsapp_phone'), ''),
-            'source_url' => esc_url_raw($source_url),
-            'publication_status' => 'active',
-            'imported_at' => current_time('mysql'),
-            'updated_at' => current_time('mysql'),
+    foreach ($raw_records as $raw) {
+        $normalized = captacion_app_normalize_property_data($raw);
+        if (isset($seen[$normalized['record_key']])) continue;
+        $seen[$normalized['record_key']] = true;
+        
+        $records[] = array(
+            'record_type' => 'property',
+            'record_key' => $normalized['record_key'],
+            'title' => $normalized['title'],
+            'status' => $normalized['status'],
+            'related_id' => $normalized['external_id'],
+            'payload' => $normalized
         );
-        $records[] = array('record_type' => 'property', 'record_key' => $record_key, 'title' => $title, 'status' => 'active', 'related_id' => $external_id, 'payload' => $payload);
     }
     return array('schemaVersion' => 'external-url-1.0', 'dataOrigin' => 'xml_url', 'privacyScope' => 'private_user', 'records' => $records, 'total' => count($records));
 }
