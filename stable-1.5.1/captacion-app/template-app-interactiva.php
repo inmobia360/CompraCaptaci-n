@@ -3299,7 +3299,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
   </script>
 
   <!-- Lógica completa de negocio, geografía y servicios IA en un script unificado -->
-  <script>
+  <script data-cmplz="ignore">
     // ==========================================
     // 1. CAT?LOGO TERRITORIAL DE ESPAÑA
     // ==========================================
