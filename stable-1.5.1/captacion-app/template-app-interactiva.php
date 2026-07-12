@@ -3738,6 +3738,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
     // 5. ENRUTADOR INTERNO (CON RESPALDO SEGURO ANTE SANDBOX IFRAMES)
     // ==========================================
     function handleRoute() {
+      try {
       let hash = '#/inicio';
       try {
         hash = window.location.hash || currentHash;
@@ -3805,6 +3806,11 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
           link.classList.add('text-slate-600', 'border-transparent');
         }
       });
+      } catch (error) {
+        console.warn('[captacion] handleRoute', error);
+        document.getElementById('page-inicio')?.classList.remove('hidden');
+        document.getElementById('global-conversion-cta')?.classList.remove('hidden');
+      }
     }
 
     // --- MENÚ MÓVIL ---
@@ -10542,6 +10548,14 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
 
     function applyInternalPilotMessaging() {}
 
+    function captacionSafeRun(label, fn) {
+      try {
+        fn();
+      } catch (error) {
+        console.warn(`[captacion] ${label}`, error);
+      }
+    }
+
 
     // --- INICIALIZADOR DE LA PLATAFORMA ---
     function showEmailVerificationResult() {
@@ -10559,49 +10573,51 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
     }
 
     function initApp() {
-      applyTheme(getCurrentTheme(), false);
-      const storedSession = getDemoSession();
-      if (storedSession && !storedSession.emailVerified) localStorage.removeItem('captacion_demo_session_v4');
-      ensureWordPressSession();
-      startRegistrationPromptCycle();
-      window.addEventListener('hashchange', handleRoute);
-      if (!window.location.hash) {
-        try {
-          window.location.hash = '#/inicio';
-        } catch (e) {}
-      }
-      handleRoute();
-      repairMojibakeInDOM();
-      initGeoSelectors();
-      initTerritorySelectors();
-      updatePropertyFormDynamics('need');
-      updatePropertyFormDynamics('offer');
-      filterNeeds();
-      renderMarketplace();
-      renderDashboard();
-      renderHome();
-      applyInternalPilotMessaging();
-      calculateSplit();
-      initResourcesToolbox();
-      showEmailVerificationResult();
-      activateProfessionalMembershipFromReturn();
-      loadPrivateXmlUrl();
-      renderAIConnections();
-      fetchMarketplaceAccessState().then(() => { applyDashboardPlanAccess(); loadWordPressTasks(); }).catch(() => applyDashboardPlanAccess());
-      loadWordPressRealEstateRecords();
-      document.getElementById('menu-btn')?.addEventListener('click', toggleMenu);
-      removeLegacyCookiePreferences();
-      window.addEventListener('storage', () => {
-        if (CAPTACION_PRODUCTION_MODE) return;
-        try { properties = (JSON.parse(localStorage.getItem('captacion_properties_v3')) || []).map(normalizePropertyRecord); } catch (e) {}
-        try { needs = (JSON.parse(localStorage.getItem('captacion_needs_v3')) || []).map(normalizeNeedRecord); } catch (e) {}
-        try { closedOperations = JSON.parse(localStorage.getItem('captacion_closed_operations_v4')) || []; } catch (e) {}
-        renderMarketplace();
-        renderDashboard();
-        filterNeeds();
-        renderHome();
-        applyInternalPilotMessaging();
+      captacionSafeRun('applyTheme', () => applyTheme(getCurrentTheme(), false));
+      captacionSafeRun('clear stale session', () => {
+        const storedSession = getDemoSession();
+        if (storedSession && !storedSession.emailVerified) localStorage.removeItem('captacion_demo_session_v4');
       });
+      captacionSafeRun('ensureWordPressSession', ensureWordPressSession);
+      captacionSafeRun('startRegistrationPromptCycle', startRegistrationPromptCycle);
+      captacionSafeRun('bind hashchange', () => window.addEventListener('hashchange', handleRoute));
+      captacionSafeRun('default hash', () => {
+        if (!window.location.hash) window.location.hash = '#/inicio';
+      });
+      captacionSafeRun('handleRoute', handleRoute);
+      captacionSafeRun('repairMojibakeInDOM', repairMojibakeInDOM);
+      captacionSafeRun('initGeoSelectors', initGeoSelectors);
+      captacionSafeRun('initTerritorySelectors', initTerritorySelectors);
+      captacionSafeRun('updatePropertyFormDynamics need', () => updatePropertyFormDynamics('need'));
+      captacionSafeRun('updatePropertyFormDynamics offer', () => updatePropertyFormDynamics('offer'));
+      captacionSafeRun('filterNeeds', filterNeeds);
+      captacionSafeRun('renderMarketplace', renderMarketplace);
+      captacionSafeRun('renderDashboard', renderDashboard);
+      captacionSafeRun('renderHome', renderHome);
+      captacionSafeRun('applyInternalPilotMessaging', applyInternalPilotMessaging);
+      captacionSafeRun('calculateSplit', calculateSplit);
+      captacionSafeRun('initResourcesToolbox', initResourcesToolbox);
+      captacionSafeRun('showEmailVerificationResult', showEmailVerificationResult);
+      captacionSafeRun('activateProfessionalMembershipFromReturn', activateProfessionalMembershipFromReturn);
+      captacionSafeRun('loadPrivateXmlUrl', loadPrivateXmlUrl);
+      captacionSafeRun('renderAIConnections', renderAIConnections);
+      captacionSafeRun('loadWordPressRealEstateRecords', loadWordPressRealEstateRecords);
+      captacionSafeRun('bind menu button', () => document.getElementById('menu-btn')?.addEventListener('click', toggleMenu));
+      captacionSafeRun('removeLegacyCookiePreferences', removeLegacyCookiePreferences);
+      captacionSafeRun('bind storage', () => {
+        window.addEventListener('storage', () => {
+          if (CAPTACION_PRODUCTION_MODE) return;
+          try { properties = (JSON.parse(localStorage.getItem('captacion_properties_v3')) || []).map(normalizePropertyRecord); } catch (e) {}
+          try { needs = (JSON.parse(localStorage.getItem('captacion_needs_v3')) || []).map(normalizeNeedRecord); } catch (e) {}
+          try { closedOperations = JSON.parse(localStorage.getItem('captacion_closed_operations_v4')) || []; } catch (e) {}
+          captacionSafeRun('renderMarketplace(storage)', renderMarketplace);
+          captacionSafeRun('renderDashboard(storage)', renderDashboard);
+          captacionSafeRun('filterNeeds(storage)', filterNeeds);
+          captacionSafeRun('renderHome(storage)', renderHome);
+          captacionSafeRun('applyInternalPilotMessaging(storage)', applyInternalPilotMessaging);
+        });
+      });
+      captacionSafeRun('fetchMarketplaceAccessState', () => fetchMarketplaceAccessState().then(() => { applyDashboardPlanAccess(); loadWordPressTasks(); }).catch(() => applyDashboardPlanAccess()));
     }
 
     function forceInitialPageVisibility() {
