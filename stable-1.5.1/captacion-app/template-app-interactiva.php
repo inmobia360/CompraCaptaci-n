@@ -120,7 +120,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
+  <script data-cmplz="ignore">
     tailwind.config = {
       theme: {
         extend: {

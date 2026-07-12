@@ -21,9 +21,9 @@ if (-not (Test-Path -LiteralPath $stylePath -PathType Leaf)) {
     throw "El tema no contiene style.css en la raiz: $stylePath"
 }
 
-$style = Get-Content -LiteralPath $stylePath -Raw
-if ($style -notmatch "Theme Name:\s*Captacion\.app") {
-    throw "style.css no contiene la cabecera esperada de Captacion.app"
+$style = Get-Content -LiteralPath $stylePath -Raw -Encoding UTF8
+if ($style -notmatch "Theme Name:\s*" -or $style -notmatch "Text Domain:\s*captacion-app") {
+    throw "style.css no contiene la cabecera WordPress esperada del tema"
 }
 
 foreach ($path in @($Output, $FolderOutput, $LegacyFlatOutput)) {
