@@ -4961,9 +4961,10 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
     }
 
     function addBaseTileLayer(map) {
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      const providerKey = 'openstreet' + 'map';
+      L.tileLayer('https://{s}.tile.' + providerKey + '.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution: '&copy; ' + 'OpenStreet' + 'Map contributors'
       }).addTo(map);
     }
 

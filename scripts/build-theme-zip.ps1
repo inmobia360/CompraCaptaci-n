@@ -56,7 +56,7 @@ function New-CaptacionZip {
 
         $forbiddenNames = @(".git", "wp-config.php", "uploads", "cache", "tools")
         Get-ChildItem -LiteralPath $tempTheme -Recurse -Force -ErrorAction SilentlyContinue | Where-Object {
-            $forbiddenNames -contains $_.Name -or $_.Name -like "*.log" -or $_.Name -like "*.md"
+            $forbiddenNames -contains $_.Name -or $_.Name -like "*.log" -or $_.Name -like "*.md" -or $_.Name -like "*.mp4"
         } | ForEach-Object {
             Remove-Item -LiteralPath $_.FullName -Recurse -Force
         }
