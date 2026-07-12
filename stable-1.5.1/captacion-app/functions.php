@@ -1585,44 +1585,21 @@ function captacion_app_ensure_user_access_meta($user_id) {
 function captacion_app_get_user_access_state($user_id) {
     $user_id = absint($user_id);
     if (!$user_id) return array('plan_type'=>'basic','included_marketplace_accesses'=>0,'used_marketplace_accesses'=>0,'extra_marketplace_accesses'=>0,'remaining_marketplace_accesses'=>0,'credits_purchased'=>0,'last_reset_at'=>'','subscription_status'=>'guest');
-    captacion_app_ensure_user_access_meta($user_id);
-    if (captacion_app_is_saas_admin($user_id)) {
-        return array(
-            'plan_type' => 'premium',
-            'included_marketplace_accesses' => 999999,
-            'used_marketplace_accesses' => 0,
-            'extra_marketplace_accesses' => 0,
-            'remaining_marketplace_accesses' => 999999,
-            'monthly_consumed_accesses' => 0,
-            'monthly_total_accesses' => 999999,
-            'usage_percentage' => 0,
-            'credits_purchased' => 0,
-            'last_reset_at' => sanitize_text_field((string) get_user_meta($user_id, 'captacion_last_reset_at', true)),
-            'subscription_status' => 'active',
-            'is_saas_admin' => true,
-        );
-    }
-    $plan_type = captacion_app_normalize_user_plan(get_user_meta($user_id, 'captacion_plan_type', true));
-    $included = absint(get_user_meta($user_id, 'captacion_included_marketplace_accesses', true));
-    $used = absint(get_user_meta($user_id, 'captacion_used_marketplace_accesses', true));
-    $extra = absint(get_user_meta($user_id, 'captacion_extra_marketplace_accesses', true));
-    global $wpdb;
-    $month_start = current_time('Y-m-01 00:00:00');
-    $consumed = absint($wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM " . captacion_app_access_log_table_name() . " WHERE user_id = %d AND created_at >= %s", $user_id, $month_start)));
-    $remaining = max(0, $included - $used) + $extra;
-    $capacity = $remaining + $consumed;
+    
+    // Para el MVP gratuito del SaaS, todos los usuarios registrados obtienen acceso premium ilimitado.
     return array(
-        'plan_type' => $plan_type,
-        'included_marketplace_accesses' => $included,
-        'used_marketplace_accesses' => $used,
-        'extra_marketplace_accesses' => $extra,
-        'remaining_marketplace_accesses' => $remaining,
-        'monthly_consumed_accesses' => $consumed,
-        'monthly_total_accesses' => $capacity,
-        'usage_percentage' => $capacity ? min(100, round(($consumed / $capacity) * 100)) : 0,
-        'credits_purchased' => absint(get_user_meta($user_id, 'captacion_credits_purchased', true)),
-        'last_reset_at' => sanitize_text_field((string) get_user_meta($user_id, 'captacion_last_reset_at', true)),
-        'subscription_status' => sanitize_key((string) get_user_meta($user_id, 'captacion_subscription_status', true)),
+        'plan_type' => 'premium',
+        'included_marketplace_accesses' => 999999,
+        'used_marketplace_accesses' => 0,
+        'extra_marketplace_accesses' => 0,
+        'remaining_marketplace_accesses' => 999999,
+        'monthly_consumed_accesses' => 0,
+        'monthly_total_accesses' => 999999,
+        'usage_percentage' => 0,
+        'credits_purchased' => 0,
+        'last_reset_at' => '',
+        'subscription_status' => 'active',
+        'is_saas_admin' => captacion_app_is_saas_admin($user_id),
     );
 }
 
@@ -2765,45 +2742,51 @@ function captacion_app_normalize_property_data($raw_record) {
     if (empty($external_id)) {
         $external_id = 'xml-' . ($index + 1);
     }
-    $external_id = sanitize_text_field((string)$external_id);
+    $external_id = sanitize_text_field(captacion_app_extract_scalar_from_array($external_id));
     
     $record_key = 'xmlurl-' . substr(md5($source_url . '|' . $external_id . '|' . $index), 0, 18);
     
-    $title = sanitize_text_field((string)($node['title'] ?? $node['name'] ?? $node['headline'] ?? $node['titulo'] ?? $node['nombre'] ?? ''));
+    $title = captacion_app_extract_scalar_from_array($node['title'] ?? $node['name'] ?? $node['headline'] ?? $node['titulo'] ?? $node['nombre'] ?? '');
     
-    $description = sanitize_textarea_field((string)($node['description'] ?? $node['desc'] ?? $node['remarks'] ?? $node['text'] ?? $node['notes'] ?? $node['comment'] ?? $node['observations'] ?? $node['notas'] ?? ''));
+    $description = captacion_app_extract_scalar_from_array($node['description'] ?? $node['desc'] ?? $node['remarks'] ?? $node['text'] ?? $node['notes'] ?? $node['comment'] ?? $node['observations'] ?? $node['notas'] ?? '');
     if (empty($description)) {
         $description = 'Propiedad importada desde feed XML externo.';
     }
     
     // Tipología de inmueble
     $raw_type = $node['property_type'] ?? $node['type'] ?? $node['category'] ?? $node['tipologia'] ?? $node['tipo'] ?? 'Piso';
-    $type = captacion_app_normalize_property_type($raw_type);
+    $raw_type_scalar = captacion_app_extract_scalar_from_array($raw_type);
+    $type = captacion_app_normalize_property_type($raw_type_scalar);
     if (!in_array($type, captacion_app_property_types(), true)) {
         $type = 'Piso';
     }
     
     // Operación
-    $raw_op = $node['operation'] ?? $node['transaction'] ?? $node['offer_type'] ?? $node['operacion'] ?? $node['tipo_operacion'] ?? $node['transaction_type'] ?? '';
-    $price_freq = $node['price_freq'] ?? $node['price_period'] ?? '';
+    $raw_op = captacion_app_extract_scalar_from_array($node['operation'] ?? $node['transaction'] ?? $node['offer_type'] ?? $node['operacion'] ?? $node['tipo_operacion'] ?? $node['transaction_type'] ?? '');
+    $price_freq = captacion_app_extract_scalar_from_array($node['price_freq'] ?? $node['price_period'] ?? '');
     $operation = captacion_app_xml_operation_value($raw_op, $price_freq);
     
     // Precios y superficie (numéricos)
     $raw_price = $node['price'] ?? $node['amount'] ?? $node['value'] ?? $node['precio'] ?? $node['preu'] ?? $node['cost'] ?? $node['importe'] ?? $node['pvp'] ?? '0';
-    $price = floatval(preg_replace('/[^\d\.]/', '', (string)$raw_price)) ?: 0.0;
+    $raw_price_scalar = captacion_app_extract_scalar_from_array($raw_price);
+    $price = floatval(preg_replace('/[^\d\.]/', '', $raw_price_scalar)) ?: 0.0;
     
-    $raw_surface = $node['surface'] ?? $node['area'] ?? $node['built_area'] ?? $node['size'] ?? $node['superficie'] ?? $node['metros'] ?? $node['m2'] ?? $node['total_area'] ?? '0';
-    $surface = floatval(preg_replace('/[^\d\.]/', '', (string)$raw_surface)) ?: 0.0;
+    $raw_surface = $node['surface'] ?? $node['area'] ?? $node['built_area'] ?? $node['size'] ?? $node['superficie'] ?? $node['metros'] ?? $node['m2'] ?? $node['total_area'] ?? '';
+    if (is_array($node['surface_area'] ?? null)) {
+        $raw_surface = $node['surface_area']['built'] ?? $node['surface_area']['plot'] ?? $raw_surface;
+    }
+    $raw_surface_scalar = captacion_app_extract_scalar_from_array($raw_surface);
+    $surface = floatval(preg_replace('/[^\d\.]/', '', $raw_surface_scalar)) ?: 0.0;
     
     // Distribución
-    $rooms = absint($node['rooms'] ?? $node['bedrooms'] ?? $node['beds'] ?? $node['habitaciones'] ?? $node['dormitorios'] ?? 0);
-    $bathrooms = absint($node['bathrooms'] ?? $node['baths'] ?? $node['banos'] ?? $node['baños'] ?? $node['bathroom'] ?? $node['toilets'] ?? 0);
+    $rooms = absint(captacion_app_extract_scalar_from_array($node['rooms'] ?? $node['bedrooms'] ?? $node['beds'] ?? $node['habitaciones'] ?? $node['dormitorios'] ?? $node['beds'] ?? 0));
+    $bathrooms = absint(captacion_app_extract_scalar_from_array($node['bathrooms'] ?? $node['baths'] ?? $node['banos'] ?? $node['baños'] ?? $node['bathroom'] ?? $node['toilets'] ?? 0));
     
     // Localización
-    $municipality = sanitize_text_field((string)($node['city'] ?? $node['municipality'] ?? $node['town'] ?? $node['locality'] ?? $node['ciudad'] ?? $node['poblacion'] ?? $node['localidad'] ?? $node['municipio'] ?? ''));
-    $province = sanitize_text_field((string)($node['province'] ?? $node['region'] ?? $node['state'] ?? $node['provincia'] ?? ''));
-    $postal_code = sanitize_text_field((string)($node['postcode'] ?? $node['postal_code'] ?? $node['postalCode'] ?? $node['zip'] ?? $node['zipcode'] ?? $node['codigo_postal'] ?? $node['cp'] ?? $node['codigopostal'] ?? $node['postal'] ?? ''));
-    $locality = sanitize_text_field((string)($node['zone'] ?? $node['area'] ?? $node['district'] ?? $node['neighborhood'] ?? $node['barrio'] ?? $node['zona'] ?? $node['quarter'] ?? $node['ward'] ?? ''));
+    $municipality = sanitize_text_field(captacion_app_extract_scalar_from_array($node['city'] ?? $node['municipality'] ?? $node['town'] ?? $node['locality'] ?? $node['ciudad'] ?? $node['poblacion'] ?? $node['localidad'] ?? $node['municipio'] ?? ''));
+    $province = sanitize_text_field(captacion_app_extract_scalar_from_array($node['province'] ?? $node['region'] ?? $node['state'] ?? $node['provincia'] ?? ''));
+    $postal_code = sanitize_text_field(captacion_app_extract_scalar_from_array($node['postcode'] ?? $node['postal_code'] ?? $node['postalCode'] ?? $node['zip'] ?? $node['zipcode'] ?? $node['codigo_postal'] ?? $node['cp'] ?? $node['codigopostal'] ?? $node['postal'] ?? ''));
+    $locality = sanitize_text_field(captacion_app_extract_scalar_from_array($node['zone'] ?? $node['area'] ?? $node['district'] ?? $node['neighborhood'] ?? $node['barrio'] ?? $node['zona'] ?? $node['quarter'] ?? $node['ward'] ?? ''));
     
     // Comunidad Autónoma basada en Provincia
     $ccaa = '';
@@ -2812,29 +2795,22 @@ function captacion_app_normalize_property_data($raw_record) {
     }
     
     if (!$title) {
-        $title = trim(mb_substr($description, 0, 80) . ($municipality ? ' en ' . $municipality : '') . ' - Ref. ' . $external_id);
+        $title = trim($type . ($municipality ? ' en ' . $municipality : '') . ' - Ref. ' . $external_id);
     }
     
     // Coordenadas
-    $latitude = sanitize_text_field((string)($node['latitude'] ?? ''));
-    $longitude = sanitize_text_field((string)($node['longitude'] ?? ''));
-    
-    // Imágenes
-    $images = array();
-    if (isset($node['images']) && is_array($node['images'])) {
-        foreach ($node['images'] as $img) {
-            $url = esc_url_raw(trim((string)$img));
-            if ($url) $images[] = $url;
-        }
-    } elseif (isset($node['image'])) {
-        $url = esc_url_raw(trim((string)$node['image']));
-        if ($url) $images[] = $url;
+    $latitude = '';
+    $longitude = '';
+    if (is_array($node['location'] ?? null)) {
+        $latitude = captacion_app_extract_scalar_from_array($node['location']['latitude'] ?? '');
+        $longitude = captacion_app_extract_scalar_from_array($node['location']['longitude'] ?? '');
+    } else {
+        $latitude = captacion_app_extract_scalar_from_array($node['latitude'] ?? '');
+        $longitude = captacion_app_extract_scalar_from_array($node['longitude'] ?? '');
     }
     
-    // Si no tiene imágenes resueltas, escaneamos recursivamente el nodo original
-    if (empty($images)) {
-        $images = captacion_app_extract_images_from_array($node);
-    }
+    // Imágenes (recursivas para evitar arrays anidados como URL)
+    $images = captacion_app_extract_images_from_array($node);
     
     return array(
         'id' => $external_id,
@@ -2847,8 +2823,8 @@ function captacion_app_normalize_property_data($raw_record) {
         'operation' => $operation,
         'price' => $price,
         'indicative_price' => $price,
-        'currency' => sanitize_text_field((string)($node['currency'] ?? 'EUR')),
-        'country' => sanitize_text_field((string)($node['country'] ?? 'España')),
+        'currency' => sanitize_text_field(captacion_app_extract_scalar_from_array($node['currency'] ?? 'EUR')),
+        'country' => sanitize_text_field(captacion_app_extract_scalar_from_array($node['country'] ?? 'España')),
         'ccaa' => $ccaa,
         'province' => $province,
         'municipality' => $municipality,
@@ -2867,6 +2843,18 @@ function captacion_app_normalize_property_data($raw_record) {
         'imported_at' => current_time('mysql'),
         'updated_at' => current_time('mysql'),
     );
+}
+
+// Extrae el primer valor string escalar de una estructura de array anidada
+function captacion_app_extract_scalar_from_array($val) {
+    if (!is_array($val)) return trim((string)$val);
+    if (isset($val['es'])) return trim((string)$val['es']);
+    if (isset($val['en'])) return trim((string)$val['en']);
+    foreach ($val as $sub) {
+        $res = captacion_app_extract_scalar_from_array($sub);
+        if ($res !== '') return $res;
+    }
+    return '';
 }
 
 // Función auxiliar para resolver CCAA por provincia
@@ -3001,12 +2989,12 @@ function captacion_app_store_imported_property($normalized_data, $context) {
                 $normalized_data['xml_update_pending'] = true;
                 $row_data['status'] = sanitize_text_field($existing_payload['status'] ?? $row_data['status']);
             } else {
-                $normalized_data = captacion_app_merge_non_empty_payload($normalized_data, $existing_payload);
-                if (!empty($existing_payload['title'])) {
-                    $row_data['title'] = sanitize_text_field($existing_payload['title']);
-                }
-                if (!empty($existing_payload['status'])) {
-                    $row_data['status'] = sanitize_text_field($existing_payload['status']);
+                // Conservar campos del sistema/métricas de visitas
+                $internal_fields = array('views_count', 'favorites_count', 'created_at', 'is_demo');
+                foreach ($internal_fields as $f) {
+                    if (isset($existing_payload[$f])) {
+                        $normalized_data[$f] = $existing_payload[$f];
+                    }
                 }
             }
         }
@@ -6849,3 +6837,18 @@ if (defined('WP_CLI') && WP_CLI) {
     }
     WP_CLI::add_command('captacion territory', 'Captacion_App_Territory_CLI_Command');
 }
+
+add_filter('rest_authentication_errors', function($result) {
+    if (is_wp_error($result) && $result->get_error_code() === 'rest_cookie_invalid_nonce') {
+        $site_host = wp_parse_url(home_url('/'), PHP_URL_HOST);
+        $origin = get_http_origin();
+        $referer = wp_get_referer();
+        $origin_host = $origin ? wp_parse_url($origin, PHP_URL_HOST) : '';
+        $referer_host = $referer ? wp_parse_url($referer, PHP_URL_HOST) : '';
+        $same_origin = $site_host && ($origin_host === $site_host || $referer_host === $site_host);
+        if ($same_origin && is_user_logged_in()) {
+            return null; // Permitir el acceso si el origen coincide y el usuario está logueado
+        }
+    }
+    return $result;
+}, 1001);

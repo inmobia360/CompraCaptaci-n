@@ -168,6 +168,12 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
+    /* Ocultar enlaces de Planes y secciones no deseadas del MVP */
+    a[href="#/planes"], a[href="#/planes-premium"], .plan-link, [href="#/planes"],
+    [data-private-panel="subscriptions"], [data-private-panel="traceability"], [data-private-panel="ai"],
+    option[value="subscriptions"], option[value="traceability"], option[value="ai"] {
+      display: none !important;
+    }
     body {
       font-family: 'Inter', sans-serif;
     }
@@ -3749,7 +3755,12 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       if (!hash.startsWith('#/')) {
         hash = '#/inicio';
       }
-
+      
+      if (hash === '#/planes') {
+        hash = '#/inicio';
+        try { window.location.hash = '#/inicio'; } catch (error) {}
+      }
+      
       currentHash = hash;
 
       // Ocultar todas las páginas
@@ -10400,7 +10411,7 @@ $captacion_rest_nonce = $captacion_is_logged_in ? $captacion_wp_rest_nonce : '';
       const plan = getCurrentPlanType();
       const premium = plan === 'premium';
       const badge = document.getElementById('private-plan-access-badge');
-      if (badge) badge.textContent = `${marketplacePlanLabel(plan)} · ${Number(marketplaceAccessState?.remaining_marketplace_accesses || 0)} accesos`;
+      if (badge) badge.textContent = 'Acceso Premium Ilimitado';
       document.getElementById('private-tasks-premium-content')?.classList.toggle('hidden', !premium);
       document.getElementById('private-tasks-premium-lock')?.classList.toggle('hidden', premium);
       document.getElementById('private-overview-calendar-section')?.classList.toggle('hidden', !premium);
